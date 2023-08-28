@@ -26,8 +26,7 @@ type Tenant struct {
 	Policy Policy `json:"policy"`
 
 	Collections      []Collection      `json:"collections"`
-	ConstraintLabels []ConstraintLabel `json:"constraint_labels"`
-	ValueLabels      []ValueLabel      `json:"value_labels"`
+	Labels           []Label           `json:"labels"`
 	StorageProviders []StorageProvider `json:"storage_providers" gorm:"many2many:tenant_storage_providers;"`
 
 	MaximumBytesInFlight uint `json:"maximum_bytes_in_flight"` // Global maximum for all the tenant's content
@@ -87,6 +86,8 @@ type ReplicationConstraint struct {
 
 	ConstraintID  uint `json:"constraint_id"`
 	ConstraintMax uint `json:"constraint_max"`
+
+	ConstraintValues []ConstraintValue `json:"constraint_values" gorm:"foreignKey:ConstraintID"`
 }
 
 type TenantStorageProviders struct {
@@ -101,32 +102,24 @@ type StorageProvider struct {
 	gorm.Model
 	SPID             SPID              `json:"spid" gorm:"primaryKey"`
 	Tenants          []Tenant          `json:"tenants" gorm:"many2many:tenant_storage_providers;"`
-	ConstraintValues []ConstraintValue `json:"constraint_values"` // Computed from ExternalValidationService
+	ConstraintValues []ConstraintValue `json:"constraint_values" gorm:"foreignKey:SPID"` // Computed from ExternalValidationService
 }
 
-type ConstraintLabel struct {
-	gorm.Model
-	TenantID     uint   `json:"tenant_id"`
-	ConstraintID uint   `json:"constraint_id"`
-	Label        string `json:"label"`
-}
-
-// ! unique constraint, for each tenant/classID and tenant/label must be unique
-// db.Table("class_labels").AddUniqueIndex("idx_class_labels_tenant_id_class_id", "tenant_id", "class_id")
-// db.Table("class_labels").AddUniqueIndex("idx_class_labels_tenant_id_label", "tenant_id", "label")
-
-type ValueLabel struct {
-	gorm.Model
+// A label maps a uint to a human readable string
+// It is used for both constraints (i.e, location.country) and values (i.e, CANADA)
+// Each Tenant has their own unique set of labels
+type Label struct {
 	TenantID uint   `json:"tenant_id"`
-	ValueID  uint   `json:"value_id"`
+	ID       uint   `json:"id"`
 	Label    string `json:"label"`
 }
 
 // ! unique constraint, for each tenant/ValueID and tenant/label must be unique
-// db.Table("value_labels").AddUniqueIndex("idx_value_labels_tenant_id_class_id", "tenant_id", "class_id")
-// db.Table("value_labels").AddUniqueIndex("idx_value_labels_tenant_id_label", "tenant_id", "label")
+// db.Table("labels").AddUniqueIndex("idx_labels_tenant_id_id", "tenant_id", "id")
+// db.Table("labels").AddUniqueIndex("idx_labels_tenant_id_label", "tenant_id", "label")
 
 type ConstraintValue struct {
+	SPID         SPID `json:"spid" gorm:"primaryKey"`
 	ConstraintID uint `json:"constraint_id"`
 	Value        uint `json:"value"`
 }
