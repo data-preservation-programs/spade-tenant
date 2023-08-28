@@ -26,7 +26,7 @@ type Tenant struct {
 	Policy Policy `json:"policy"`
 
 	Collections      []Collection      `json:"collections"`
-	ConstraintLabels []ConstraintLabel `json:"constraint_lables"`
+	ConstraintLabels []ConstraintLabel `json:"constraint_labels"`
 	ValueLabels      []ValueLabel      `json:"value_labels"`
 	StorageProviders []StorageProvider `json:"storage_providers" gorm:"many2many:tenant_storage_providers;"`
 
