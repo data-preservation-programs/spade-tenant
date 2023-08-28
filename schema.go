@@ -36,7 +36,7 @@ type Tenant struct {
 
 type Policy struct {
 	gorm.Model
-	// Eligibility defines whether or not the SP can subscribe to this policy
+	// Eligibility defines whether or not the SP is offered this Storage Contract by the broker
 	Eligibility     []Clause
 	AutoApprove     bool            `json:"auto_approve"` // If true, SPs can subscribe without approval
 	StorageContract StorageContract `json:"storage_contract"`
@@ -76,7 +76,7 @@ type Clause struct {
 type Collection struct {
 	gorm.Model
 	ContentIndexUri string `json:"content_index_uri"`
-	// ? ContentIndexAuth may be required if the index is protected
+	// ? An auth header (i.e, ContentIndexAuth) may be required if the index endpoint is protected
 	ReplicationConstraints ReplicationConstraint `json:"replication_constraints"`
 }
 
