@@ -1,7 +1,10 @@
 package main
 
 import (
+	"time"
+
 	"github.com/ipfs/go-cid"
+	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 )
 
@@ -20,35 +23,47 @@ const (
 	NotEqualTo         ComparisonOperator = "!="
 )
 
-type Tenant struct {
-	gorm.Model
+type OrmModel struct {
+	ID        int32 `json:"id" gorm:"primaryKey"` // overwrite uint -> int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
 
-	Policy Policy `json:"policy"`
+// gorm.Model
+// may need to change some of the defaults (i.e, ID) to allow for more performance (constraints with the broker)
+
+// Gorm -> prefix column name with table name for ease of querying later (where reasonable)
+type Tenant struct {
+	OrmModel
+
+	Policy Policy
 
 	Collections      []Collection      `json:"collections"`
 	Labels           []Label           `json:"labels"`
 	StorageProviders []StorageProvider `json:"storage_providers" gorm:"many2many:tenant_storage_providers;"`
 
-	MaximumBytesInFlight uint `json:"maximum_bytes_in_flight"` // Global maximum for all the tenant's content
-	Suspended            bool `json:"suspended"`               // Tenant is suspended
+	TenantDefaultMaxBytesInFlight uint
+	TenantSuspended               bool `json:"tenant_suspended"` // Tenant is suspended
 }
 
 type Policy struct {
-	gorm.Model
-	// Eligibility defines whether or not the SP is offered this Storage Contract by the broker
-	Eligibility     []Clause
-	AutoApprove     bool            `json:"auto_approve"` // If true, SPs can subscribe without approval
-	StorageContract StorageContract `json:"storage_contract"`
+	OrmModel
+	TenantID              int32 `json:"tenant_id"`
+	PolicyEligibility     []Clause
+	PolicyAutoApprove     bool            `json:"auto_approve"` // If true, SPs can subscribe without approval
+	PolicyStorageContract StorageContract `json:"storage_contract" gorm:"embedded"`
 }
 
 // The Storage Contract CID is signed by the SP when they subscribe via the Deal Broker
 type StorageContract struct {
-	gorm.Model
 	StorageContractCID cid.Cid `json:"storage_contract_cid"`
-	Content            struct {
+
+	// ? Do we need to store it in the DB? Or just force it to be in IPFS and use the CID only.
+	StorageContractContent struct {
 		InfoLines []string `json:"info_lines"`
 	}
-	Retrieval struct {
+	StorageContentRetrieval struct {
 		Mechanisms struct {
 			IpldBitswap  bool `json:"ipld_bitswap"`
 			Piece_Rrhttp bool `json:"piece_rrhttp"`
@@ -65,24 +80,23 @@ type StorageContract struct {
 // location.country ComparisonOperator.IncludedIn [CAN, USA]
 // retrieval.success_rate ComparisonOperator.GreaterThan 0.98
 type Clause struct {
-	gorm.Model
-	BasePolicyID uint               `json:"base_policy_id"`
-	Attribute    string             `json:"attribute"`
-	Operator     ComparisonOperator `json:"operator"`
-	Value        string             `json:"value"`
+	OrmModel
+	PolicyID        uint               `json:"policy_id"`
+	ClauseAttribute string             `json:"attribute"`
+	ClauseOperator  ComparisonOperator `json:"operator"`
+	ClauseValue     string             `json:"value"`
 }
 
 type Collection struct {
-	gorm.Model
-	ContentIndexUri string `json:"content_index_uri"`
-	// ? An auth header (i.e, ContentIndexAuth) may be required if the index endpoint is protected
-	ReplicationConstraints ReplicationConstraint `json:"replication_constraints"`
+	OrmModel
+	TenantID               int32                   `json:"tenant_id"`
+	CollectionPieceSource  pgtype.JSONB            `gorm:"type:jsonb;default:'[]';not null"`
+	ReplicationConstraints []ReplicationConstraint `json:"replication_constraints"`
 }
 
 type ReplicationConstraint struct {
-	gorm.Model
+	OrmModel
 	CollectionID uint `json:"collection_id"`
-	TenantID     uint `json:"tenant_id"`
 
 	ConstraintID  uint `json:"constraint_id"`
 	ConstraintMax uint `json:"constraint_max"`
@@ -91,15 +105,14 @@ type ReplicationConstraint struct {
 }
 
 type TenantStorageProviders struct {
-	TenantID             uint `json:"tenant_id" gorm:"primaryKey"`
-	SPID                 SPID `json:"spid" gorm:"primaryKey"`
-	Suspended            bool `json:"suspended"`
-	Approved             bool `json:"approved"`
-	MaximumBytesInFlight uint `json:"maximum_bytes_in_flight"` // Maximum bytes this SP can have in flight from the tenant
+	TenantID             int32 `json:"tenant_id" gorm:"primaryKey"`
+	SPID                 SPID  `json:"spid" gorm:"primaryKey"`
+	Suspended            bool  `json:"suspended"`
+	Approved             bool  `json:"approved"`
+	MaximumBytesInFlight uint  `json:"maximum_bytes_in_flight"` // Maximum bytes this SP can have in flight from the tenant
 }
 
 type StorageProvider struct {
-	gorm.Model
 	SPID             SPID              `json:"spid" gorm:"primaryKey"`
 	Tenants          []Tenant          `json:"tenants" gorm:"many2many:tenant_storage_providers;"`
 	ConstraintValues []ConstraintValue `json:"constraint_values" gorm:"foreignKey:SPID"` // Computed from ExternalValidationService

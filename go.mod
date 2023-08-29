@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.0.4 // indirect
 	github.com/minio/blake2b-simd v0.0.0-20160723061019-3f5f724cb5b1 // indirect
 	github.com/minio/sha256-simd v1.0.0 // indirect
@@ -23,6 +24,7 @@ require (
 
 require (
 	github.com/ipfs/go-cid v0.4.1
+	github.com/jackc/pgtype v1.14.0
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 )
