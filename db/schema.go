@@ -50,9 +50,8 @@ type Policy struct {
 	PolicyStorageContractCID string `json:"storage_contract_cid"`
 }
 
-// ? Any reason to store the entire Storage Contract in the DB?
+// * Schema of the Storage Contract which will be stored in IPFS, referenced by CID
 // type StorageContract struct {
-// StorageContractCID string `json:"storage_contract_cid"`
 // StorageContractContent struct {
 // 	InfoLines []string `json:"info_lines"`
 // }

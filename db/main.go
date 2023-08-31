@@ -28,10 +28,6 @@ func OpenDatabase(dbDsn string, debug bool) (*gorm.DB, error) {
 	// Initialization for fresh db (only run at first setup)
 	m.InitSchema(BaselineSchema)
 
-	// ! unique constraint, for each tenant/ValueID and tenant/label must be unique
-	// DB.Table("labels").AddUniqueIndex("idx_labels_tenant_id_id", "tenant_id", "id")
-	// DB.Table("labels").AddUniqueIndex("idx_labels_tenant_id_label", "tenant_id", "label")
-
 	if err != nil {
 		return nil, err
 	}
