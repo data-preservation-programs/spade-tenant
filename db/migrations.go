@@ -8,7 +8,7 @@ import (
 // If this runs, it means the database is empty. No migrations will be applied on top of it, as this sets up the database from scratch so it starts out "up to date"
 func BaselineSchema(tx *gorm.DB) error {
 	log.Debugf("first run: initializing database schema")
-	err := tx.AutoMigrate(&Tenant{}, &Policy{}, &Clause{}, &Collection{}, &Label{}, &StorageProvider{}, &TenantStorageProvider{})
+	err := tx.AutoMigrate(&Tenant{}, &Policy{}, &Address{}, &Clause{}, &Collection{}, &Label{}, &StorageProvider{}, &TenantStorageProvider{}, ReplicationConstraint{}, ConstraintAttribute{})
 
 	if err != nil {
 		log.Fatalf("error initializing database: %s", err)

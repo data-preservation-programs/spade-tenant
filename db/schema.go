@@ -39,9 +39,18 @@ type Tenant struct {
 	TenantDefaultMaxBytesInFlight uint
 	TenantSuspended               bool `json:"tenant_suspended"` // Tenant is suspended
 
+	TenantWallets             []Address `json:"tenant_wallets"`
+	TenantAssociatedAddresses []Address `json:"tenant_associated_addresses"`
+
 	TenantMeta pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
 }
 
+type Address struct {
+	gorm.Model
+	TenantID uint   `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;"`
+	Address  string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;"`
+	Active   bool   `json:"active" gorm:"default:true"`
+}
 type Policy struct {
 	gorm.Model
 	TenantID                 uint `json:"tenant_id"`
