@@ -9,7 +9,15 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "termsOfService": "https://spade.storage",
+        "contact": {
+            "name": "API Support",
+            "url": "https://docs.spade.storage"
+        },
+        "license": {
+            "name": "Apache 2.0 Apache-2.0 OR MIT",
+            "url": "https://github.com/data-preservation-programs/spade/blob/master/LICENSE.md"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -22,11 +30,32 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "Simple health check endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.HealthResponse"
+                                        }
+                                    }
+                                }
+                            ]
                         }
                     },
                     "500": {
@@ -36,17 +65,66 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "definitions": {
+        "api.HealthResponse": {
+            "type": "object",
+            "properties": {
+                "alive": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.ResponseEnvelope": {
+            "type": "object",
+            "properties": {
+                "error_code": {
+                    "type": "integer"
+                },
+                "error_lines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "error_slug": {
+                    "type": "string"
+                },
+                "info_lines": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "request_id": {
+                    "type": "string"
+                },
+                "response": {},
+                "response_code": {
+                    "type": "integer"
+                },
+                "response_entries": {
+                    "type": "integer"
+                },
+                "response_state_epoch": {
+                    "type": "integer"
+                },
+                "response_timestamp": {
+                    "type": "string"
+                }
+            }
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "",
-	Host:             "",
-	BasePath:         "",
+	Version:          "1.0.0",
+	Host:             "api.spade.storage",
+	BasePath:         "/",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Spade Tenant API",
+	Description:      "This is the API for the Spade Tenant Application",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

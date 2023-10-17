@@ -1,16 +1,70 @@
+basePath: /
+definitions:
+  api.HealthResponse:
+    properties:
+      alive:
+        type: boolean
+    type: object
+  api.ResponseEnvelope:
+    properties:
+      error_code:
+        type: integer
+      error_lines:
+        items:
+          type: string
+        type: array
+      error_slug:
+        type: string
+      info_lines:
+        items:
+          type: string
+        type: array
+      request_id:
+        type: string
+      response: {}
+      response_code:
+        type: integer
+      response_entries:
+        type: integer
+      response_state_epoch:
+        type: integer
+      response_timestamp:
+        type: string
+    type: object
+host: api.spade.storage
 info:
-  contact: {}
+  contact:
+    name: API Support
+    url: https://docs.spade.storage
+  description: This is the API for the Spade Tenant Application
+  license:
+    name: Apache 2.0 Apache-2.0 OR MIT
+    url: https://github.com/data-preservation-programs/spade/blob/master/LICENSE.md
+  termsOfService: https://spade.storage
+  title: Spade Tenant API
+  version: 1.0.0
 paths:
   /handleHealth:
     get:
       description: This endpoint is used to check the health of the service
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            type: string
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.HealthResponse'
+              type: object
         "500":
           description: Internal Server Error
           schema: {}
