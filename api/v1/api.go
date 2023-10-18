@@ -28,4 +28,6 @@ func NewApiV1() *apiV1 {
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", s.handleHealth)
+
+	e.POST("/collections", s.handleCreateCollection)
 }

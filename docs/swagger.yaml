@@ -1,9 +1,48 @@
 basePath: /
 definitions:
+  api.CreateCollectionRequest:
+    properties:
+      name:
+        type: string
+      piece_source:
+        $ref: '#/definitions/api.PieceSource'
+      replication_constraints:
+        items:
+          $ref: '#/definitions/api.ReplicationConstraint'
+        type: array
+    type: object
+  api.CreateCollectionResponse:
+    properties:
+      collection_id:
+        type: integer
+      status:
+        type: string
+    type: object
   api.HealthResponse:
     properties:
       alive:
         type: boolean
+    type: object
+  api.PieceSource:
+    properties:
+      method:
+        type: string
+    type: object
+  api.PolicyClause:
+    properties:
+      attribute:
+        type: string
+      operator:
+        type: string
+      value:
+        description: TODO
+    type: object
+  api.ReplicationConstraint:
+    properties:
+      constraint_id:
+        type: integer
+      constraint_max:
+        type: integer
     type: object
   api.ResponseEnvelope:
     properties:
@@ -31,6 +70,47 @@ definitions:
       response_timestamp:
         type: string
     type: object
+  api.SetPolicyRequest:
+    properties:
+      clauses:
+        items:
+          $ref: '#/definitions/api.PolicyClause'
+        type: array
+    type: object
+  api.SetPolicyResponse:
+    type: object
+  api.SetStorageContractRequest:
+    properties:
+      content:
+        properties:
+          info_lines:
+            items:
+              type: string
+            type: array
+        type: object
+      retrieval:
+        properties:
+          mechanisms:
+            properties:
+              ipld_bitswap:
+                type: boolean
+              piece_rrhttp:
+                type: boolean
+            type: object
+          sla:
+            properties:
+              info_lines:
+                items:
+                  type: string
+                type: array
+            type: object
+        type: object
+    type: object
+  api.SetStorageContractResponse:
+    properties:
+      cid:
+        type: string
+    type: object
 host: api.spade.storage
 info:
   contact:
@@ -44,7 +124,34 @@ info:
   title: Spade Tenant API
   version: 1.0.0
 paths:
-  /handleHealth:
+  /collections:
+    post:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Collection to create
+        in: body
+        name: collection
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateCollectionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.CreateCollectionResponse'
+              type: object
+      summary: Creates a new collection
+  /health:
     get:
       description: This endpoint is used to check the health of the service
       parameters:
@@ -65,8 +172,61 @@ paths:
                 Response:
                   $ref: '#/definitions/api.HealthResponse'
               type: object
-        "500":
-          description: Internal Server Error
-          schema: {}
       summary: Simple health check endpoint
+  /policies:
+    post:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New policy to update to
+        in: body
+        name: collection
+        required: true
+        schema:
+          $ref: '#/definitions/api.SetPolicyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.SetPolicyResponse'
+              type: object
+      summary: Set or update a policy
+  /policies/storage-contract:
+    post:
+      description: Updates the storage contract *note* this will require SPs to resubscribe
+        if changed
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New Storage Contract to update to
+        in: body
+        name: collection
+        required: true
+        schema:
+          $ref: '#/definitions/api.SetStorageContractRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.SetStorageContractResponse'
+              type: object
+      summary: Update storage contract
 swagger: "2.0"

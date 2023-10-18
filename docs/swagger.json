@@ -17,7 +17,53 @@
     "host": "api.spade.storage",
     "basePath": "/",
     "paths": {
-        "/handleHealth": {
+        "/collections": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates a new collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Collection to create",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CreateCollectionRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.CreateCollectionResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
             "get": {
                 "description": "This endpoint is used to check the health of the service",
                 "produces": [
@@ -51,21 +97,171 @@
                                 }
                             ]
                         }
+                    }
+                }
+            }
+        },
+        "/policies": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Set or update a policy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
                     },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {}
+                    {
+                        "description": "New policy to update to",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.SetPolicyRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.SetPolicyResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/policies/storage-contract": {
+            "post": {
+                "description": "Updates the storage contract *note* this will require SPs to resubscribe if changed",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update storage contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New Storage Contract to update to",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.SetStorageContractRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.SetStorageContractResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
                     }
                 }
             }
         }
     },
     "definitions": {
+        "api.CreateCollectionRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "piece_source": {
+                    "$ref": "#/definitions/api.PieceSource"
+                },
+                "replication_constraints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ReplicationConstraint"
+                    }
+                }
+            }
+        },
+        "api.CreateCollectionResponse": {
+            "type": "object",
+            "properties": {
+                "collection_id": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
         "api.HealthResponse": {
             "type": "object",
             "properties": {
                 "alive": {
                     "type": "boolean"
+                }
+            }
+        },
+        "api.PieceSource": {
+            "type": "object",
+            "properties": {
+                "method": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.PolicyClause": {
+            "type": "object",
+            "properties": {
+                "attribute": {
+                    "type": "string"
+                },
+                "operator": {
+                    "type": "string"
+                },
+                "value": {
+                    "description": "TODO"
+                }
+            }
+        },
+        "api.ReplicationConstraint": {
+            "type": "object",
+            "properties": {
+                "constraint_id": {
+                    "type": "integer"
+                },
+                "constraint_max": {
+                    "type": "integer"
                 }
             }
         },
@@ -104,6 +300,71 @@
                     "type": "integer"
                 },
                 "response_timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.SetPolicyRequest": {
+            "type": "object",
+            "properties": {
+                "clauses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.PolicyClause"
+                    }
+                }
+            }
+        },
+        "api.SetPolicyResponse": {
+            "type": "object"
+        },
+        "api.SetStorageContractRequest": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "object",
+                    "properties": {
+                        "info_lines": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "retrieval": {
+                    "type": "object",
+                    "properties": {
+                        "mechanisms": {
+                            "type": "object",
+                            "properties": {
+                                "ipld_bitswap": {
+                                    "type": "boolean"
+                                },
+                                "piece_rrhttp": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "sla": {
+                            "type": "object",
+                            "properties": {
+                                "info_lines": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "api.SetStorageContractResponse": {
+            "type": "object",
+            "properties": {
+                "cid": {
                     "type": "string"
                 }
             }

@@ -30,8 +30,7 @@ type HealthResponse struct {
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{Response=HealthResponse}
-//	@Failure		500	{object}	error
-//	@Router			/handleHealth [get]
+//	@Router			/health [get]
 func (s *apiV1) handleHealth(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"status": "ok",
