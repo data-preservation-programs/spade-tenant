@@ -193,9 +193,141 @@
                     }
                 }
             }
+        },
+        "/storage-providers/approve": {
+            "post": {
+                "description": "Note: This is only required if auto_approve is false, requiring manual approval of SP subscription",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Approves a list of Storage Providers to work with the tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "List of SP IDs to approve",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.ApproveStorageProviders"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.GetEligibleStorageProvidersResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/storage-providers/eligible": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get list of Storage Providers not yet working with the tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.GetEligibleStorageProvidersResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/storage-providers/subscribed": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get list of Storage Providers already working with the tenant, and their stats",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.GetSubscribedStorageProvidersResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "api.ApproveStorageProviders": {
+            "type": "object",
+            "properties": {
+                "sp_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "api.CreateCollectionRequest": {
             "type": "object",
             "properties": {
@@ -221,6 +353,39 @@
                 },
                 "status": {
                     "type": "string"
+                }
+            }
+        },
+        "api.EligibleStorageProvider": {
+            "type": "object",
+            "properties": {
+                "sp_id": {
+                    "type": "string"
+                },
+                "subscribed": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.GetEligibleStorageProvidersResponse": {
+            "type": "object",
+            "properties": {
+                "eligible_storage_providers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.EligibleStorageProvider"
+                    }
+                }
+            }
+        },
+        "api.GetSubscribedStorageProvidersResponse": {
+            "type": "object",
+            "properties": {
+                "storage_provider_info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.StorageProviderInfo"
+                    }
                 }
             }
         },
@@ -250,7 +415,7 @@
                     "type": "string"
                 },
                 "value": {
-                    "description": "TODO"
+                    "description": "TODO: better type?"
                 }
             }
         },
@@ -365,6 +530,32 @@
             "type": "object",
             "properties": {
                 "cid": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.StorageProviderInfo": {
+            "type": "object",
+            "properties": {
+                "bytes_stored": {
+                    "type": "integer"
+                },
+                "cids_stored": {
+                    "type": "integer"
+                },
+                "collections_stored": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "last_deal_date": {
+                    "type": "string"
+                },
+                "sp_id": {
+                    "type": "string"
+                },
+                "subscription_date": {
                     "type": "string"
                 }
             }

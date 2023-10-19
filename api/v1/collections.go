@@ -14,7 +14,7 @@ type CreateCollectionRequest struct {
 
 type PieceSource struct {
 	Method string `json:"method"`
-	// TODO: Piece Source details
+	// TODO: Piece Source
 }
 
 type ReplicationConstraint struct {
@@ -35,7 +35,5 @@ type CreateCollectionResponse struct {
 //	@Success		200	{object}	ResponseEnvelope{Response=CreateCollectionResponse}
 //	@Router			/collections [post]
 func (s *apiV1) handleCreateCollection(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{
-		"status": "ok",
-	})
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

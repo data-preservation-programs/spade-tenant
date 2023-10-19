@@ -29,5 +29,17 @@ func NewApiV1() *apiV1 {
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/health", s.handleHealth)
 
+	// /collections
 	e.POST("/collections", s.handleCreateCollection)
+
+	// /policy
+	e.POST("/policy", s.handleSetPolicy)
+	e.POST("/policy/storage-contract", s.handleSetStorageContract)
+	e.GET("/policy", s.handleGetPolicy)
+	e.GET("/policy/storage-contract", s.handleGetStorageContract)
+
+	// /storage-providers
+	e.GET("/storage-providers/subscribed", s.handleGetSubscribedStorageProviders)
+	e.GET("/storage-providers/eligible", s.handleGetEligibleStorageProviders)
+	e.POST("/storage-providers/approve", s.handleApproveStorageProviders)
 }

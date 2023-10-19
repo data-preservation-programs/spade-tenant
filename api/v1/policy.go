@@ -6,14 +6,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type SetPolicyRequest struct {
+type Policy struct {
 	Clauses []PolicyClause `json:"clauses"`
 }
 
 type PolicyClause struct {
 	Attribute string      `json:"attribute"`
 	Operator  string      `json:"operator"`
-	Value     interface{} `json:"value"` // TODO
+	Value     interface{} `json:"value"` // TODO: better type?
 }
 
 type SetPolicyResponse struct {
@@ -24,15 +24,23 @@ type SetPolicyResponse struct {
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			collection body SetPolicyRequest true "New policy to update to"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=SetPolicyResponse}
-//	@Router			/policies [post]
+//	@Success		200	{object}	ResponseEnvelope{Response=Policy}
+//	@Router			/policy [post]
 func (s *apiV1) handleSetPolicy(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{
-		"status": "ok",
-	})
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
-type SetStorageContractRequest struct {
+// handleGetPolicy godoc
+//	@Summary		Get tenant policy
+// 	@Param 		  token header string true "Auth token"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{Response=Policy}
+//	@Router			/policy [get]
+func (s *apiV1) handleGetPolicy(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+}
+
+type StorageContract struct {
 	Content struct {
 		InfoLines []string `json:"info_lines"`
 	}
@@ -57,10 +65,23 @@ type SetStorageContractResponse struct {
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			collection body SetStorageContractRequest true "New Storage Contract to update to"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=SetStorageContractResponse}
-//	@Router			/policies/storage-contract [post]
+//	@Success		200	{object}	ResponseEnvelope{Response=StorageContract}
+//	@Router			/policy/storage-contract [post]
 func (s *apiV1) handleSetStorageContract(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{
-		"status": "ok",
-	})
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+}
+
+type GetStorageContractResponse struct {
+	Cid string `json:"cid"`
+	StorageContract
+}
+
+// handleGetStorageContract godoc
+//	@Summary		Get tenant storage contract
+// 	@Param 		  token header string true "Auth token"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{Response=GetStorageContractResponse}
+//	@Router			/policy/storage-contract [get]
+func (s *apiV1) handleGetStorageContract(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

@@ -1,5 +1,12 @@
 basePath: /
 definitions:
+  api.ApproveStorageProviders:
+    properties:
+      sp_ids:
+        items:
+          type: string
+        type: array
+    type: object
   api.CreateCollectionRequest:
     properties:
       name:
@@ -18,6 +25,27 @@ definitions:
       status:
         type: string
     type: object
+  api.EligibleStorageProvider:
+    properties:
+      sp_id:
+        type: string
+      subscribed:
+        type: boolean
+    type: object
+  api.GetEligibleStorageProvidersResponse:
+    properties:
+      eligible_storage_providers:
+        items:
+          $ref: '#/definitions/api.EligibleStorageProvider'
+        type: array
+    type: object
+  api.GetSubscribedStorageProvidersResponse:
+    properties:
+      storage_provider_info:
+        items:
+          $ref: '#/definitions/api.StorageProviderInfo'
+        type: array
+    type: object
   api.HealthResponse:
     properties:
       alive:
@@ -35,7 +63,7 @@ definitions:
       operator:
         type: string
       value:
-        description: TODO
+        description: 'TODO: better type?'
     type: object
   api.ReplicationConstraint:
     properties:
@@ -109,6 +137,23 @@ definitions:
   api.SetStorageContractResponse:
     properties:
       cid:
+        type: string
+    type: object
+  api.StorageProviderInfo:
+    properties:
+      bytes_stored:
+        type: integer
+      cids_stored:
+        type: integer
+      collections_stored:
+        items:
+          type: string
+        type: array
+      last_deal_date:
+        type: string
+      sp_id:
+        type: string
+      subscription_date:
         type: string
     type: object
 host: api.spade.storage
@@ -229,4 +274,76 @@ paths:
                   $ref: '#/definitions/api.SetStorageContractResponse'
               type: object
       summary: Update storage contract
+  /storage-providers/approve:
+    post:
+      description: 'Note: This is only required if auto_approve is false, requiring
+        manual approval of SP subscription'
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: List of SP IDs to approve
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.ApproveStorageProviders'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.GetEligibleStorageProvidersResponse'
+              type: object
+      summary: Approves a list of Storage Providers to work with the tenant
+  /storage-providers/eligible:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.GetEligibleStorageProvidersResponse'
+              type: object
+      summary: Get list of Storage Providers not yet working with the tenant
+  /storage-providers/subscribed:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.GetSubscribedStorageProvidersResponse'
+              type: object
+      summary: Get list of Storage Providers already working with the tenant, and
+        their stats
 swagger: "2.0"
