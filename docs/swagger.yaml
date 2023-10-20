@@ -7,6 +7,19 @@ definitions:
           type: string
         type: array
     type: object
+  api.Collection:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      num_deals:
+        type: integer
+      onboarded_progress:
+        type: number
+      overall_retrieval_success_rate:
+        type: number
+    type: object
   api.CreateCollectionRequest:
     properties:
       name:
@@ -79,6 +92,13 @@ definitions:
     properties:
       alive:
         type: boolean
+    type: object
+  api.LegendEntry:
+    properties:
+      key:
+        type: string
+      value:
+        type: string
     type: object
   api.MailboxMessage:
     properties:
@@ -184,6 +204,13 @@ definitions:
       subscription_date:
         type: string
     type: object
+  api.TenantSettings:
+    properties:
+      auto_approve:
+        type: boolean
+      auto_suspend:
+        type: boolean
+    type: object
   api.Wallet:
     properties:
       active:
@@ -207,6 +234,28 @@ info:
   version: 1.0.0
 paths:
   /collections:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  items:
+                    $ref: '#/definitions/api.Collection'
+                  type: array
+              type: object
+      summary: Gets info about collections
     post:
       parameters:
       - description: Auth token
@@ -255,6 +304,59 @@ paths:
                   $ref: '#/definitions/api.HealthResponse'
               type: object
       summary: Simple health check endpoint
+  /legend:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  items:
+                    $ref: '#/definitions/api.LegendEntry'
+                  type: array
+              type: object
+      summary: Get legend for a tenant
+    post:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New legend to update
+        in: body
+        name: legend
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/api.LegendEntry'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  items:
+                    $ref: '#/definitions/api.LegendEntry'
+                  type: array
+              type: object
+      summary: Update legend for a tenant
   /mailbox:
     get:
       parameters:
@@ -444,6 +546,53 @@ paths:
               type: object
       summary: Get list of Storage Providers already working with the tenant, and
         their stats
+  /tenant/settings:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.TenantSettings'
+              type: object
+      summary: Get the currently active Tenant Settings
+    post:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New settings to apply
+        in: body
+        name: settings
+        required: true
+        schema:
+          $ref: '#/definitions/api.TenantSettings'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.TenantSettings'
+              type: object
+      summary: Apply new Tenant Settings
   /wallet-addresses:
     delete:
       parameters:

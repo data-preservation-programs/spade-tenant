@@ -53,6 +53,10 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.POST("/tenant/settings", s.handleSetTenantSettings)
 	e.GET("/tenant/settings", s.handleGetTenantSettings)
 
+	// /legend
+	e.POST("/legend", s.handleSetLegend)
+	e.GET("/legend", s.handleGetLegend)
+
 	// /mailbox
 	e.GET("/mailbox", s.handleGetMailbox)
 }

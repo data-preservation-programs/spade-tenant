@@ -24,6 +24,44 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/collections": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets info about collections",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Collection"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "produces": [
                     "application/json"
@@ -98,6 +136,96 @@ const docTemplate = `{
                                     "properties": {
                                         "Response": {
                                             "$ref": "#/definitions/api.HealthResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/legend": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get legend for a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.LegendEntry"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update legend for a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New legend to update",
+                        "name": "legend",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.LegendEntry"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.LegendEntry"
+                                            }
                                         }
                                     }
                                 }
@@ -428,6 +556,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/tenant/settings": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get the currently active Tenant Settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.TenantSettings"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Apply new Tenant Settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New settings to apply",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.TenantSettings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.TenantSettings"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/wallet-addresses": {
             "get": {
                 "produces": [
@@ -581,6 +790,26 @@ const docTemplate = `{
                 }
             }
         },
+        "api.Collection": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "num_deals": {
+                    "type": "integer"
+                },
+                "onboarded_progress": {
+                    "type": "number"
+                },
+                "overall_retrieval_success_rate": {
+                    "type": "number"
+                }
+            }
+        },
         "api.CreateCollectionRequest": {
             "type": "object",
             "properties": {
@@ -693,6 +922,17 @@ const docTemplate = `{
             "properties": {
                 "alive": {
                     "type": "boolean"
+                }
+            }
+        },
+        "api.LegendEntry": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string"
+                },
+                "value": {
+                    "type": "string"
                 }
             }
         },
@@ -854,6 +1094,17 @@ const docTemplate = `{
                 },
                 "subscription_date": {
                     "type": "string"
+                }
+            }
+        },
+        "api.TenantSettings": {
+            "type": "object",
+            "properties": {
+                "auto_approve": {
+                    "type": "boolean"
+                },
+                "auto_suspend": {
+                    "type": "boolean"
                 }
             }
         },
