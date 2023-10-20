@@ -42,4 +42,10 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/storage-providers/subscribed", s.handleGetSubscribedStorageProviders)
 	e.GET("/storage-providers/eligible", s.handleGetEligibleStorageProviders)
 	e.POST("/storage-providers/approve", s.handleApproveStorageProviders)
+
+	// /wallet-addresses
+	e.PUT("/wallet-addresses", s.handleSetWallets)
+	e.DELETE("/wallet-addresses", s.handleDeleteWallets)
+	e.GET("/wallet-addresses", s.handleGetWallets)
+
 }
