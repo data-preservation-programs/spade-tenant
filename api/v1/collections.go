@@ -37,3 +37,23 @@ type CreateCollectionResponse struct {
 func (s *apiV1) handleCreateCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
+
+type GetCollectionsResponse []Collection
+
+type Collection struct {
+	ID                          uint    `json:"id"`
+	Name                        string  `json:"name"`
+	OnboardedProgress           float64 `json:"onboarded_progress"`
+	NumDeals                    uint    `json:"num_deals"`
+	OverallRetrievalSuccessRate float64 `json:"overall_retrieval_success_rate"`
+}
+
+// handleGetCollections godoc
+//	@Summary		Gets info about collections
+// 	@Param 		  token header string true "Auth token"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{Response=GetCollectionsResponse}
+//	@Router			/collections [get]
+func (s *apiV1) handleGetCollections(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+}

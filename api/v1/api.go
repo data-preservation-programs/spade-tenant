@@ -31,6 +31,7 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 
 	// /collections
 	e.POST("/collections", s.handleCreateCollection)
+	e.GET("/collections", s.handleGetCollections)
 
 	// /policy
 	e.POST("/policy", s.handleSetPolicy)
