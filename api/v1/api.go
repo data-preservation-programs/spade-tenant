@@ -48,4 +48,6 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.DELETE("/wallet-addresses", s.handleDeleteWallets)
 	e.GET("/wallet-addresses", s.handleGetWallets)
 
+	// /mailbox
+	e.GET("/mailbox", s.handleGetMailbox)
 }

@@ -39,6 +39,35 @@ definitions:
           $ref: '#/definitions/api.EligibleStorageProvider'
         type: array
     type: object
+  api.GetStorageContractResponse:
+    properties:
+      cid:
+        type: string
+      content:
+        properties:
+          info_lines:
+            items:
+              type: string
+            type: array
+        type: object
+      retrieval:
+        properties:
+          mechanisms:
+            properties:
+              ipld_bitswap:
+                type: boolean
+              piece_rrhttp:
+                type: boolean
+            type: object
+          sla:
+            properties:
+              info_lines:
+                items:
+                  type: string
+                type: array
+            type: object
+        type: object
+    type: object
   api.GetSubscribedStorageProvidersResponse:
     properties:
       storage_provider_info:
@@ -51,10 +80,23 @@ definitions:
       alive:
         type: boolean
     type: object
+  api.MailboxMessage:
+    properties:
+      notifications:
+        items: {}
+        type: array
+    type: object
   api.PieceSource:
     properties:
       method:
         type: string
+    type: object
+  api.Policy:
+    properties:
+      clauses:
+        items:
+          $ref: '#/definitions/api.PolicyClause'
+        type: array
     type: object
   api.PolicyClause:
     properties:
@@ -98,16 +140,7 @@ definitions:
       response_timestamp:
         type: string
     type: object
-  api.SetPolicyRequest:
-    properties:
-      clauses:
-        items:
-          $ref: '#/definitions/api.PolicyClause'
-        type: array
-    type: object
-  api.SetPolicyResponse:
-    type: object
-  api.SetStorageContractRequest:
+  api.StorageContract:
     properties:
       content:
         properties:
@@ -134,11 +167,6 @@ definitions:
             type: object
         type: object
     type: object
-  api.SetStorageContractResponse:
-    properties:
-      cid:
-        type: string
-    type: object
   api.StorageProviderInfo:
     properties:
       bytes_stored:
@@ -154,6 +182,15 @@ definitions:
       sp_id:
         type: string
       subscription_date:
+        type: string
+    type: object
+  api.Wallet:
+    properties:
+      active:
+        description: true - active dealmaking from this wallet, false - still counts
+          as an associated wallet
+        type: boolean
+      address:
         type: string
     type: object
 host: api.spade.storage
@@ -218,7 +255,48 @@ paths:
                   $ref: '#/definitions/api.HealthResponse'
               type: object
       summary: Simple health check endpoint
-  /policies:
+  /mailbox:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.MailboxMessage'
+              type: object
+      summary: Gets mailbox messages for the tenant
+  /policy:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.Policy'
+              type: object
+      summary: Get tenant policy
     post:
       parameters:
       - description: Auth token
@@ -231,7 +309,7 @@ paths:
         name: collection
         required: true
         schema:
-          $ref: '#/definitions/api.SetPolicyRequest'
+          $ref: '#/definitions/api.Policy'
       produces:
       - application/json
       responses:
@@ -242,10 +320,30 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 Response:
-                  $ref: '#/definitions/api.SetPolicyResponse'
+                  $ref: '#/definitions/api.Policy'
               type: object
       summary: Set or update a policy
-  /policies/storage-contract:
+  /policy/storage-contract:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  $ref: '#/definitions/api.GetStorageContractResponse'
+              type: object
+      summary: Get tenant storage contract
     post:
       description: Updates the storage contract *note* this will require SPs to resubscribe
         if changed
@@ -260,7 +358,7 @@ paths:
         name: collection
         required: true
         schema:
-          $ref: '#/definitions/api.SetStorageContractRequest'
+          $ref: '#/definitions/api.StorageContract'
       produces:
       - application/json
       responses:
@@ -271,7 +369,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 Response:
-                  $ref: '#/definitions/api.SetStorageContractResponse'
+                  $ref: '#/definitions/api.StorageContract'
               type: object
       summary: Update storage contract
   /storage-providers/approve:
@@ -346,4 +444,87 @@ paths:
               type: object
       summary: Get list of Storage Providers already working with the tenant, and
         their stats
+  /wallet-addresses:
+    delete:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: wallet addresses to delete
+        in: body
+        name: wallets
+        required: true
+        schema:
+          items:
+            type: string
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  items:
+                    $ref: '#/definitions/api.Wallet'
+                  type: array
+              type: object
+      summary: Delete wallets used by a tenant
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  items:
+                    $ref: '#/definitions/api.Wallet'
+                  type: array
+              type: object
+      summary: Get wallets used by a tenant
+    put:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New wallets to add or change Active flag of
+        in: body
+        name: wallets
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/api.Wallet'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                Response:
+                  items:
+                    $ref: '#/definitions/api.Wallet'
+                  type: array
+              type: object
+      summary: Update wallets used by a tenant
 swagger: "2.0"

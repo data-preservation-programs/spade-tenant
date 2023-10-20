@@ -22,7 +22,7 @@ type SetPolicyResponse struct {
 // handleSetPolicy godoc
 //	@Summary		Set or update a policy
 // 	@Param 		  token header string true "Auth token"
-//  @Param 			collection body SetPolicyRequest true "New policy to update to"
+//  @Param 			collection body Policy true "New policy to update to"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{Response=Policy}
 //	@Router			/policy [post]
@@ -63,7 +63,7 @@ type SetStorageContractResponse struct {
 //	@Summary		Update storage contract
 // 	@Description 	Updates the storage contract *note* this will require SPs to resubscribe if changed
 // 	@Param 		  token header string true "Auth token"
-//  @Param 			collection body SetStorageContractRequest true "New Storage Contract to update to"
+//  @Param 			collection body StorageContract true "New Storage Contract to update to"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{Response=StorageContract}
 //	@Router			/policy/storage-contract [post]

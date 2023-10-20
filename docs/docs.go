@@ -107,7 +107,79 @@ const docTemplate = `{
                 }
             }
         },
-        "/policies": {
+        "/mailbox": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Gets mailbox messages for the tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.MailboxMessage"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/policy": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get tenant policy",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.Policy"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "produces": [
                     "application/json"
@@ -127,7 +199,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.SetPolicyRequest"
+                            "$ref": "#/definitions/api.Policy"
                         }
                     }
                 ],
@@ -143,7 +215,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "Response": {
-                                            "$ref": "#/definitions/api.SetPolicyResponse"
+                                            "$ref": "#/definitions/api.Policy"
                                         }
                                     }
                                 }
@@ -153,7 +225,42 @@ const docTemplate = `{
                 }
             }
         },
-        "/policies/storage-contract": {
+        "/policy/storage-contract": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get tenant storage contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "$ref": "#/definitions/api.GetStorageContractResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Updates the storage contract *note* this will require SPs to resubscribe if changed",
                 "produces": [
@@ -174,7 +281,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.SetStorageContractRequest"
+                            "$ref": "#/definitions/api.StorageContract"
                         }
                     }
                 ],
@@ -190,7 +297,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "Response": {
-                                            "$ref": "#/definitions/api.SetStorageContractResponse"
+                                            "$ref": "#/definitions/api.StorageContract"
                                         }
                                     }
                                 }
@@ -320,6 +427,146 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/wallet-addresses": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get wallets used by a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Wallet"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update wallets used by a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New wallets to add or change Active flag of",
+                        "name": "wallets",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Wallet"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Wallet"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete wallets used by a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "wallet addresses to delete",
+                        "name": "wallets",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "Response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Wallet"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -384,6 +631,52 @@ const docTemplate = `{
                 }
             }
         },
+        "api.GetStorageContractResponse": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "object",
+                    "properties": {
+                        "info_lines": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "retrieval": {
+                    "type": "object",
+                    "properties": {
+                        "mechanisms": {
+                            "type": "object",
+                            "properties": {
+                                "ipld_bitswap": {
+                                    "type": "boolean"
+                                },
+                                "piece_rrhttp": {
+                                    "type": "boolean"
+                                }
+                            }
+                        },
+                        "sla": {
+                            "type": "object",
+                            "properties": {
+                                "info_lines": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "api.GetSubscribedStorageProvidersResponse": {
             "type": "object",
             "properties": {
@@ -403,11 +696,31 @@ const docTemplate = `{
                 }
             }
         },
+        "api.MailboxMessage": {
+            "type": "object",
+            "properties": {
+                "notifications": {
+                    "type": "array",
+                    "items": {}
+                }
+            }
+        },
         "api.PieceSource": {
             "type": "object",
             "properties": {
                 "method": {
                     "type": "string"
+                }
+            }
+        },
+        "api.Policy": {
+            "type": "object",
+            "properties": {
+                "clauses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.PolicyClause"
+                    }
                 }
             }
         },
@@ -475,21 +788,7 @@ const docTemplate = `{
                 }
             }
         },
-        "api.SetPolicyRequest": {
-            "type": "object",
-            "properties": {
-                "clauses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.PolicyClause"
-                    }
-                }
-            }
-        },
-        "api.SetPolicyResponse": {
-            "type": "object"
-        },
-        "api.SetStorageContractRequest": {
+        "api.StorageContract": {
             "type": "object",
             "properties": {
                 "content": {
@@ -532,14 +831,6 @@ const docTemplate = `{
                 }
             }
         },
-        "api.SetStorageContractResponse": {
-            "type": "object",
-            "properties": {
-                "cid": {
-                    "type": "string"
-                }
-            }
-        },
         "api.StorageProviderInfo": {
             "type": "object",
             "properties": {
@@ -562,6 +853,18 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "subscription_date": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.Wallet": {
+            "type": "object",
+            "properties": {
+                "active": {
+                    "description": "true - active dealmaking from this wallet, false - still counts as an associated wallet",
+                    "type": "boolean"
+                },
+                "address": {
                     "type": "string"
                 }
             }
