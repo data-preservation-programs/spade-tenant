@@ -55,4 +55,7 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	// /tenant
 	e.POST("/tenant/settings", s.handleSetTenantSettings)
 	e.GET("/tenant/settings", s.handleGetTenantSettings)
+
+	// /label
+	e.GET("/label/constraint/list", s.handleListConstraintLabel)
 }
