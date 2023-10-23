@@ -300,7 +300,7 @@ paths:
             allOf:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
-                Response:
+                response:
                   $ref: '#/definitions/api.HealthResponse'
               type: object
       summary: Simple health check endpoint

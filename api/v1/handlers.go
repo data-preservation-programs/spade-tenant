@@ -24,14 +24,14 @@ type HealthResponse struct {
 	Alive bool `json:"alive"`
 }
 
-// handleHealth godoc
+// handleStatus godoc
 //	@Summary		Simple health check endpoint
 //	@Description	This endpoint is used to check the health of the service
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=HealthResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=HealthResponse}
 //	@Router			/health [get]
-func (s *apiV1) handleHealth(c echo.Context) error {
+func (s *apiV1) handleStatus(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"status": "ok",
 	})

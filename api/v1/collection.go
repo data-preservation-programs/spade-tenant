@@ -14,6 +14,7 @@ type CreateCollectionRequest struct {
 
 type PieceSource struct {
 	Method string `json:"method"`
+	// TODO: Poll interval hours <optional>
 	// TODO: Piece Source
 }
 
@@ -27,13 +28,13 @@ type CreateCollectionResponse struct {
 	Status       string `json:"status"`
 }
 
-// handlePostCollections godoc
+// handleCreateCollection godoc
 //	@Summary		Creates a new collection
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			collection body CreateCollectionRequest true "Collection to create"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=CreateCollectionResponse}
-//	@Router			/collections [post]
+//	@Success		200	{object}	ResponseEnvelope{response=CreateCollectionResponse}
+//	@Router			/collection [post]
 func (s *apiV1) handleCreateCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
@@ -41,19 +42,26 @@ func (s *apiV1) handleCreateCollection(c echo.Context) error {
 type GetCollectionsResponse []Collection
 
 type Collection struct {
-	ID                          uint    `json:"id"`
-	Name                        string  `json:"name"`
-	OnboardedProgress           float64 `json:"onboarded_progress"`
-	NumDeals                    uint    `json:"num_deals"`
-	OverallRetrievalSuccessRate float64 `json:"overall_retrieval_success_rate"`
+	ID   uint   `json:"id"` // todo: UUIDs
+	Name string `json:"name"`
+	// TODO: replication constraints
+
+	// Different routes:
+	// OnboardedProgress           float64 `json:"onboarded_progress"`
+	// NumDeals                    uint    `json:"num_deals"`
+	// OverallRetrievalSuccessRate float64 `json:"overall_retrieval_success_rate"`
 }
 
-// handleGetCollections godoc
+// handleGetCollection godoc
 //	@Summary		Gets info about collections
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=GetCollectionsResponse}
-//	@Router			/collections [get]
-func (s *apiV1) handleGetCollections(c echo.Context) error {
+//	@Success		200	{object}	ResponseEnvelope{response=GetCollectionsResponse}
+//	@Router			/collection [get]
+func (s *apiV1) handleGetCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
+
+// TODO - hosted piece source
+// Swagger docs for hosted piece source to make sure it makes sense
+// Think about how it fits together coherently re: one single source of data for premium tenants

@@ -16,7 +16,7 @@ type TenantSettings struct {
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			settings body TenantSettings true "New settings to apply"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=TenantSettings}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantSettings}
 //	@Router			/tenant/settings [post]
 func (s *apiV1) handleSetTenantSettings(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
@@ -26,7 +26,7 @@ func (s *apiV1) handleSetTenantSettings(c echo.Context) error {
 //	@Summary		Get the currently active Tenant Settings
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=TenantSettings}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantSettings}
 //	@Router			/tenant/settings [get]
 func (s *apiV1) handleGetTenantSettings(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})

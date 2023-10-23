@@ -27,11 +27,14 @@ func NewApiV1() *apiV1 {
 // @securityDefinitions.Bearer.in header
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
-	e.GET("/health", s.handleHealth)
+
+	// TODO: instead of deals -> "storage contracts
+
+	e.GET("/status", s.handleStatus)
 
 	// /collections
-	e.POST("/collections", s.handleCreateCollection)
-	e.GET("/collections", s.handleGetCollections)
+	e.POST("/collection", s.handleCreateCollection)
+	e.GET("/collection", s.handleGetCollection)
 
 	// /policy
 	e.POST("/policy", s.handleSetPolicy)
@@ -40,23 +43,16 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/policy/storage-contract", s.handleGetStorageContract)
 
 	// /storage-providers
-	e.GET("/storage-providers/subscribed", s.handleGetSubscribedStorageProviders)
-	e.GET("/storage-providers/eligible", s.handleGetEligibleStorageProviders)
-	e.POST("/storage-providers/approve", s.handleApproveStorageProviders)
+	e.GET("/storage-provider/subscribed", s.handleGetSubscribedStorageProvider)
+	e.GET("/storage-provider/eligible", s.handleGetEligibleStorageProvider)
+	e.POST("/storage-provider/approve", s.handleApproveStorageProvider)
 
-	// /wallet-addresses
-	e.PUT("/wallet-addresses", s.handleSetWallets)
-	e.DELETE("/wallet-addresses", s.handleDeleteWallets)
-	e.GET("/wallet-addresses", s.handleGetWallets)
+	// /address
+	e.PUT("/address", s.handleSetAddress)
+	e.DELETE("/address", s.handleDeleteAddress)
+	e.GET("/address", s.handleGetAddress)
 
 	// /tenant
 	e.POST("/tenant/settings", s.handleSetTenantSettings)
 	e.GET("/tenant/settings", s.handleGetTenantSettings)
-
-	// /legend
-	e.POST("/legend", s.handleSetLegend)
-	e.GET("/legend", s.handleGetLegend)
-
-	// /mailbox
-	e.GET("/mailbox", s.handleGetMailbox)
 }

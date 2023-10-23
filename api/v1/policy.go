@@ -13,7 +13,7 @@ type Policy struct {
 type PolicyClause struct {
 	Attribute string      `json:"attribute"`
 	Operator  string      `json:"operator"`
-	Value     interface{} `json:"value"` // TODO: better type?
+	Value     interface{} `json:"value"` // TODO: type - either []string or string
 }
 
 type SetPolicyResponse struct {
@@ -24,7 +24,7 @@ type SetPolicyResponse struct {
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			collection body Policy true "New policy to update to"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=Policy}
+//	@Success		200	{object}	ResponseEnvelope{response=Policy}
 //	@Router			/policy [post]
 func (s *apiV1) handleSetPolicy(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
@@ -34,7 +34,7 @@ func (s *apiV1) handleSetPolicy(c echo.Context) error {
 //	@Summary		Get tenant policy
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=Policy}
+//	@Success		200	{object}	ResponseEnvelope{response=Policy}
 //	@Router			/policy [get]
 func (s *apiV1) handleGetPolicy(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
@@ -65,7 +65,7 @@ type SetStorageContractResponse struct {
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			collection body StorageContract true "New Storage Contract to update to"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=StorageContract}
+//	@Success		200	{object}	ResponseEnvelope{response=StorageContract}
 //	@Router			/policy/storage-contract [post]
 func (s *apiV1) handleSetStorageContract(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
@@ -80,7 +80,7 @@ type GetStorageContractResponse struct {
 //	@Summary		Get tenant storage contract
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{Response=GetStorageContractResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=GetStorageContractResponse}
 //	@Router			/policy/storage-contract [get]
 func (s *apiV1) handleGetStorageContract(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})

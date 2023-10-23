@@ -134,7 +134,7 @@ const docTemplate = `{
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
+                                        "response": {
                                             "$ref": "#/definitions/api.HealthResponse"
                                         }
                                     }
