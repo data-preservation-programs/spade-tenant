@@ -47,9 +47,9 @@ type Tenant struct {
 
 type Address struct {
 	gorm.Model
-	TenantID uint   `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;"`
-	Address  string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;"`
-	Active   bool   `json:"active" gorm:"default:true"`
+	TenantID  uint   `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;"`
+	Address   string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;"`
+	IsSigning bool   `json:"is_signing" gorm:"default:true"`
 }
 type Policy struct {
 	gorm.Model

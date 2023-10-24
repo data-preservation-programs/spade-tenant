@@ -22,3 +22,5 @@ type Label struct {
 func (s *apiV1) handleListConstraintLabel(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
+
+// TODO: ValueLabel - separate APIs

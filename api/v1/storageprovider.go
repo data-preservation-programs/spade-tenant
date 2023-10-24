@@ -11,12 +11,12 @@ type GetSubscribedStorageProviderResponse struct {
 }
 
 type StorageProviderInfo struct {
-	SPID              string   `json:"sp_id"`
-	BytesStored       uint64   `json:"bytes_stored"`
-	CidsStored        uint64   `json:"cids_stored"`
-	CollectionsStored []string `json:"collections_stored"`
-	SubscriptionDate  string   `json:"subscription_date"`
-	LastDealDate      string   `json:"last_deal_date"`
+	SPID string `json:"sp_id"`
+	// BytesStored       uint64   `json:"bytes_stored"`
+	// CidsStored        uint64   `json:"cids_stored"`
+	// CollectionsStored []string `json:"collections_stored"`
+	SubscriptionDate string `json:"subscription_date"`
+	// LastDealDate      string   `json:"last_deal_date"`
 	// TODO: SP Retrieval testing info (bswap, rrhttp, ipni)
 }
 
