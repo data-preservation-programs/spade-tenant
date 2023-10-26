@@ -34,7 +34,7 @@ type CreateCollectionResponse struct {
 //  @Param 			collection body CreateCollectionRequest true "Collection to create"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=CreateCollectionResponse}
-//	@Router			/collection [post]
+//	@Router			/collections [post]
 func (s *apiV1) handleCreateCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
@@ -42,23 +42,18 @@ func (s *apiV1) handleCreateCollection(c echo.Context) error {
 type GetCollectionsResponse []Collection
 
 type Collection struct {
-	ID   uint   `json:"id"` // todo: UUIDs
-	Name string `json:"name"`
-	// TODO: replication constraints
-
-	// Different routes:
-	// OnboardedProgress           float64 `json:"onboarded_progress"`
-	// NumDeals                    uint    `json:"num_deals"`
-	// OverallRetrievalSuccessRate float64 `json:"overall_retrieval_success_rate"`
+	ID                     string                  `json:"id"` // todo: UUIDs
+	Name                   string                  `json:"name"`
+	ReplicationConstraints []ReplicationConstraint `json:"replication_constraints"`
 }
 
-// handleGetCollection godoc
+// handleGetCollections godoc
 //	@Summary		Gets info about collections
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetCollectionsResponse}
-//	@Router			/collection [get]
-func (s *apiV1) handleGetCollection(c echo.Context) error {
+//	@Router			/collections [get]
+func (s *apiV1) handleGetCollections(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 

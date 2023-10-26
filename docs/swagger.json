@@ -15,8 +15,148 @@
         "version": "1.0.0"
     },
     "host": "api.spade.storage",
-    "basePath": "/",
+    "basePath": "/tenant",
     "paths": {
+        "/address": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get addresses used by a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Address"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update addresses associated with a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New addresses to add or change is_signing flag of",
+                        "name": "addresses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.Address"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Address"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete addresses used by a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "addresses to delete",
+                        "name": "addresses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Address"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/collections": {
             "get": {
                 "produces": [
@@ -43,7 +183,7 @@
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
+                                        "response": {
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/definitions/api.Collection"
@@ -90,7 +230,7 @@
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
+                                        "response": {
                                             "$ref": "#/definitions/api.CreateCollectionResponse"
                                         }
                                     }
@@ -101,7 +241,209 @@
                 }
             }
         },
-        "/health": {
+        "/constraint-labels": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List all constraint labels for the tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.Label"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/eligibility-criteria": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get sp eligibility criteria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.EligibilityCriteria"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Set sp eligibility criteria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New eligibility criteria to update to",
+                        "name": "elibility_criteria",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.EligibilityCriteria"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.EligibilityCriteria"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/settings": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get the currently active Tenant Settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.Settings"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Apply new Tenant Settings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New settings to apply",
+                        "name": "settings",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.Settings"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.Settings"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/status": {
             "get": {
                 "description": "This endpoint is used to check the health of the service",
                 "produces": [
@@ -129,7 +471,7 @@
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.HealthResponse"
+                                            "$ref": "#/definitions/api.StatusResponse"
                                         }
                                     }
                                 }
@@ -139,215 +481,7 @@
                 }
             }
         },
-        "/legend": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get legend for a tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.LegendEntry"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update legend for a tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "New legend to update",
-                        "name": "legend",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/api.LegendEntry"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.LegendEntry"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/mailbox": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Gets mailbox messages for the tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.MailboxMessage"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/policy": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get tenant policy",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.Policy"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Set or update a policy",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "New policy to update to",
-                        "name": "collection",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.Policy"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.Policy"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/policy/storage-contract": {
+        "/storage-contract": {
             "get": {
                 "produces": [
                     "application/json"
@@ -373,7 +507,7 @@
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
+                                        "response": {
                                             "$ref": "#/definitions/api.GetStorageContractResponse"
                                         }
                                     }
@@ -418,8 +552,48 @@
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
+                                        "response": {
                                             "$ref": "#/definitions/api.StorageContract"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/storage-providers": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get list of Storage Providers",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.StorageProvider"
+                                            }
                                         }
                                     }
                                 }
@@ -450,7 +624,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.ApproveStorageProviders"
+                            "$ref": "#/definitions/api.StorageProviderIDs"
                         }
                     }
                 ],
@@ -465,8 +639,11 @@
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.GetEligibleStorageProvidersResponse"
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.StorageProvider"
+                                            }
                                         }
                                     }
                                 }
@@ -476,121 +653,13 @@
                 }
             }
         },
-        "/storage-providers/eligible": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get list of Storage Providers not yet working with the tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.GetEligibleStorageProvidersResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/storage-providers/subscribed": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get list of Storage Providers already working with the tenant, and their stats",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.GetSubscribedStorageProvidersResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/tenant/settings": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get the currently active Tenant Settings",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.TenantSettings"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
+        "/storage-providers/suspend": {
             "post": {
+                "description": "Note: This is only required if auto_suspend is false, as manual suspension is required",
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Apply new Tenant Settings",
+                "summary": "Suspend storage providers",
                 "parameters": [
                     {
                         "type": "string",
@@ -600,12 +669,12 @@
                         "required": true
                     },
                     {
-                        "description": "New settings to apply",
-                        "name": "settings",
+                        "description": "List of SP IDs to suspend",
+                        "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.TenantSettings"
+                            "$ref": "#/definitions/api.StorageProviderIDs"
                         }
                     }
                 ],
@@ -620,147 +689,10 @@
                                 {
                                     "type": "object",
                                     "properties": {
-                                        "Response": {
-                                            "$ref": "#/definitions/api.TenantSettings"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/wallet-addresses": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get wallets used by a tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
+                                        "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.Wallet"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "put": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update wallets used by a tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "New wallets to add or change Active flag of",
-                        "name": "wallets",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/api.Wallet"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.Wallet"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Delete wallets used by a tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "wallet addresses to delete",
-                        "name": "wallets",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "Response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.Wallet"
+                                                "$ref": "#/definitions/api.StorageProvider"
                                             }
                                         }
                                     }
@@ -773,14 +705,15 @@
         }
     },
     "definitions": {
-        "api.ApproveStorageProviders": {
+        "api.Address": {
             "type": "object",
             "properties": {
-                "sp_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "address": {
+                    "type": "string"
+                },
+                "is_signing": {
+                    "description": "true - active dealmaking from this address, false - still counts as an associated wallet",
+                    "type": "boolean"
                 }
             }
         },
@@ -788,19 +721,17 @@
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
+                    "description": "todo: UUIDs",
+                    "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
-                "num_deals": {
-                    "type": "integer"
-                },
-                "onboarded_progress": {
-                    "type": "number"
-                },
-                "overall_retrieval_success_rate": {
-                    "type": "number"
+                "replication_constraints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ReplicationConstraint"
+                    }
                 }
             }
         },
@@ -832,24 +763,27 @@
                 }
             }
         },
-        "api.EligibleStorageProvider": {
+        "api.EligibilityClause": {
             "type": "object",
             "properties": {
-                "sp_id": {
+                "attribute": {
                     "type": "string"
                 },
-                "subscribed": {
-                    "type": "boolean"
+                "operator": {
+                    "type": "string"
+                },
+                "value": {
+                    "description": "TODO: type - either []string or string"
                 }
             }
         },
-        "api.GetEligibleStorageProvidersResponse": {
+        "api.EligibilityCriteria": {
             "type": "object",
             "properties": {
-                "eligible_storage_providers": {
+                "clauses": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/api.EligibleStorageProvider"
+                        "$ref": "#/definitions/api.EligibilityClause"
                     }
                 }
             }
@@ -900,42 +834,14 @@
                 }
             }
         },
-        "api.GetSubscribedStorageProvidersResponse": {
+        "api.Label": {
             "type": "object",
             "properties": {
-                "storage_provider_info": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.StorageProviderInfo"
-                    }
-                }
-            }
-        },
-        "api.HealthResponse": {
-            "type": "object",
-            "properties": {
-                "alive": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.LegendEntry": {
-            "type": "object",
-            "properties": {
-                "key": {
+                "id": {
                     "type": "string"
                 },
-                "value": {
+                "label": {
                     "type": "string"
-                }
-            }
-        },
-        "api.MailboxMessage": {
-            "type": "object",
-            "properties": {
-                "notifications": {
-                    "type": "array",
-                    "items": {}
                 }
             }
         },
@@ -944,31 +850,6 @@
             "properties": {
                 "method": {
                     "type": "string"
-                }
-            }
-        },
-        "api.Policy": {
-            "type": "object",
-            "properties": {
-                "clauses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.PolicyClause"
-                    }
-                }
-            }
-        },
-        "api.PolicyClause": {
-            "type": "object",
-            "properties": {
-                "attribute": {
-                    "type": "string"
-                },
-                "operator": {
-                    "type": "string"
-                },
-                "value": {
-                    "description": "TODO: better type?"
                 }
             }
         },
@@ -1022,6 +903,25 @@
                 }
             }
         },
+        "api.Settings": {
+            "type": "object",
+            "properties": {
+                "auto_approve": {
+                    "type": "boolean"
+                },
+                "auto_suspend": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.StatusResponse": {
+            "type": "object",
+            "properties": {
+                "alive": {
+                    "type": "boolean"
+                }
+            }
+        },
         "api.StorageContract": {
             "type": "object",
             "properties": {
@@ -1065,25 +965,14 @@
                 }
             }
         },
-        "api.StorageProviderInfo": {
+        "api.StorageProvider": {
             "type": "object",
             "properties": {
-                "bytes_stored": {
-                    "type": "integer"
-                },
-                "cids_stored": {
-                    "type": "integer"
-                },
-                "collections_stored": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "last_deal_date": {
+                "sp_id": {
                     "type": "string"
                 },
-                "sp_id": {
+                "status": {
+                    "description": "* ENUM: [ eligible, pending-approval, active, suspended ]",
                     "type": "string"
                 },
                 "subscription_date": {
@@ -1091,26 +980,14 @@
                 }
             }
         },
-        "api.TenantSettings": {
+        "api.StorageProviderIDs": {
             "type": "object",
             "properties": {
-                "auto_approve": {
-                    "type": "boolean"
-                },
-                "auto_suspend": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.Wallet": {
-            "type": "object",
-            "properties": {
-                "active": {
-                    "description": "true - active dealmaking from this wallet, false - still counts as an associated wallet",
-                    "type": "boolean"
-                },
-                "address": {
-                    "type": "string"
+                "sp_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         }

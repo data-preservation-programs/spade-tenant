@@ -13,14 +13,34 @@ type Label struct {
 	Label string `json:"label"`
 }
 
-// handleListConstraintLabel godoc
+// handleGetConstraintLabels godoc
 //	@Summary		List all constraint labels for the tenant
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabel}
-//	@Router			/label/constraint/list [get]
-func (s *apiV1) handleListConstraintLabel(c echo.Context) error {
+//	@Router			/constraint-labels [get]
+func (s *apiV1) handleGetConstraintLabels(c echo.Context) error {
+	// TODO:return both constraint type, and value labels from one endpoint
+	// nested json
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
-// TODO: ValueLabel - separate APIs
+// TODO: PUT
+
+/**
+ * // common ones only
+[
+  {
+    "label": "country",
+    "id": 1,
+    "enum": {
+      "CANADA": 10,
+      "USA": 20
+    }
+  },
+  {
+    "label": "org", // does not need enum. just ints used for the matching
+    "id": 2
+  }
+]
+*/

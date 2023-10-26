@@ -6,28 +6,28 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type TenantSettings struct {
+type Settings struct {
 	AutoApprove bool `json:"auto_approve"`
 	AutoSuspend bool `json:"auto_suspend"`
 }
 
-// handleSetTenantSettings godoc
+// handleGetSettings godoc
 //	@Summary		Apply new Tenant Settings
 // 	@Param 		  token header string true "Auth token"
-//  @Param 			settings body TenantSettings true "New settings to apply"
+//  @Param 			settings body Settings true "New settings to apply"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=TenantSettings}
-//	@Router			/tenant/settings [post]
-func (s *apiV1) handleSetTenantSettings(c echo.Context) error {
+//	@Success		200	{object}	ResponseEnvelope{response=Settings}
+//	@Router			/settings [post]
+func (s *apiV1) handleGetSettings(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
-// handleGetTenantSettings godoc
+// handleSetSettings godoc
 //	@Summary		Get the currently active Tenant Settings
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=TenantSettings}
-//	@Router			/tenant/settings [get]
-func (s *apiV1) handleGetTenantSettings(c echo.Context) error {
+//	@Success		200	{object}	ResponseEnvelope{response=Settings}
+//	@Router			/settings [get]
+func (s *apiV1) handleSetSettings(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

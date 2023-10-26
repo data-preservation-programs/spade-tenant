@@ -21,31 +21,30 @@ func NewApiV1() *apiV1 {
 // @license.url https://github.com/data-preservation-programs/spade/blob/master/LICENSE.md
 
 // @host api.spade.storage
-// @BasePath  /
+// @BasePath  /tenant
 // @securityDefinitions.Bearer
 // @securityDefinitions.Bearer.type apiKey
 // @securityDefinitions.Bearer.in header
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
-
-	// TODO: instead of deals -> "storage contracts
-
 	e.GET("/status", s.handleStatus)
 
 	// /collections
-	e.POST("/collection", s.handleCreateCollection)
-	e.GET("/collection", s.handleGetCollection)
+	e.POST("/collections", s.handleCreateCollection)
+	e.GET("/collections", s.handleGetCollections)
 
-	// /policy
-	e.POST("/policy", s.handleSetPolicy)
-	e.POST("/policy/storage-contract", s.handleSetStorageContract)
-	e.GET("/policy", s.handleGetPolicy)
-	e.GET("/policy/storage-contract", s.handleGetStorageContract)
+	// /eligibility-criteria
+	e.POST("/policy", s.handleSetEligibilityCriteria)
+	e.GET("/policy", s.handleGetEligibilityCriteria)
+
+	// /storage-contract
+	e.GET("/storage-contract", s.handleGetStorageContract)
+	e.POST("/storage-contract", s.handleSetStorageContract)
 
 	// /storage-providers
-	e.GET("/storage-provider/subscribed", s.handleGetSubscribedStorageProvider)
-	e.GET("/storage-provider/eligible", s.handleGetEligibleStorageProvider)
-	e.POST("/storage-provider/approve", s.handleApproveStorageProvider)
+	e.GET("/storage-providers", s.handleGetStorageProviders)
+	e.POST("/storage-providers/approve", s.handleApproveStorageProviders)
+	e.POST("/storage-providers/suspend", s.handleSuspendStorageProviders)
 
 	// /address
 	e.PUT("/address", s.handleSetAddress)
@@ -53,9 +52,9 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/address", s.handleGetAddress)
 
 	// /tenant
-	e.POST("/tenant/settings", s.handleSetTenantSettings)
-	e.GET("/tenant/settings", s.handleGetTenantSettings)
+	e.POST("/settings", s.handleGetSettings)
+	e.GET("/settings", s.handleSetSettings)
 
 	// /label
-	e.GET("/label/constraint/list", s.handleListConstraintLabel)
+	e.GET("/label/constraint/list", s.handleGetConstraintLabels)
 }

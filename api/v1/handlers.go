@@ -20,7 +20,7 @@ type ResponseEnvelope struct {
 	Response           interface{} `json:"response"`
 }
 
-type HealthResponse struct {
+type StatusResponse struct {
 	Alive bool `json:"alive"`
 }
 
@@ -29,8 +29,8 @@ type HealthResponse struct {
 //	@Description	This endpoint is used to check the health of the service
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=HealthResponse}
-//	@Router			/health [get]
+//	@Success		200	{object}	ResponseEnvelope{response=StatusResponse}
+//	@Router			/status [get]
 func (s *apiV1) handleStatus(c echo.Context) error {
 	return c.JSON(http.StatusOK, map[string]string{
 		"status": "ok",

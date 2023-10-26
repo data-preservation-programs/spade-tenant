@@ -6,40 +6,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type Policy struct {
-	Clauses []PolicyClause `json:"clauses"`
-}
-
-type PolicyClause struct {
-	Attribute string      `json:"attribute"`
-	Operator  string      `json:"operator"`
-	Value     interface{} `json:"value"` // TODO: type - either []string or string
-}
-
-type SetPolicyResponse struct {
-}
-
-// handleSetPolicy godoc
-//	@Summary		Set or update a policy
-// 	@Param 		  token header string true "Auth token"
-//  @Param 			collection body Policy true "New policy to update to"
-//	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Policy}
-//	@Router			/policy [post]
-func (s *apiV1) handleSetPolicy(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
-}
-
-// handleGetPolicy godoc
-//	@Summary		Get tenant policy
-// 	@Param 		  token header string true "Auth token"
-//	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Policy}
-//	@Router			/policy [get]
-func (s *apiV1) handleGetPolicy(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
-}
-
 type StorageContract struct {
 	Content struct {
 		InfoLines []string `json:"info_lines"`
@@ -59,6 +25,8 @@ type SetStorageContractResponse struct {
 	Cid string `json:"cid"`
 }
 
+// TODO: Allow POST to set both the contract, OR the CID, OR if both are set -> verify match first (grab from IPFS) and serialize before doing anything
+
 // handleSetStorageContract godoc
 //	@Summary		Update storage contract
 // 	@Description 	Updates the storage contract *note* this will require SPs to resubscribe if changed
@@ -66,7 +34,7 @@ type SetStorageContractResponse struct {
 //  @Param 			collection body StorageContract true "New Storage Contract to update to"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=StorageContract}
-//	@Router			/policy/storage-contract [post]
+//	@Router			/storage-contract [post]
 func (s *apiV1) handleSetStorageContract(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
@@ -81,7 +49,7 @@ type GetStorageContractResponse struct {
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageContractResponse}
-//	@Router			/policy/storage-contract [get]
+//	@Router			/storage-contract [get]
 func (s *apiV1) handleGetStorageContract(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
