@@ -13,9 +13,9 @@ type CreateCollectionRequest struct {
 }
 
 type PieceSource struct {
-	Method string `json:"method"`
-	// TODO: Poll interval hours <optional>
-	// TODO: Piece Source
+	Method            string `json:"method"`
+	PollIntervalHours int    `json:"poll_interval_hours,omitempty"`
+	ConnectionDetails string `json:"connection_details"` // TODO: better types / validation for the connection details
 }
 
 type ReplicationConstraint struct {
@@ -56,7 +56,3 @@ type Collection struct {
 func (s *apiV1) handleGetCollections(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
-
-// TODO - hosted piece source
-// Swagger docs for hosted piece source to make sure it makes sense
-// Think about how it fits together coherently re: one single source of data for premium tenants

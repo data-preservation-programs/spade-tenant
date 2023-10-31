@@ -860,8 +860,15 @@ const docTemplate = `{
         "api.PieceSource": {
             "type": "object",
             "properties": {
+                "connection_details": {
+                    "description": "TODO: better types / validation for the connection details",
+                    "type": "string"
+                },
                 "method": {
                     "type": "string"
+                },
+                "poll_interval_hours": {
+                    "type": "integer"
                 }
             }
         },
