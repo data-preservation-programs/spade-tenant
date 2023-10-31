@@ -47,9 +47,9 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.POST("/storage-providers/suspend", s.handleSuspendStorageProviders)
 
 	// /address
-	e.PUT("/address", s.handleSetAddress)
-	e.DELETE("/address", s.handleDeleteAddress)
-	e.GET("/address", s.handleGetAddress)
+	e.PUT("/addresses", s.handleSetAddresses)
+	e.DELETE("/addresses", s.handleDeleteAddresses)
+	e.GET("/addresses", s.handleGetAddresses)
 
 	// /tenant
 	e.POST("/settings", s.handleGetSettings)

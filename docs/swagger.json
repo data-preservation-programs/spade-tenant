@@ -17,7 +17,7 @@
     "host": "api.spade.storage",
     "basePath": "/tenant",
     "paths": {
-        "/address": {
+        "/addresses": {
             "get": {
                 "produces": [
                     "application/json"

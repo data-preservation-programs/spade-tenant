@@ -209,7 +209,7 @@ info:
   title: Spade Tenant API
   version: 1.0.0
 paths:
-  /address:
+  /addresses:
     delete:
       parameters:
       - description: Auth token

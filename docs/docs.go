@@ -23,7 +23,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/address": {
+        "/addresses": {
             "get": {
                 "produces": [
                     "application/json"
