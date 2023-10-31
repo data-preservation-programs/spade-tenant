@@ -86,6 +86,10 @@ definitions:
     type: object
   api.Label:
     properties:
+      enum:
+        additionalProperties:
+          type: integer
+        type: object
       id:
         type: string
       label:
@@ -128,6 +132,13 @@ definitions:
         type: integer
       response_timestamp:
         type: string
+    type: object
+  api.SetStorageContractRequest:
+    properties:
+      cid:
+        type: string
+      storage_contract:
+        $ref: '#/definitions/api.StorageContract'
     type: object
   api.Settings:
     properties:
@@ -491,8 +502,12 @@ paths:
               type: object
       summary: Get tenant storage contract
     post:
-      description: Updates the storage contract *note* this will require SPs to resubscribe
-        if changed
+      description: |-
+        Updates the storage contract. <br/>
+        <br/> *Note* this will require SPs to resubscribe if changed.
+        <br/> *Note* CID is optional, if specified, then `storage_contract` becomes optional.
+        If both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.
+        If only CID is specified, then we will fetch it and update the storage contract to it.
       parameters:
       - description: Auth token
         in: header
@@ -504,7 +519,7 @@ paths:
         name: collection
         required: true
         schema:
-          $ref: '#/definitions/api.StorageContract'
+          $ref: '#/definitions/api.SetStorageContractRequest'
       produces:
       - application/json
       responses:

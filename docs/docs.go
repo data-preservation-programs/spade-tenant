@@ -524,7 +524,7 @@ const docTemplate = `{
                 }
             },
             "post": {
-                "description": "Updates the storage contract *note* this will require SPs to resubscribe if changed",
+                "description": "Updates the storage contract. \u003cbr/\u003e\n\u003cbr/\u003e *Note* this will require SPs to resubscribe if changed.\n\u003cbr/\u003e *Note* CID is optional, if specified, then ` + "`" + `storage_contract` + "`" + ` becomes optional.\nIf both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.\nIf only CID is specified, then we will fetch it and update the storage contract to it.",
                 "produces": [
                     "application/json"
                 ],
@@ -543,7 +543,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.StorageContract"
+                            "$ref": "#/definitions/api.SetStorageContractRequest"
                         }
                     }
                 ],
@@ -843,6 +843,12 @@ const docTemplate = `{
         "api.Label": {
             "type": "object",
             "properties": {
+                "enum": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
                 "id": {
                     "type": "string"
                 },
@@ -906,6 +912,17 @@ const docTemplate = `{
                 },
                 "response_timestamp": {
                     "type": "string"
+                }
+            }
+        },
+        "api.SetStorageContractRequest": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "string"
+                },
+                "storage_contract": {
+                    "$ref": "#/definitions/api.StorageContract"
                 }
             }
         },
