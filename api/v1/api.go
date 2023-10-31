@@ -46,15 +46,15 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.POST("/storage-providers/approve", s.handleApproveStorageProviders)
 	e.POST("/storage-providers/suspend", s.handleSuspendStorageProviders)
 
-	// /address
+	// /addresses
 	e.PUT("/addresses", s.handleSetAddresses)
 	e.DELETE("/addresses", s.handleDeleteAddresses)
 	e.GET("/addresses", s.handleGetAddresses)
 
-	// /tenant
+	// /settings
 	e.POST("/settings", s.handleGetSettings)
 	e.GET("/settings", s.handleSetSettings)
 
-	// /label
-	e.GET("/label/constraint/list", s.handleGetConstraintLabels)
+	// /constraint-labels
+	e.GET("/constraint-labels", s.handleGetConstraintLabels)
 }

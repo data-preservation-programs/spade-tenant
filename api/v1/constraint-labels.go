@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type ConstraintLabel []Label
+type ConstraintLabels []Label
 
 type Label struct {
 	ID    string          `json:"id"`
@@ -18,7 +18,7 @@ type Label struct {
 //	@Summary		List all constraint labels for the tenant
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabel}
+//	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabels}
 //	@Router			/constraint-labels [get]
 func (s *apiV1) handleGetConstraintLabels(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
