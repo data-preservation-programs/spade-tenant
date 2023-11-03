@@ -7,8 +7,14 @@ import (
 )
 
 type Addresses []Address
+type AddressesMutable []AddressMutable
 
 type Address struct {
+	AddressMutable
+	ActorID *uint `json:"actor_id,omitempty"` // TODO :swagger docs should be null not 0
+}
+
+type AddressMutable struct {
 	Address   string `json:"address"`
 	IsSigning bool   `json:"is_signing"` // true - active dealmaking from this address, false - still counts as an associated wallet
 }
@@ -16,7 +22,7 @@ type Address struct {
 // handleSetAddresses godoc
 //	@Summary		Update addresses associated with a tenant
 // 	@Param 		  token header string true "Auth token"
-//  @Param 			addresses body Addresses true "New addresses to add or change is_signing flag of"
+//  @Param 			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [put]

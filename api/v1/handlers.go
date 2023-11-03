@@ -8,7 +8,7 @@ import (
 )
 
 type ResponseEnvelope struct {
-	RequestID          string      `json:"request_id,omitempty"`
+	RequestUUID        string      `json:"request_uuid,omitempty"`
 	ResponseTime       time.Time   `json:"response_timestamp"`
 	ResponseStateEpoch int64       `json:"response_state_epoch,omitempty"`
 	ResponseCode       int         `json:"response_code"`
@@ -20,19 +20,13 @@ type ResponseEnvelope struct {
 	Response           interface{} `json:"response"`
 }
 
-type StatusResponse struct {
-	Alive bool `json:"alive"`
-}
-
 // handleStatus godoc
 //	@Summary		Simple health check endpoint
 //	@Description	This endpoint is used to check the health of the service
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=StatusResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=string}
 //	@Router			/status [get]
 func (s *apiV1) handleStatus(c echo.Context) error {
-	return c.JSON(http.StatusOK, map[string]string{
-		"status": "ok",
-	})
+	return c.JSON(http.StatusOK, "ok")
 }

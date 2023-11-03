@@ -3,15 +3,16 @@ package api
 import (
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
 type ConstraintLabels []Label
 
 type Label struct {
-	ID    string          `json:"id"`
-	Label string          `json:"label"`
-	Enum  map[string]uint `json:"enum"`
+	UUID    uuid.UUID       `json:"uuid"`
+	Label   string          `json:"label"`
+	Options map[string]uint `json:"options"` // TODO: can edit the examples instead of additionalProp
 }
 
 // handleGetConstraintLabels godoc

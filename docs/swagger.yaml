@@ -2,6 +2,9 @@ basePath: /tenant
 definitions:
   api.Address:
     properties:
+      actor_id:
+        description: TODO :swagger docs should be null not 0
+        type: integer
       address:
         type: string
       is_signing:
@@ -9,35 +12,45 @@ definitions:
           as an associated wallet
         type: boolean
     type: object
+  api.AddressMutable:
+    properties:
+      address:
+        type: string
+      is_signing:
+        description: true - active dealmaking from this address, false - still counts
+          as an associated wallet
+        type: boolean
+    type: object
+  api.AddressedStorageContract:
+    properties:
+      cid:
+        type: string
+      storage_contract:
+        $ref: '#/definitions/api.StorageContract'
+    type: object
   api.Collection:
     properties:
-      id:
-        description: 'todo: UUIDs'
-        type: string
+      deal_params:
+        $ref: '#/definitions/api.DealParams'
+      inactive:
+        type: boolean
       name:
         type: string
+      piece_list_source:
+        $ref: '#/definitions/api.PieceListSource'
       replication_constraints:
         items:
           $ref: '#/definitions/api.ReplicationConstraint'
         type: array
-    type: object
-  api.CreateCollectionRequest:
-    properties:
-      name:
+      uuid:
         type: string
-      piece_source:
-        $ref: '#/definitions/api.PieceSource'
-      replication_constraints:
-        items:
-          $ref: '#/definitions/api.ReplicationConstraint'
-        type: array
     type: object
-  api.CreateCollectionResponse:
+  api.DealParams:
     properties:
-      collection_id:
+      duration_days:
         type: integer
-      status:
-        type: string
+      start_within_hours:
+        type: integer
     type: object
   api.EligibilityClause:
     properties:
@@ -55,47 +68,34 @@ definitions:
           $ref: '#/definitions/api.EligibilityClause'
         type: array
     type: object
-  api.GetStorageContractResponse:
-    properties:
-      cid:
-        type: string
-      content:
-        properties:
-          info_lines:
-            items:
-              type: string
-            type: array
-        type: object
-      retrieval:
-        properties:
-          mechanisms:
-            properties:
-              ipld_bitswap:
-                type: boolean
-              piece_rrhttp:
-                type: boolean
-            type: object
-          sla:
-            properties:
-              info_lines:
-                items:
-                  type: string
-                type: array
-            type: object
-        type: object
-    type: object
   api.Label:
     properties:
-      enum:
-        additionalProperties:
-          type: integer
-        type: object
-      id:
-        type: string
       label:
         type: string
+      options:
+        additionalProperties:
+          type: integer
+        description: 'TODO: can edit the examples instead of additionalProp'
+        type: object
+      uuid:
+        type: string
     type: object
-  api.PieceSource:
+  api.MutableCollection:
+    properties:
+      deal_params:
+        $ref: '#/definitions/api.DealParams'
+      inactive:
+        type: boolean
+      name:
+        type: string
+      piece_list_source:
+        $ref: '#/definitions/api.PieceListSource'
+      replication_constraints:
+        items:
+          $ref: '#/definitions/api.ReplicationConstraint'
+        type: array
+    type: object
+  api.PieceListSource:
     properties:
       connection_details:
         description: 'TODO: better types / validation for the connection details'
@@ -126,7 +126,7 @@ definitions:
         items:
           type: string
         type: array
-      request_id:
+      request_uuid:
         type: string
       response: {}
       response_code:
@@ -138,23 +138,13 @@ definitions:
       response_timestamp:
         type: string
     type: object
-  api.SetStorageContractRequest:
-    properties:
-      cid:
-        type: string
-      storage_contract:
-        $ref: '#/definitions/api.StorageContract'
-    type: object
   api.Settings:
     properties:
-      auto_approve:
+      max_in_flight_gib:
+        type: integer
+      sp_auto_approve:
         type: boolean
-      auto_suspend:
-        type: boolean
-    type: object
-  api.StatusResponse:
-    properties:
-      alive:
+      sp_auto_suspend:
         type: boolean
     type: object
   api.StorageContract:
@@ -186,19 +176,21 @@ definitions:
     type: object
   api.StorageProvider:
     properties:
-      sp_id:
+      first_activated_at:
         type: string
+      sp_id:
+        type: integer
       status:
         description: '* ENUM: [ eligible, pending-approval, active, suspended ]'
         type: string
-      subscription_date:
+      status_last_changed:
         type: string
     type: object
   api.StorageProviderIDs:
     properties:
       sp_ids:
         items:
-          type: string
+          type: integer
         type: array
     type: object
 host: api.spade.storage
@@ -280,7 +272,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/api.Address'
+            $ref: '#/definitions/api.AddressMutable'
           type: array
       produces:
       - application/json
@@ -315,9 +307,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  items:
-                    $ref: '#/definitions/api.Collection'
-                  type: array
+                  $ref: '#/definitions/api.Collection'
               type: object
       summary: Gets info about collections
     post:
@@ -332,7 +322,7 @@ paths:
         name: collection
         required: true
         schema:
-          $ref: '#/definitions/api.CreateCollectionRequest'
+          $ref: '#/definitions/api.MutableCollection'
       produces:
       - application/json
       responses:
@@ -343,7 +333,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.CreateCollectionResponse'
+                  $ref: '#/definitions/api.Collection'
               type: object
       summary: Creates a new collection
   /constraint-labels:
@@ -369,53 +359,6 @@ paths:
                   type: array
               type: object
       summary: List all constraint labels for the tenant
-  /eligibility-criteria:
-    get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.EligibilityCriteria'
-              type: object
-      summary: Get sp eligibility criteria
-    post:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
-      - description: New eligibility criteria to update to
-        in: body
-        name: elibility_criteria
-        required: true
-        schema:
-          $ref: '#/definitions/api.EligibilityCriteria'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.EligibilityCriteria'
-              type: object
-      summary: Set sp eligibility criteria
   /settings:
     get:
       parameters:
@@ -463,82 +406,7 @@ paths:
                   $ref: '#/definitions/api.Settings'
               type: object
       summary: Apply new Tenant Settings
-  /status:
-    get:
-      description: This endpoint is used to check the health of the service
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.StatusResponse'
-              type: object
-      summary: Simple health check endpoint
-  /storage-contract:
-    get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.GetStorageContractResponse'
-              type: object
-      summary: Get tenant storage contract
-    post:
-      description: |-
-        Updates the storage contract. <br/>
-        <br/> *Note* this will require SPs to resubscribe if changed.
-        <br/> *Note* CID is optional, if specified, then `storage_contract` becomes optional.
-        If both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.
-        If only CID is specified, then we will fetch it and update the storage contract to it.
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
-      - description: New Storage Contract to update to
-        in: body
-        name: collection
-        required: true
-        schema:
-          $ref: '#/definitions/api.SetStorageContractRequest'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.StorageContract'
-              type: object
-      summary: Update storage contract
-  /storage-providers:
+  /sp:
     get:
       parameters:
       - description: Auth token
@@ -561,7 +429,7 @@ paths:
                   type: array
               type: object
       summary: Get list of Storage Providers
-  /storage-providers/approve:
+  /sp/approve:
     post:
       description: 'Note: This is only required if auto_approve is false, requiring
         manual approval of SP subscription'
@@ -592,7 +460,54 @@ paths:
                   type: array
               type: object
       summary: Approves a list of Storage Providers to work with the tenant
-  /storage-providers/suspend:
+  /sp/eligibility-criteria:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  $ref: '#/definitions/api.EligibilityCriteria'
+              type: object
+      summary: Get sp eligibility criteria
+    post:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New eligibility criteria to update to
+        in: body
+        name: elibility_criteria
+        required: true
+        schema:
+          $ref: '#/definitions/api.EligibilityCriteria'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  $ref: '#/definitions/api.EligibilityCriteria'
+              type: object
+      summary: Set sp eligibility criteria
+  /sp/suspend:
     post:
       description: 'Note: This is only required if auto_suspend is false, as manual
         suspension is required'
@@ -623,4 +538,79 @@ paths:
                   type: array
               type: object
       summary: Suspend storage providers
+  /status:
+    get:
+      description: This endpoint is used to check the health of the service
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  type: string
+              type: object
+      summary: Simple health check endpoint
+  /storage-contract:
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  $ref: '#/definitions/api.AddressedStorageContract'
+              type: object
+      summary: Get tenant storage contract
+    post:
+      description: |-
+        Updates the storage contract. <br/>
+        <br/> *Note* this will require SPs to resubscribe if changed.
+        <br/> *Note* CID is optional, if specified, then `storage_contract` becomes optional.
+        If both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.
+        If only CID is specified, then we will fetch it and update the storage contract to it.
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New Storage Contract to update to
+        in: body
+        name: collection
+        required: true
+        schema:
+          $ref: '#/definitions/api.AddressedStorageContract'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  $ref: '#/definitions/api.AddressedStorageContract'
+              type: object
+      summary: Update storage contract
 swagger: "2.0"

@@ -83,7 +83,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/api.Address"
+                                "$ref": "#/definitions/api.AddressMutable"
                             }
                         }
                     }
@@ -190,10 +190,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.Collection"
-                                            }
+                                            "$ref": "#/definitions/api.Collection"
                                         }
                                     }
                                 }
@@ -221,7 +218,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.CreateCollectionRequest"
+                            "$ref": "#/definitions/api.MutableCollection"
                         }
                     }
                 ],
@@ -237,7 +234,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.CreateCollectionResponse"
+                                            "$ref": "#/definitions/api.Collection"
                                         }
                                     }
                                 }
@@ -278,87 +275,6 @@ const docTemplate = `{
                                             "items": {
                                                 "$ref": "#/definitions/api.Label"
                                             }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/eligibility-criteria": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get sp eligibility criteria",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.EligibilityCriteria"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Set sp eligibility criteria",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "New eligibility criteria to update to",
-                        "name": "elibility_criteria",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.EligibilityCriteria"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.EligibilityCriteria"
                                         }
                                     }
                                 }
@@ -449,127 +365,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/status": {
-            "get": {
-                "description": "This endpoint is used to check the health of the service",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Simple health check endpoint",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.StatusResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/storage-contract": {
-            "get": {
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Get tenant storage contract",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.GetStorageContractResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "description": "Updates the storage contract. \u003cbr/\u003e\n\u003cbr/\u003e *Note* this will require SPs to resubscribe if changed.\n\u003cbr/\u003e *Note* CID is optional, if specified, then ` + "`" + `storage_contract` + "`" + ` becomes optional.\nIf both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.\nIf only CID is specified, then we will fetch it and update the storage contract to it.",
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Update storage contract",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "New Storage Contract to update to",
-                        "name": "collection",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.SetStorageContractRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.StorageContract"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/storage-providers": {
+        "/sp": {
             "get": {
                 "produces": [
                     "application/json"
@@ -609,7 +405,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/storage-providers/approve": {
+        "/sp/approve": {
             "post": {
                 "description": "Note: This is only required if auto_approve is false, requiring manual approval of SP subscription",
                 "produces": [
@@ -659,7 +455,88 @@ const docTemplate = `{
                 }
             }
         },
-        "/storage-providers/suspend": {
+        "/sp/eligibility-criteria": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get sp eligibility criteria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.EligibilityCriteria"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Set sp eligibility criteria",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New eligibility criteria to update to",
+                        "name": "elibility_criteria",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.EligibilityCriteria"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.EligibilityCriteria"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/sp/suspend": {
             "post": {
                 "description": "Note: This is only required if auto_suspend is false, as manual suspension is required",
                 "produces": [
@@ -708,10 +585,146 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/status": {
+            "get": {
+                "description": "This endpoint is used to check the health of the service",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Simple health check endpoint",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/storage-contract": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get tenant storage contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.AddressedStorageContract"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Updates the storage contract. \u003cbr/\u003e\n\u003cbr/\u003e *Note* this will require SPs to resubscribe if changed.\n\u003cbr/\u003e *Note* CID is optional, if specified, then ` + "`" + `storage_contract` + "`" + ` becomes optional.\nIf both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.\nIf only CID is specified, then we will fetch it and update the storage contract to it.",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Update storage contract",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New Storage Contract to update to",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.AddressedStorageContract"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.AddressedStorageContract"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
         "api.Address": {
+            "type": "object",
+            "properties": {
+                "actor_id": {
+                    "description": "TODO :swagger docs should be null not 0",
+                    "type": "integer"
+                },
+                "address": {
+                    "type": "string"
+                },
+                "is_signing": {
+                    "description": "true - active dealmaking from this address, false - still counts as an associated wallet",
+                    "type": "boolean"
+                }
+            }
+        },
+        "api.AddressMutable": {
             "type": "object",
             "properties": {
                 "address": {
@@ -723,49 +736,51 @@ const docTemplate = `{
                 }
             }
         },
+        "api.AddressedStorageContract": {
+            "type": "object",
+            "properties": {
+                "cid": {
+                    "type": "string"
+                },
+                "storage_contract": {
+                    "$ref": "#/definitions/api.StorageContract"
+                }
+            }
+        },
         "api.Collection": {
             "type": "object",
             "properties": {
-                "id": {
-                    "description": "todo: UUIDs",
-                    "type": "string"
+                "deal_params": {
+                    "$ref": "#/definitions/api.DealParams"
+                },
+                "inactive": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
+                },
+                "piece_list_source": {
+                    "$ref": "#/definitions/api.PieceListSource"
                 },
                 "replication_constraints": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/api.ReplicationConstraint"
                     }
-                }
-            }
-        },
-        "api.CreateCollectionRequest": {
-            "type": "object",
-            "properties": {
-                "name": {
+                },
+                "uuid": {
                     "type": "string"
-                },
-                "piece_source": {
-                    "$ref": "#/definitions/api.PieceSource"
-                },
-                "replication_constraints": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.ReplicationConstraint"
-                    }
                 }
             }
         },
-        "api.CreateCollectionResponse": {
+        "api.DealParams": {
             "type": "object",
             "properties": {
-                "collection_id": {
+                "duration_days": {
                     "type": "integer"
                 },
-                "status": {
-                    "type": "string"
+                "start_within_hours": {
+                    "type": "integer"
                 }
             }
         },
@@ -794,70 +809,48 @@ const docTemplate = `{
                 }
             }
         },
-        "api.GetStorageContractResponse": {
-            "type": "object",
-            "properties": {
-                "cid": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "object",
-                    "properties": {
-                        "info_lines": {
-                            "type": "array",
-                            "items": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "retrieval": {
-                    "type": "object",
-                    "properties": {
-                        "mechanisms": {
-                            "type": "object",
-                            "properties": {
-                                "ipld_bitswap": {
-                                    "type": "boolean"
-                                },
-                                "piece_rrhttp": {
-                                    "type": "boolean"
-                                }
-                            }
-                        },
-                        "sla": {
-                            "type": "object",
-                            "properties": {
-                                "info_lines": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "api.Label": {
             "type": "object",
             "properties": {
-                "enum": {
+                "label": {
+                    "type": "string"
+                },
+                "options": {
+                    "description": "TODO: can edit the examples instead of additionalProp",
                     "type": "object",
                     "additionalProperties": {
                         "type": "integer"
                     }
                 },
-                "id": {
-                    "type": "string"
-                },
-                "label": {
+                "uuid": {
                     "type": "string"
                 }
             }
         },
-        "api.PieceSource": {
+        "api.MutableCollection": {
+            "type": "object",
+            "properties": {
+                "deal_params": {
+                    "$ref": "#/definitions/api.DealParams"
+                },
+                "inactive": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "piece_list_source": {
+                    "$ref": "#/definitions/api.PieceListSource"
+                },
+                "replication_constraints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.ReplicationConstraint"
+                    }
+                }
+            }
+        },
+        "api.PieceListSource": {
             "type": "object",
             "properties": {
                 "connection_details": {
@@ -904,7 +897,7 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
-                "request_id": {
+                "request_uuid": {
                     "type": "string"
                 },
                 "response": {},
@@ -922,32 +915,16 @@ const docTemplate = `{
                 }
             }
         },
-        "api.SetStorageContractRequest": {
-            "type": "object",
-            "properties": {
-                "cid": {
-                    "type": "string"
-                },
-                "storage_contract": {
-                    "$ref": "#/definitions/api.StorageContract"
-                }
-            }
-        },
         "api.Settings": {
             "type": "object",
             "properties": {
-                "auto_approve": {
+                "max_in_flight_gib": {
+                    "type": "integer"
+                },
+                "sp_auto_approve": {
                     "type": "boolean"
                 },
-                "auto_suspend": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.StatusResponse": {
-            "type": "object",
-            "properties": {
-                "alive": {
+                "sp_auto_suspend": {
                     "type": "boolean"
                 }
             }
@@ -998,14 +975,17 @@ const docTemplate = `{
         "api.StorageProvider": {
             "type": "object",
             "properties": {
-                "sp_id": {
+                "first_activated_at": {
                     "type": "string"
+                },
+                "sp_id": {
+                    "type": "integer"
                 },
                 "status": {
                     "description": "* ENUM: [ eligible, pending-approval, active, suspended ]",
                     "type": "string"
                 },
-                "subscription_date": {
+                "status_last_changed": {
                     "type": "string"
                 }
             }
@@ -1016,7 +996,7 @@ const docTemplate = `{
                 "sp_ids": {
                     "type": "array",
                     "items": {
-                        "type": "string"
+                        "type": "integer"
                     }
                 }
             }

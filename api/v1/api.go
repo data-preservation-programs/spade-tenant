@@ -33,18 +33,16 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.POST("/collections", s.handleCreateCollection)
 	e.GET("/collections", s.handleGetCollections)
 
-	// /eligibility-criteria
-	e.POST("/policy", s.handleSetEligibilityCriteria)
-	e.GET("/policy", s.handleGetEligibilityCriteria)
-
 	// /storage-contract
 	e.GET("/storage-contract", s.handleGetStorageContract)
 	e.POST("/storage-contract", s.handleSetStorageContract)
 
-	// /storage-providers
-	e.GET("/storage-providers", s.handleGetStorageProviders)
-	e.POST("/storage-providers/approve", s.handleApproveStorageProviders)
-	e.POST("/storage-providers/suspend", s.handleSuspendStorageProviders)
+	// /sp
+	e.GET("/sp", s.handleGetStorageProviders)
+	e.POST("/sp", s.handleApproveStorageProviders)
+	e.POST("/sp/suspend", s.handleSuspendStorageProviders)
+	e.POST("/sp/eligibility-criteria", s.handleSetSpEligibilityCriteria)
+	e.GET("/sp/eligibility-criteria", s.handleGetSpEligibilityCriteria)
 
 	// /addresses
 	e.PUT("/addresses", s.handleSetAddresses)

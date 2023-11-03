@@ -17,23 +17,23 @@ type EligibilityClause struct {
 	Value interface{} `json:"value"` // TODO: type - either []string or string
 }
 
-// handleSetEligibilityCriteria godoc
+// handleSetSpEligibilityCriteria godoc
 //	@Summary		Set sp eligibility criteria
 // 	@Param 		  token header string true "Auth token"
 //  @Param 			elibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
-//	@Router			/eligibility-criteria [post]
-func (s *apiV1) handleSetEligibilityCriteria(c echo.Context) error {
+//	@Router			/sp/eligibility-criteria [post]
+func (s *apiV1) handleSetSpEligibilityCriteria(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
-// handleGetEligibilityCriteria godoc
+// handleGetSpEligibilityCriteria godoc
 //	@Summary		Get sp eligibility criteria
 // 	@Param 		  token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
-//	@Router			/eligibility-criteria [get]
-func (s *apiV1) handleGetEligibilityCriteria(c echo.Context) error {
+//	@Router			/sp/eligibility-criteria [get]
+func (s *apiV1) handleGetSpEligibilityCriteria(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

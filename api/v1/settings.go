@@ -7,8 +7,9 @@ import (
 )
 
 type Settings struct {
-	AutoApprove bool `json:"auto_approve"`
-	AutoSuspend bool `json:"auto_suspend"`
+	SpAutoApprove  bool `json:"sp_auto_approve"`
+	SpAutoSuspend  bool `json:"sp_auto_suspend"`
+	MaxInFlightGiB uint `json:"max_in_flight_gib"`
 }
 
 // handleGetSettings godoc
