@@ -75,7 +75,7 @@ definitions:
       options:
         additionalProperties:
           type: integer
-        description: 'TODO: can edit the examples instead of additionalProp'
+        description: 'example: {"CANADA": 10, "USA": 20}'
         type: object
       uuid:
         type: string
@@ -181,7 +181,17 @@ definitions:
       sp_id:
         type: integer
       status:
-        description: '* ENUM: [ eligible, pending-approval, active, suspended ]'
+        description: |-
+          Status:
+          * eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process
+          * pending-approval: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
+          * active: The SP is active and working with the tenant. Deals may be made with this SP.
+          * suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended
+        enum:
+        - eligible
+        - pending-approval
+        - active
+        - suspended
         type: string
       status_last_changed:
         type: string
@@ -336,6 +346,63 @@ paths:
                   $ref: '#/definitions/api.Collection'
               type: object
       summary: Creates a new collection
+  /collections/:collectionUUID:
+    delete:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Collection UUID to modify
+        in: path
+        name: collectionUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  type: boolean
+              type: object
+      summary: Delete a collection
+    put:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: Collection UUID to modify
+        in: path
+        name: collectionUUID
+        required: true
+        type: string
+      - description: Collection data to update
+        in: body
+        name: collection
+        required: true
+        schema:
+          $ref: '#/definitions/api.MutableCollection'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  $ref: '#/definitions/api.Collection'
+              type: object
+      summary: Modify a collection
   /constraint-labels:
     get:
       parameters:
@@ -538,6 +605,35 @@ paths:
                   type: array
               type: object
       summary: Suspend storage providers
+  /sp/unsuspend:
+    post:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: List of SP IDs to unsuspend
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.StorageProviderIDs'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/api.StorageProvider'
+                  type: array
+              type: object
+      summary: Unsuspend a storage provider
   /status:
     get:
       description: This endpoint is used to check the health of the service

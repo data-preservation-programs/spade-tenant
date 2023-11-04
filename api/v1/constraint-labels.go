@@ -12,7 +12,7 @@ type ConstraintLabels []Label
 type Label struct {
 	UUID    uuid.UUID       `json:"uuid"`
 	Label   string          `json:"label"`
-	Options map[string]uint `json:"options"` // TODO: can edit the examples instead of additionalProp
+	Options map[string]uint `json:"options"` // example: {"CA": 10, "US": 20}
 }
 
 // handleGetConstraintLabels godoc

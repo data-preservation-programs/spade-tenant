@@ -64,6 +64,25 @@ func (s *apiV1) handleGetCollections(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
-// TODO: PUT to modify
-// delete collection
-// modify - change replication constraints, change name or change piece source
+// handleModifyCollection godoc
+//	@Summary		Modify a collection
+// 	@Param 		  token header string true "Auth token"
+// 	@Param 		  collectionUUID path string true "Collection UUID to modify"
+// 	@Param 		  collection body MutableCollection true "Collection data to update"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=Collection}
+//	@Router			/collections/:collectionUUID [put]
+func (s *apiV1) handleModifyCollection(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+}
+
+// handleDeleteCollection godoc
+//	@Summary		Delete a collection
+// 	@Param 		  token header string true "Auth token"
+// 	@Param 		  collectionUUID path string true "Collection UUID to modify"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=bool}
+//	@Router			/collections/:collectionUUID [delete]
+func (s *apiV1) handleDeleteCollection(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+}

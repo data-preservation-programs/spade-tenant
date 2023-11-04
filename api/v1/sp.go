@@ -13,10 +13,13 @@ type StorageProvider struct {
 	SPID              uint      `json:"sp_id"`
 	FirstActivatedAt  time.Time `json:"first_activated_at"`
 	StatusLastChanged time.Time `json:"status_last_changed"`
-	Status            string    `json:"status"` // * ENUM: [ eligible, pending-approval, active, suspended ]
+	// Status:
+	// * eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process
+	// * pending-approval: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
+	// * active: The SP is active and working with the tenant. Deals may be made with this SP.
+	// * suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended
+	Status string `json:"status" enums:"eligible,pending-approval,active,suspended"`
 }
-
-// TODO: Put enum in swagger description
 
 //	@Summary		Get list of Storage Providers
 // 	@Param 		  token header string true "Auth token"
@@ -52,5 +55,16 @@ func (s *apiV1) handleApproveStorageProviders(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/suspend [post]
 func (s *apiV1) handleSuspendStorageProviders(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+}
+
+// handleUnsuspendStorageProvider godoc
+//	@Summary		Unsuspend a storage provider
+// 	@Param 		  token header string true "Auth token"
+//	@Param body body StorageProviderIDs true "List of SP IDs to unsuspend"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+//	@Router			/sp/unsuspend [post]
+func (s *apiV1) handleUnsuspendStorageProvider(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

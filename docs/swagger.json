@@ -238,6 +238,101 @@
                 }
             }
         },
+        "/collections/:collectionUUID": {
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Modify a collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collection UUID to modify",
+                        "name": "collectionUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Collection data to update",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.MutableCollection"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.Collection"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete a collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Collection UUID to modify",
+                        "name": "collectionUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/constraint-labels": {
             "get": {
                 "produces": [
@@ -580,6 +675,55 @@
                 }
             }
         },
+        "/sp/unsuspend": {
+            "post": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Unsuspend a storage provider",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "List of SP IDs to unsuspend",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.StorageProviderIDs"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.StorageProvider"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/status": {
             "get": {
                 "description": "This endpoint is used to check the health of the service",
@@ -810,7 +954,7 @@
                     "type": "string"
                 },
                 "options": {
-                    "description": "TODO: can edit the examples instead of additionalProp",
+                    "description": "example: {\"CANADA\": 10, \"USA\": 20}",
                     "type": "object",
                     "additionalProperties": {
                         "type": "integer"
@@ -976,8 +1120,14 @@
                     "type": "integer"
                 },
                 "status": {
-                    "description": "* ENUM: [ eligible, pending-approval, active, suspended ]",
-                    "type": "string"
+                    "description": "Status:\n* eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process\n* pending-approval: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)\n* active: The SP is active and working with the tenant. Deals may be made with this SP.\n* suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended",
+                    "type": "string",
+                    "enum": [
+                        "eligible",
+                        "pending-approval",
+                        "active",
+                        "suspended"
+                    ]
                 },
                 "status_last_changed": {
                     "type": "string"
