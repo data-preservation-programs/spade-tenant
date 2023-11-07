@@ -20,13 +20,6 @@ const (
 	NotEqualTo         ComparisonOperator = "!="
 )
 
-// type OrmModel struct {
-// 	ID        int32 `json:"id" gorm:"primaryKey"` // overwrite uint -> int32
-// 	CreatedAt time.Time
-// 	UpdatedAt time.Time
-// 	DeletedAt gorm.DeletedAt `gorm:"index"`
-// }
-
 type Tenant struct {
 	gorm.Model
 
@@ -36,26 +29,32 @@ type Tenant struct {
 	Labels           []Label           `json:"labels"`
 	StorageProviders []StorageProvider `json:"storage_providers" gorm:"many2many:tenant_storage_providers;"`
 
-	TenantDefaultMaxBytesInFlight uint
-	TenantSuspended               bool `json:"tenant_suspended"` // Tenant is suspended
+	TenantSuspended bool `json:"tenant_suspended"`
 
-	TenantWallets             []Address `json:"tenant_wallets"`
-	TenantAssociatedAddresses []Address `json:"tenant_associated_addresses"`
+	TenantWallets   []Address `json:"tenant_wallets"`
+	TenantAddresses []Address `json:"tenant_addresses"`
 
 	TenantMeta pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+
+	// Settings:
+	// - SP Auto Approve
+	// - SP Auto Suspend
+	// - Max In Flight GiB
+	TenantSettings pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
 }
 
 type Address struct {
 	gorm.Model
 	TenantID  uint   `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;"`
 	Address   string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;"`
+	ActorID   uint   `json:"actor_id"`
 	IsSigning bool   `json:"is_signing" gorm:"default:true"`
 }
+
 type Policy struct {
 	gorm.Model
 	TenantID                 uint `json:"tenant_id"`
 	PolicyEligibility        []Clause
-	PolicyAutoApprove        bool   `json:"auto_approve"` // If true, SPs can subscribe without approval
 	PolicyStorageContractCID string `json:"storage_contract_cid"`
 }
 
@@ -90,8 +89,12 @@ type Clause struct {
 
 type Collection struct {
 	gorm.Model
-	TenantID               int32                   `json:"tenant_id"`
-	CollectionPieceSource  pgtype.JSONB            `gorm:"type:jsonb;default:'[]';not null"`
+	TenantID              uint         `json:"tenant_id"`
+	CollectionName        string       `json:"collection_name"`
+	CollectionActive      bool         `json:"collection_active"`
+	CollectionPieceSource pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+	CollectionDealParams  pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+
 	ReplicationConstraints []ReplicationConstraint `json:"replication_constraints"`
 }
 
@@ -101,36 +104,34 @@ type ReplicationConstraint struct {
 
 	ConstraintID  uint `json:"constraint_id"`
 	ConstraintMax uint `json:"constraint_max"`
-
-	ConstraintAttributes []ConstraintAttribute `json:"constraint_attributes" gorm:"foreignKey:ConstraintID"`
 }
 
 type TenantStorageProvider struct {
-	TenantID                  int32        `json:"tenant_id" gorm:"primaryKey"`
+	TenantID                  uint         `json:"tenant_id" gorm:"primaryKey"`
 	SPID                      SPID         `json:"spid" gorm:"primaryKey"`
 	Suspended                 bool         `json:"suspended"`
 	Approved                  bool         `json:"approved"`
 	TenantStorageProviderMeta pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
-	MaxBytesInFlight          uint         `json:"max_bytes_in_flight"` // Maximum bytes this SP can have in flight from the tenant
 }
 
 type StorageProvider struct {
-	SPID                SPID                  `json:"spid" gorm:"primaryKey"`
-	Tenants             []Tenant              `json:"tenants" gorm:"many2many:tenant_storage_providers;"`
-	ConstraintAttribute []ConstraintAttribute `json:"constraint_attributes" gorm:"foreignKey:SPID"` // Computed from ExternalValidationService
+	SPID    SPID     `json:"spid" gorm:"primaryKey"`
+	Tenants []Tenant `json:"tenants" gorm:"many2many:tenant_storage_providers;"`
 }
 
 // A label maps a uint to a human readable string
 // It is used for both constraints (i.e, location.country) and values (i.e, CANADA)
 // Each Tenant has their own unique set of labels
 type Label struct {
-	TenantID uint   `json:"tenant_id" gorm:"uniqueIndex:idx_label_tenant_id_id;uniqueIndex:idx_labels_tenant_id_label"`
-	ID       uint   `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_id"`
-	Label    string `json:"label" gorm:"uniqueIndex:idx_labels_tenant_id_label"`
+	UUID         string         `json:"uuid" gorm:"primaryKey"`
+	TenantID     uint           `json:"tenant_id" gorm:"uniqueIndex:idx_label_tenant_id_id;uniqueIndex:idx_labels_tenant_id_label"`
+	ID           uint           `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_id"`
+	Label        string         `json:"label" gorm:"uniqueIndex:idx_labels_tenant_id_label"`
+	LabelOptions []LabelOptions `json:"label_options" gorm:"foreignKey:LabelUUID"`
 }
 
-type ConstraintAttribute struct {
-	SPID         SPID `json:"spid" gorm:"primaryKey"`
-	ConstraintID uint `json:"constraint_id"`
-	Value        uint `json:"value"`
+type LabelOptions struct {
+	LabelUUID string `json:"label_uuid" gorm:"primaryKey"`
+	Option    string `json:"option"`
+	Value     uint   `json:"value"`
 }
