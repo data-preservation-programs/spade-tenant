@@ -9,12 +9,18 @@ import (
 func BaselineSchema(tx *gorm.DB) error {
 	log.Debugf("first run: initializing database schema")
 
+	// Enums
 	err := tx.Exec("CREATE TYPE tenant_sp_state AS ENUM ('eligible', 'pending', 'active', 'suspended');").Error
-
 	if err != nil {
 		log.Fatalf("error creating enum: %s", err)
 	}
 
+	err = tx.Exec("CREATE TYPE comparison_operator AS ENUM ('>', '<', '=', '>=', '<=', 'in', 'nin', '!=');").Error
+	if err != nil {
+		log.Fatalf("error creating enum: %s", err)
+	}
+
+	// Full table set-up
 	err = tx.AutoMigrate(&Tenant{}, &Address{}, &TenantSPEligibilityClauses{}, &Collection{}, &Label{}, &SP{}, &TenantsSPs{}, &ReplicationConstraint{})
 	if err != nil {
 		log.Fatalf("error applying initial schema: %s", err)

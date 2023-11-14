@@ -12,23 +12,11 @@ import (
 // TODO: apply not null to fields where reasonable
 
 // todo: change to enum type if easy to do
-type ComparisonOperator string
-
-const (
-	GreaterThan        ComparisonOperator = ">"
-	LessThan           ComparisonOperator = "<"
-	EqualTo            ComparisonOperator = "="
-	GreaterThanOrEqual ComparisonOperator = ">="
-	LessThanOrEqual    ComparisonOperator = "<="
-	IncludedIn         ComparisonOperator = "in"
-	ExcludedFrom       ComparisonOperator = "nin"
-	NotEqualTo         ComparisonOperator = "!="
-)
 
 type ID int32
 
 type ModelBase struct {
-	CreatedAt time.Time
+	CreatedAt time.Time `gorm:"not null"`
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
@@ -43,7 +31,7 @@ type Tenant struct {
 
 	TenantAddresses []Address `json:"tenant_addresses"`
 
-	TenantStorageContractCid string `json:"tenant_storage_contract_cid" gorm:"column:tenant_storage_contract_cid"`
+	TenantStorageContractCid string `json:"tenant_storage_contract_cid" gorm:"column:tenant_storage_contract_cid;not null"`
 
 	TenantSpEligibility []TenantSPEligibilityClauses
 
@@ -86,25 +74,50 @@ type Address struct {
 // }
 // }
 
+type ComparisonOperator string
+
+const (
+	GreaterThan        ComparisonOperator = ">"
+	LessThan           ComparisonOperator = "<"
+	EqualTo            ComparisonOperator = "="
+	GreaterThanOrEqual ComparisonOperator = ">="
+	LessThanOrEqual    ComparisonOperator = "<="
+	IncludedIn         ComparisonOperator = "in"
+	ExcludedFrom       ComparisonOperator = "nin"
+	NotEqualTo         ComparisonOperator = "!="
+)
+
+func (s *ComparisonOperator) Scan(value interface{}) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return errors.New("failed to scan TenantSpState")
+	}
+	*s = ComparisonOperator(strVal)
+	return nil
+}
+
+func (s *ComparisonOperator) Value() (driver.Value, error) {
+	return string(*s), nil
+}
+
 // Generic SP <-> Tenant Eligibility Clause, specified as a `attribute`, `operator` and `value`
-// Attribute is formatted as a path, i.e location.city, retrieval.success_rate
 // examples:
 // location.country ComparisonOperator.IncludedIn [CAN, USA]
 // retrieval.success_rate ComparisonOperator.GreaterThan 0.98
 type TenantSPEligibilityClauses struct {
 	ModelBase
 	TenantID        ID                 `json:"tenant_id"`
-	ClauseAttribute string             `json:"attribute"`
-	ClauseOperator  ComparisonOperator `json:"operator"`
-	ClauseValue     string             `json:"value"`
+	ClauseAttribute string             `json:"attribute" gorm:"not null"`
+	ClauseOperator  ComparisonOperator `json:"operator" gorm:"type:comparison_operator;not null"`
+	ClauseValue     string             `json:"value" gorm:"not null"`
 }
 
 type Collection struct {
 	ModelBase
 	CollectionID          ID           `json:"collection_id" gorm:"primaryKey"`
-	TenantID              ID           `json:"tenant_id"`
-	CollectionName        string       `json:"collection_name"`
-	CollectionActive      bool         `json:"collection_active"`
+	TenantID              ID           `json:"tenant_id" gorm:"not null"`
+	CollectionName        string       `json:"collection_name" gorm:"not null"`
+	CollectionActive      bool         `json:"collection_active" gorm:"not null"`
 	CollectionPieceSource pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 	CollectionDealParams  pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 
@@ -113,10 +126,10 @@ type Collection struct {
 
 type ReplicationConstraint struct {
 	ModelBase
-	CollectionID ID `json:"collection_id"`
+	CollectionID ID `json:"collection_id" gorm:"not null"`
 
-	ConstraintID  ID   `json:"constraint_id"`
-	ConstraintMax uint `json:"constraint_max"`
+	ConstraintID  ID   `json:"constraint_id" gorm:"not null"`
+	ConstraintMax uint `json:"constraint_max" gorm:"not null"`
 }
 
 type TenantSpState string
@@ -142,13 +155,11 @@ func (s *TenantSpState) Value() (driver.Value, error) {
 }
 
 // Many:Many relation table between Tenants and SPs
-// enum('eligible', 'pending', 'active', 'suspended')
 type TenantsSPs struct {
 	TenantID      ID            `json:"tenant_id" gorm:"primaryKey"`
 	SPID          ID            `json:"sp_id" gorm:"primaryKey;column:sp_id"`
 	TenantSpState TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
-	// TODO: Enum type - test it out
-	TenantSpsMeta pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
+	TenantSpsMeta pgtype.JSONB  `gorm:"type:jsonb;default:'{}';not null"`
 }
 
 func (TenantsSPs) TableName() string {
@@ -166,7 +177,7 @@ type SP struct {
 // Each Tenant has their own unique set of labels
 type Label struct {
 	TenantID     ID           `json:"tenant_id" gorm:"uniqueIndex:idx_label_tenant_id_label_id;uniqueIndex:idx_label_tenant_id_label_text"`
-	LabelID      ID           `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_label_id"`
-	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_label_tenant_id_label_text"`
+	LabelID      ID           `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_label_id;not null"`
+	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_label_tenant_id_label_text;not null"`
 	LabelOptions pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 }
