@@ -9,10 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// TODO: apply not null to fields where reasonable
-
-// todo: change to enum type if easy to do
-
 type ID int32
 
 type ModelBase struct {
@@ -44,10 +40,6 @@ type Tenant struct {
 	// - SP Auto Suspend
 	// - Max In Flight GiB
 	TenantSettings pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
-
-	// add: policy_storage_contract_cid
-
-	// sp_eligibility_criteria []clause
 }
 
 type Address struct {
