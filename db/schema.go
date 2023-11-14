@@ -1,12 +1,17 @@
 package db
 
 import (
+	"database/sql/driver"
+	"errors"
+	"time"
+
 	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 )
 
-type SPID uint
+// TODO: apply not null to fields where reasonable
 
+// todo: change to enum type if easy to do
 type ComparisonOperator string
 
 const (
@@ -20,42 +25,49 @@ const (
 	NotEqualTo         ComparisonOperator = "!="
 )
 
+type ID int32
+
+type ModelBase struct {
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt gorm.DeletedAt `gorm:"index"`
+}
+
 type Tenant struct {
-	gorm.Model
+	ModelBase
+	TenantID ID `json:"tenant_id" gorm:"primaryKey"`
 
-	Policy Policy
+	Collections []Collection `json:"collections"`
+	Labels      []Label      `json:"labels"`
+	SPs         []SP         `json:"storage_providers" gorm:"many2many:tenants_sps;"`
 
-	Collections      []Collection      `json:"collections"`
-	Labels           []Label           `json:"labels"`
-	StorageProviders []StorageProvider `json:"storage_providers" gorm:"many2many:tenant_storage_providers;"`
-
-	TenantSuspended bool `json:"tenant_suspended"`
-
-	TenantWallets   []Address `json:"tenant_wallets"`
 	TenantAddresses []Address `json:"tenant_addresses"`
 
-	TenantMeta pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+	TenantStorageContractCid string `json:"tenant_storage_contract_cid" gorm:"column:tenant_storage_contract_cid"`
+
+	TenantSpEligibility []TenantSPEligibilityClauses
+
+	// Meta:
+	// - tenant_suspended
+	TenantMeta pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 
 	// Settings:
 	// - SP Auto Approve
 	// - SP Auto Suspend
 	// - Max In Flight GiB
-	TenantSettings pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+	TenantSettings pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
+
+	// add: policy_storage_contract_cid
+
+	// sp_eligibility_criteria []clause
 }
 
 type Address struct {
-	gorm.Model
-	TenantID  uint   `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;"`
-	Address   string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;"`
-	ActorID   uint   `json:"actor_id"`
-	IsSigning bool   `json:"is_signing" gorm:"default:true"`
-}
-
-type Policy struct {
-	gorm.Model
-	TenantID                 uint `json:"tenant_id"`
-	PolicyEligibility        []Clause
-	PolicyStorageContractCID string `json:"storage_contract_cid"`
+	ModelBase
+	TenantID         ID     `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
+	Address          string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
+	AddressActorID   uint   `json:"actor_id"`
+	AddressIsSigning bool   `json:"is_signing" gorm:"default:true;not null"`
 }
 
 // * Schema of the Storage Contract which will be stored in IPFS, referenced by CID
@@ -74,64 +86,87 @@ type Policy struct {
 // }
 // }
 
-// A generic element of a policy, specified as a `attribute`, `operator` and `value`
+// Generic SP <-> Tenant Eligibility Clause, specified as a `attribute`, `operator` and `value`
 // Attribute is formatted as a path, i.e location.city, retrieval.success_rate
-// Some examples:
+// examples:
 // location.country ComparisonOperator.IncludedIn [CAN, USA]
 // retrieval.success_rate ComparisonOperator.GreaterThan 0.98
-type Clause struct {
-	gorm.Model
-	PolicyID        uint               `json:"policy_id"`
+type TenantSPEligibilityClauses struct {
+	ModelBase
+	TenantID        ID                 `json:"tenant_id"`
 	ClauseAttribute string             `json:"attribute"`
 	ClauseOperator  ComparisonOperator `json:"operator"`
 	ClauseValue     string             `json:"value"`
 }
 
 type Collection struct {
-	gorm.Model
-	TenantID              uint         `json:"tenant_id"`
+	ModelBase
+	CollectionID          ID           `json:"collection_id" gorm:"primaryKey"`
+	TenantID              ID           `json:"tenant_id"`
 	CollectionName        string       `json:"collection_name"`
 	CollectionActive      bool         `json:"collection_active"`
-	CollectionPieceSource pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
-	CollectionDealParams  pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+	CollectionPieceSource pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
+	CollectionDealParams  pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 
 	ReplicationConstraints []ReplicationConstraint `json:"replication_constraints"`
 }
 
 type ReplicationConstraint struct {
-	gorm.Model
-	CollectionID uint `json:"collection_id"`
+	ModelBase
+	CollectionID ID `json:"collection_id"`
 
-	ConstraintID  uint `json:"constraint_id"`
+	ConstraintID  ID   `json:"constraint_id"`
 	ConstraintMax uint `json:"constraint_max"`
 }
 
-type TenantStorageProvider struct {
-	TenantID                  uint         `json:"tenant_id" gorm:"primaryKey"`
-	SPID                      SPID         `json:"spid" gorm:"primaryKey"`
-	Suspended                 bool         `json:"suspended"`
-	Approved                  bool         `json:"approved"`
-	TenantStorageProviderMeta pgtype.JSONB `gorm:"type:jsonb;default:'[]';not null"`
+type TenantSpState string
+
+const (
+	TenantSpStateEligible  TenantSpState = "eligible"
+	TenantSpStatePending   TenantSpState = "pending"
+	TenantSpStateActive    TenantSpState = "active"
+	TenantSpStateSuspended TenantSpState = "suspended"
+)
+
+func (s *TenantSpState) Scan(value interface{}) error {
+	strVal, ok := value.(string)
+	if !ok {
+		return errors.New("failed to scan TenantSpState")
+	}
+	*s = TenantSpState(strVal)
+	return nil
 }
 
-type StorageProvider struct {
-	SPID    SPID     `json:"spid" gorm:"primaryKey"`
-	Tenants []Tenant `json:"tenants" gorm:"many2many:tenant_storage_providers;"`
+func (s *TenantSpState) Value() (driver.Value, error) {
+	return string(*s), nil
+}
+
+// Many:Many relation table between Tenants and SPs
+// enum('eligible', 'pending', 'active', 'suspended')
+type TenantsSPs struct {
+	TenantID      ID            `json:"tenant_id" gorm:"primaryKey"`
+	SPID          ID            `json:"sp_id" gorm:"primaryKey;column:'sp_id'"`
+	TenantSpState TenantSpState `gorm:"type:tenant_sp_state;default:'eligible';not null"`
+	// TODO: Enum type - test it out
+	TenantSpsMeta pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
+}
+
+func (TenantsSPs) TableName() string {
+	return "tenants_sps"
+}
+
+type SP struct {
+	ModelBase
+	SPID    ID       `json:"sp_id" gorm:"primaryKey"`
+	Tenants []Tenant `json:"tenants" gorm:"many2many:tenants_sps;"`
 }
 
 // A label maps a uint to a human readable string
 // It is used for both constraints (i.e, location.country) and values (i.e, CANADA)
 // Each Tenant has their own unique set of labels
 type Label struct {
-	UUID         string         `json:"uuid" gorm:"primaryKey"`
-	TenantID     uint           `json:"tenant_id" gorm:"uniqueIndex:idx_label_tenant_id_id;uniqueIndex:idx_labels_tenant_id_label"`
-	ID           uint           `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_id"`
-	Label        string         `json:"label" gorm:"uniqueIndex:idx_labels_tenant_id_label"`
-	LabelOptions []LabelOptions `json:"label_options" gorm:"foreignKey:LabelUUID"`
-}
-
-type LabelOptions struct {
-	LabelUUID string `json:"label_uuid" gorm:"primaryKey"`
-	Option    string `json:"option"`
-	Value     uint   `json:"value"`
+	TenantID     ID           `json:"tenant_id" gorm:"uniqueIndex:idx_label_tenant_id_label_id;uniqueIndex:idx_label_tenant_id_label_text"`
+	LabelID      ID           `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_label_id"`
+	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_label_tenant_id_label_text"`
+	LabelOptions pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 }
