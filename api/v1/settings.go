@@ -13,9 +13,10 @@ type Settings struct {
 }
 
 // handleGetSettings godoc
+//
 //	@Summary		Apply new Tenant Settings
-// 	@Param 		  token header string true "Auth token"
-//  @Param 			settings body Settings true "New settings to apply"
+//	@Param			token header string true "Auth token"
+//	@Param 			settings body Settings true "New settings to apply"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Settings}
 //	@Router			/settings [post]
@@ -24,8 +25,9 @@ func (s *apiV1) handleGetSettings(c echo.Context) error {
 }
 
 // handleSetSettings godoc
+//
 //	@Summary		Get the currently active Tenant Settings
-// 	@Param 		  token header string true "Auth token"
+//	@Param			token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Settings}
 //	@Router			/settings [get]
