@@ -32,6 +32,7 @@ func NewApiV1() *apiV1 {
 // @securityDefinitions.Bearer.in header
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
+	e.Use(AuthMiddleware)
 	e.GET("/status", s.handleStatus)
 
 	// /collections
@@ -58,8 +59,8 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/addresses", s.handleGetAddresses)
 
 	// /settings
-	e.POST("/settings", s.handleGetSettings)
-	e.GET("/settings", s.handleSetSettings)
+	e.POST("/settings", s.handleSetSettings)
+	e.GET("/settings", s.handleGetSettings)
 
 	// /constraint-labels
 	e.GET("/constraint-labels", s.handleGetConstraintLabels)
