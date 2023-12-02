@@ -21,12 +21,13 @@ type ResponseEnvelope struct {
 }
 
 // handleStatus godoc
+//
 //	@Summary		Simple health check endpoint
 //	@Description	This endpoint is used to check the health of the service
-// 	@Param 		  token header string true "Auth token"
+//	@Param 		    token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=string}
 //	@Router			/status [get]
 func (s *apiV1) handleStatus(c echo.Context) error {
-	return c.JSON(http.StatusOK, "ok")
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
