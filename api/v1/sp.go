@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -21,13 +22,19 @@ type StorageProvider struct {
 	State string `json:"state" enums:"eligible,pending,active,suspended"`
 }
 
-//	@Summary		Get list of Storage Providers
-// 	@Param 		  token header string true "Auth token"
-//	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
-//	@Router			/sp [get]
+// @Summary		Get list of Storage Providers
+// @Param 		token header string true "Auth token"
+// @Produce		json
+// @Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+// @Router			/sp [get]
 func (s *apiV1) handleGetStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	getStorageProvidersResponse := new(GetStorageProvidersResponse)
+
+	if res := db.DB.Find(&getStorageProvidersResponse); res.Error != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, res.Error.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelop(c, getStorageProvidersResponse))
 }
 
 type StorageProviderIDs struct {
@@ -35,10 +42,11 @@ type StorageProviderIDs struct {
 }
 
 // handleApproveStorageProviders godoc
+//
 //	@Summary		Approves a list of Storage Providers to work with the tenant
-// 	@Description Note: This is only required if auto_approve is false, requiring manual approval of SP subscription
-// 	@Param 		  token header string true "Auth token"
-//	@Param body body StorageProviderIDs true "List of SP IDs to approve"
+//	@Description 	Note: This is only required if auto_approve is false, requiring manual approval of SP subscription
+//	@Param 		 	token header string true "Auth token"
+//	@Param 			body body StorageProviderIDs true "List of SP IDs to approve"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/approve [post]
@@ -47,10 +55,11 @@ func (s *apiV1) handleApproveStorageProviders(c echo.Context) error {
 }
 
 // handleSuspendStorageProviders godoc
+//
 //	@Summary		Suspend storage providers
-// 	@Description Note: This is only required if auto_suspend is false, as manual suspension is required
-// 	@Param 		  token header string true "Auth token"
-//	@Param body body StorageProviderIDs true "List of SP IDs to suspend"
+//	@Description	Note: This is only required if auto_suspend is false, as manual suspension is required
+//	@Param			token header string true "Auth token"
+//	@Param			body body StorageProviderIDs true "List of SP IDs to suspend"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/suspend [post]
@@ -59,9 +68,10 @@ func (s *apiV1) handleSuspendStorageProviders(c echo.Context) error {
 }
 
 // handleUnsuspendStorageProvider godoc
+//
 //	@Summary		Unsuspend a storage provider
-// 	@Param 		  token header string true "Auth token"
-//	@Param body body StorageProviderIDs true "List of SP IDs to unsuspend"
+//	@Param			token header string true "Auth token"
+//	@Param			body body StorageProviderIDs true "List of SP IDs to unsuspend"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/unsuspend [post]
