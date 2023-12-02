@@ -1,10 +1,32 @@
 package main
 
-import "github.com/data-preservation-programs/spade-tenant/db"
+import (
+	"os"
+
+	"github.com/data-preservation-programs/spade-tenant/api/v1"
+	"github.com/data-preservation-programs/spade-tenant/db"
+	"github.com/data-preservation-programs/spade-tenant/initializers"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+)
+
+func init() {
+	initializers.LoadEnvVariables()
+	db.ConnectToDB()
+}
 
 func main() {
-	dbDsn := "postgres://postgres:password@localhost:5432/spade-tenant"
-	debug := true
+	//fmt.Println("Hello world")
+	e := echo.New()
+	e.Use(middleware.RequestID())
+	api.NewApiV1().RegisterRoutes(e)
 
-	db.OpenDatabase(dbDsn, debug)
+	e.Start(":" + os.Getenv("PORT"))
 }
+
+// func main() {
+// 	dbDsn := "postgres://postgres:password@localhost:5432/spade-tenant"
+// 	debug := true
+
+// 	db.OpenDatabase(dbDsn, debug)
+// }

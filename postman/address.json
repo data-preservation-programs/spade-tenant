@@ -1,0 +1,112 @@
+{
+	"info": {
+		"_postman_id": "dbc5cb70-4450-4f30-afb4-aec0c79198da",
+		"name": "spade-tenant",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "29174605"
+	},
+	"item": [
+		{
+			"name": "PUT-Addresses",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "adfadfafdasdfadf"
+					}
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[{\"address\":\"12abdcb6-700f-4389-bbcf-e23e5e5f916d\",\"address_is_signing\":false,\"address_actor_id\":1}, {\"address\":\"12abdcb6\",\"address_is_signing\":false,\"address_actor_id\":3}]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/addresses"
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE-Addresses Copy",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "adfadfafdasdfadf"
+					}
+				},
+				"method": "DELETE",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"12abdcb6-700f-4389-bbcf-e23e5e5f916d\", \"12abdcb6\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/addresses"
+			},
+			"response": []
+		},
+		{
+			"name": "GET-Addresses",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "adfadfafdasdfadf"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"12abdcb6-700f-4389-bbcf-e23e5e5f916d\", \"12abdcb6\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/addresses"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "basic",
+		"basic": {
+			"password": "test",
+			"username": "test"
+		}
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

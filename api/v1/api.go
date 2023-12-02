@@ -1,6 +1,11 @@
 package api
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+	"time"
+
+	"github.com/labstack/echo/v4"
+)
 
 type apiV1 struct {
 }
@@ -28,8 +33,6 @@ func NewApiV1() *apiV1 {
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/status", s.handleStatus)
-
-	e.Use(AuthMiddleware)
 
 	// /collections
 	e.POST("/collections", s.handleCreateCollection)
@@ -60,4 +63,29 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 
 	// /constraint-labels
 	e.GET("/constraint-labels", s.handleGetConstraintLabels)
+}
+func GetTenantId(c echo.Context) int {
+	return int(c.Get(TENANT_CONTEXT).(AuthContext).TenantID)
+}
+
+func CreateErrorResponseEnvelop(c echo.Context, err string) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseCode:       http.StatusInternalServerError,
+		ErrCode:            http.StatusInternalServerError,
+		ErrSlug:            err,
+		Response:           err,
+	}
+}
+
+func CreateSuccessResponseEnvelop(c echo.Context, message interface{}) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseCode:       http.StatusOK,
+		Response:           message,
+	}
 }
