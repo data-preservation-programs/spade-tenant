@@ -33,7 +33,7 @@ func NewApiV1() *apiV1 {
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/status", s.handleStatus)
-
+	e.Use(AuthMiddleware)
 	// /collections
 	e.POST("/collections", s.handleCreateCollection)
 	e.GET("/collections", s.handleGetCollections)

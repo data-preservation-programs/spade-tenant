@@ -10,3 +10,7 @@ drop table replication_constraints cascade;
 INSERT INTO public.tenants(
 	created_at, updated_at, deleted_at, tenant_id, tenant_storage_contract_cid)
 	VALUES (now(), now(), null, 1, 'abc123');
+
+INSERT INTO public.labels(
+	tenant_id, label_id, label_text, label_options)
+	VALUES (1, 3, 'label-33', '{"CA":10,"US":20}');

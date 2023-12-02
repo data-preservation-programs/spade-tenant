@@ -80,6 +80,33 @@
 				"url": "http://localhost:3000/addresses"
 			},
 			"response": []
+		},
+		{
+			"name": "GET-Labels",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": {
+						"token": "adfadfafdasdfadf"
+					}
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "[\"12abdcb6-700f-4389-bbcf-e23e5e5f916d\", \"12abdcb6\"]",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "http://localhost:3000/constraint-labels"
+			},
+			"response": []
 		}
 	],
 	"auth": {

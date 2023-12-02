@@ -24,7 +24,7 @@ type ResponseEnvelope struct {
 //
 //	@Summary		Simple health check endpoint
 //	@Description	This endpoint is used to check the health of the service
-//	@Param 		    token header string true "Auth token"
+//	@Param 			token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=string}
 //	@Router			/status [get]
