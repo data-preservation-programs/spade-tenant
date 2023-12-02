@@ -18,9 +18,10 @@ type EligibilityClause struct {
 }
 
 // handleSetSpEligibilityCriteria godoc
+//
 //	@Summary		Set sp eligibility criteria
-// 	@Param 		  token header string true "Auth token"
-//  @Param 			elibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
+//	@Param			token header string true "Auth token"
+//	@Param			elibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
 //	@Router			/sp/eligibility-criteria [post]
@@ -29,8 +30,9 @@ func (s *apiV1) handleSetSpEligibilityCriteria(c echo.Context) error {
 }
 
 // handleGetSpEligibilityCriteria godoc
+//
 //	@Summary		Get sp eligibility criteria
-// 	@Param 		  token header string true "Auth token"
+//	@Param 			token header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
 //	@Router			/sp/eligibility-criteria [get]

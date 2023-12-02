@@ -1,0 +1,12 @@
+drop table migrations cascade;
+drop table tenants_sps cascade;
+drop table addresses cascade;
+drop table labels cascade;
+drop table tenant_sp_eligibility_clauses cascade;
+drop table collections cascade;
+drop table sps cascade;
+drop table replication_constraints cascade;
+
+INSERT INTO public.tenants(
+	created_at, updated_at, deleted_at, tenant_id, tenant_storage_contract_cid)
+	VALUES (now(), now(), null, 1, 'abc123');
