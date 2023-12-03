@@ -32,13 +32,14 @@ func NewApiV1() *apiV1 {
 // @securityDefinitions.Bearer.in header
 // @securityDefinitions.Bearer.name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
+	e.Use(AuthMiddleware)
 	e.GET("/status", s.handleStatus)
 
 	// /collections
 	e.POST("/collections", s.handleCreateCollection)
-	e.GET("/collections", s.handleGetCollections)
-	e.PUT("/collections", s.handleModifyCollection)
-	e.DELETE("/collections", s.handleDeleteCollection)
+	e.GET("/collections/:collectionUUID", s.handleGetCollections)
+	e.PUT("/collections/:collectionUUID", s.handleModifyCollection)
+	e.DELETE("/collections/:collectionUUID", s.handleDeleteCollection)
 
 	// /storage-contract
 	e.GET("/storage-contract", s.handleGetStorageContract)

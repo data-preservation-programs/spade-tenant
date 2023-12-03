@@ -1,18 +1,31 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
+	"math/rand"
 	"net/http"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
+type WriteCollectionMutable struct {
+	TenantID     int `json:"tenant_id"`
+	CollectionID int `json:"collection_id"`
+	CommonProperties
+}
+
 type CollectionMutable struct {
-	Name                   string                  `json:"name"`
-	ReplicationConstraints []ReplicationConstraint `json:"replication_constraints"`
-	PieceListSource        PieceListSource         `json:"piece_list_source"`
-	Inactive               bool                    `json:"inactive"`
-	DealParams             DealParams              `json:"deal_params"`
+	CommonProperties
+}
+
+type CommonProperties struct {
+	CollectionName        string          `json:"name"`
+	CollectionPieceSource PieceListSource `json:"piece_list_source"`
+	CollectionActive      bool            `json:"inactive"`
+	CollectionDealParams  DealParams      `json:"deal_params"`
 }
 
 type DealParams struct {
@@ -37,8 +50,8 @@ type ReplicationConstraint struct {
 }
 
 type CreateCollectionResponse struct {
-	CollectionID uint   `json:"collection_id"`
-	Status       string `json:"status"`
+	CollectionID     uint   `json:"collection_id"`
+	CollectionActive string `json:"status"`
 }
 
 // handleCreateCollection godoc
@@ -50,7 +63,16 @@ type CreateCollectionResponse struct {
 //		@Success		200	{object}	ResponseEnvelope{response=Collection}
 //		@Router			/collections [post]
 func (s *apiV1) handleCreateCollection(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var collectionMutable CommonProperties
+	err := json.NewDecoder(c.Request().Body).Decode(&collectionMutable)
+	writeCollectionMutable := WriteCollectionMutable{TenantID: GetTenantId(c), CollectionID: rand.Intn(100), CommonProperties: collectionMutable}
+	err = db.DB.Table("collections").Create(&writeCollectionMutable).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelop(c, "Updated Addresses associated with the tenant"))
 }
 
 type GetCollectionsResponse []Collection
@@ -63,7 +85,18 @@ type GetCollectionsResponse []Collection
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections [get]
 func (s *apiV1) handleGetCollections(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	// pieceListSource := PieceListSource{Method: "method", PollIntervalHours: 10, ConnectionDetails: "details"}
+
+	// x, _ := json.Marshal(CommonProperties{CollectionName: "name", CollectionPieceSource: pieceListSource, CollectionActive: true, CollectionDealParams: DealParams{DurationDays: 10, StartWithinHours: 10}})
+	// fmt.Println(string(x))
+	var collectionResponse CreateCollectionResponse
+	err := db.DB.Table("collections").Where("tenant_id = ? ", GetTenantId(c)).Find(&collectionResponse).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelop(c, collectionResponse))
 }
 
 // handleModifyCollection godoc
@@ -76,7 +109,27 @@ func (s *apiV1) handleGetCollections(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections/:collectionUUID [put]
 func (s *apiV1) handleModifyCollection(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	fmt.Println("here")
+	var collectionMutable CollectionMutable
+	err := json.NewDecoder(c.Request().Body).Decode(&collectionMutable)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, err.Error()))
+	}
+
+	res := db.DB.Table("collections").Where("collection_id = ?", c.Param("collectionUUID")).Updates(&collectionMutable)
+
+	if res.Error != nil {
+		return res.Error
+	}
+
+	err = res.Save(&collectionMutable).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelop(c, collectionMutable))
 }
 
 // handleDeleteCollection godoc
@@ -88,5 +141,18 @@ func (s *apiV1) handleModifyCollection(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=bool}
 //	@Router			/collections/:collectionUUID [delete]
 func (s *apiV1) handleDeleteCollection(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var collectionMutable CollectionMutable
+	err := json.NewDecoder(c.Request().Body).Decode(&collectionMutable)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, err.Error()))
+	}
+
+	err = db.DB.Table("collections").Where("collection_id = ?", c.Param("collectionUUID")).Delete(&WriteCollectionMutable{}).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelop(c, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelop(c, "Deleted Collection associated with the tenant"))
 }
