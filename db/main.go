@@ -24,7 +24,6 @@ func OpenDatabase(dbDsn string, debug bool) (*gorm.DB, error) {
 	DB, err := gorm.Open(postgres.Open(dbDsn), config)
 
 	m := gormigrate.New(DB, gormigrate.DefaultOptions, Migrations)
-	// TODO: make sure migration only happens if user confirms - don't automatically do it
 
 	// Initialization for fresh db (only run at first setup)
 	m.InitSchema(BaselineSchema)
