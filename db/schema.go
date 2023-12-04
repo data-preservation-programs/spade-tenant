@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgtype"
 	"gorm.io/gorm"
 )
@@ -105,7 +106,7 @@ type TenantSPEligibilityClauses struct {
 }
 type Collection struct {
 	ModelBase
-	CollectionID          ID           `json:"collection_id" gorm:"primaryKey"`
+	CollectionID          uuid.UUID    `json:"collection_id" gorm:"type:uuid;primaryKey"`
 	TenantID              ID           `json:"tenant_id" gorm:"not null"`
 	CollectionName        string       `json:"collection_name" gorm:"not null"`
 	CollectionActive      bool         `json:"collection_active" gorm:"not null"`
@@ -117,7 +118,7 @@ type Collection struct {
 
 type ReplicationConstraint struct {
 	ModelBase
-	CollectionID ID `json:"collection_id" gorm:"uniqueIndex:idx_collection_id_constraint_id;not null"`
+	CollectionID uuid.UUID `json:"collection_id" gorm:"type:uuid;uniqueIndex:idx_collection_id_constraint_id;not null"`
 
 	ConstraintID  ID   `json:"constraint_id" gorm:"uniqueIndex:idx_collection_id_constraint_id;not null"`
 	ConstraintMax uint `json:"constraint_max" gorm:"not null"`

@@ -21,7 +21,7 @@ CREATE TABLE "tenants_sps" (
     "sp_id" integer,
     "tenant_sp_state" tenant_sp_state NOT NULL DEFAULT 'eligible',
     "tenant_sps_meta" jsonb NOT NULL DEFAULT '{}',
-    PRIMARY KEY ("tenant_id", "sp_id")
+    PRIMARY KEY ("tenant_id","sp_id")
 );
 
 CREATE TABLE "addresses" (
@@ -35,7 +35,7 @@ CREATE TABLE "addresses" (
     CONSTRAINT "fk_tenants_tenant_addresses" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_address_robust" ON "addresses" ("tenant_id", "address_robust");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_address_robust" ON "addresses" ("tenant_id","address_robust");
 CREATE INDEX IF NOT EXISTS "idx_addresses_deleted_at" ON "addresses" ("deleted_at");
 
 CREATE TABLE "tenant_sp_eligibility_clauses" (
@@ -49,14 +49,14 @@ CREATE TABLE "tenant_sp_eligibility_clauses" (
     CONSTRAINT "fk_tenants_tenant_sp_eligibility" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_clause_attribute" ON "tenant_sp_eligibility_clauses" ("tenant_id", "clause_attribute");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_clause_attribute" ON "tenant_sp_eligibility_clauses" ("tenant_id","clause_attribute");
 CREATE INDEX IF NOT EXISTS "idx_tenant_sp_eligibility_clauses_deleted_at" ON "tenant_sp_eligibility_clauses" ("deleted_at");
 
 CREATE TABLE "collections" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz NOT NULL,
     "deleted_at" timestamptz,
-    "collection_id" serial,
+    "collection_id" uuid,
     "tenant_id" integer NOT NULL,
     "collection_name" text NOT NULL,
     "collection_active" boolean NOT NULL,
@@ -76,8 +76,8 @@ CREATE TABLE "labels" (
     CONSTRAINT "fk_tenants_labels" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_label_text" ON "labels" ("tenant_id", "label_text");
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_label_id" ON "labels" ("tenant_id", "label_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_label_text" ON "labels" ("tenant_id","label_text");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_label_id" ON "labels" ("tenant_id","label_id");
 
 CREATE TABLE "sps" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -93,11 +93,11 @@ CREATE TABLE "replication_constraints" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz NOT NULL,
     "deleted_at" timestamptz,
-    "collection_id" integer NOT NULL,
+    "collection_id" uuid NOT NULL,
     "constraint_id" integer NOT NULL,
     "constraint_max" bigint NOT NULL,
     CONSTRAINT "fk_collections_replication_constraints" FOREIGN KEY ("collection_id") REFERENCES "collections"("collection_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_collection_id_constraint_id" ON "replication_constraints" ("collection_id", "constraint_id");
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_collection_id_constraint_id" ON "replication_constraints" ("collection_id","constraint_id");
 CREATE INDEX IF NOT EXISTS "idx_replication_constraints_deleted_at" ON "replication_constraints" ("deleted_at");
