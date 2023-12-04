@@ -45,7 +45,7 @@ type Tenant struct {
 type Address struct {
 	ModelBase
 	TenantID         ID     `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
-	Address          string `json:"address" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
+	AddressRobust    string `json:"address_robust" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
 	AddressActorID   uint   `json:"actor_id"`
 	AddressIsSigning bool   `json:"is_signing" gorm:"default:true;not null"`
 }
@@ -98,12 +98,11 @@ func (s *ComparisonOperator) Value() (driver.Value, error) {
 // retrieval.success_rate ComparisonOperator.GreaterThan 0.98
 type TenantSPEligibilityClauses struct {
 	ModelBase
-	TenantID        ID                 `json:"tenant_id"`
-	ClauseAttribute string             `json:"attribute" gorm:"not null"`
+	TenantID        ID                 `json:"tenant_id" gorm:"uniqueIndex:idx_tenant_id_clause_attribute;not null"`
+	ClauseAttribute string             `json:"attribute" gorm:"uniqueIndex:idx_tenant_id_clause_attribute;not null"`
 	ClauseOperator  ComparisonOperator `json:"operator" gorm:"type:comparison_operator;not null"`
 	ClauseValue     string             `json:"value" gorm:"not null"`
 }
-
 type Collection struct {
 	ModelBase
 	CollectionID          ID           `json:"collection_id" gorm:"primaryKey"`
