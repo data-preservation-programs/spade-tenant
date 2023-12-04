@@ -12,8 +12,8 @@ import (
 type ID int32
 
 type ModelBase struct {
-	CreatedAt time.Time `gorm:"not null"`
-	UpdatedAt time.Time
+	CreatedAt time.Time      `gorm:"default:CURRENT_TIMESTAMP;not null"`
+	UpdatedAt time.Time      `gorm:"not null"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
