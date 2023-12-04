@@ -2,7 +2,7 @@
 
 
 ## Generating Schema
-`ALLOW_MIRGATIONS=true go run . > out.sql`
+`DB_ALLOW_MIRGATIONS=true go run . > out.sql`
 
 
 ## Generating Swagger

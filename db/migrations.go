@@ -53,7 +53,7 @@ var Migrations []*gormigrate.Migration = []*gormigrate.Migration{
 
 // Ensure migrations are only run when env variable is specified
 func guardMigration(migration string) {
-	enabled := os.Getenv("ALLOW_MIGRATIONS") == "true"
+	enabled := os.Getenv("DB_ALLOW_MIGRATIONS") == "true"
 
 	if !enabled {
 		log.Fatalf("Unable to apply migration %s as migrations are disabled. Set ALLOW_MIGRATIONS=true to enable", migration)
