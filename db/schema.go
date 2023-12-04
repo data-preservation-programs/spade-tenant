@@ -44,8 +44,8 @@ type Tenant struct {
 
 type Address struct {
 	ModelBase
-	TenantID         ID     `json:"tenant_id" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
-	AddressRobust    string `json:"address_robust" gorm:"uniqueIndex:idx_address_tenant_id;not null"`
+	TenantID         ID     `json:"tenant_id" gorm:"uniqueIndex:idx_tenant_id_address_robust;not null"`
+	AddressRobust    string `json:"address_robust" gorm:"uniqueIndex:idx_tenant_id_address_robust;not null"`
 	AddressActorID   uint   `json:"actor_id"`
 	AddressIsSigning bool   `json:"is_signing" gorm:"default:true;not null"`
 }
@@ -117,9 +117,9 @@ type Collection struct {
 
 type ReplicationConstraint struct {
 	ModelBase
-	CollectionID ID `json:"collection_id" gorm:"not null"`
+	CollectionID ID `json:"collection_id" gorm:"uniqueIndex:idx_collection_id_constraint_id;not null"`
 
-	ConstraintID  ID   `json:"constraint_id" gorm:"not null"`
+	ConstraintID  ID   `json:"constraint_id" gorm:"uniqueIndex:idx_collection_id_constraint_id;not null"`
 	ConstraintMax uint `json:"constraint_max" gorm:"not null"`
 }
 
@@ -167,8 +167,8 @@ type SP struct {
 // It is used for both constraints (i.e, location.country) and values (i.e, CANADA)
 // Each Tenant has their own unique set of labels
 type Label struct {
-	TenantID     ID           `json:"tenant_id" gorm:"uniqueIndex:idx_label_tenant_id_label_id;uniqueIndex:idx_label_tenant_id_label_text"`
-	LabelID      ID           `json:"id" gorm:"uniqueIndex:idx_label_tenant_id_label_id;not null"`
-	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_label_tenant_id_label_text;not null"`
+	TenantID     ID           `json:"tenant_id" gorm:"uniqueIndex:idx_tenant_id_label_id;uniqueIndex:idx_tenant_id_label_text;not null"`
+	LabelID      ID           `json:"id" gorm:"uniqueIndex:idx_tenant_id_label_id;not null"`
+	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_tenant_id_label_text;not null"`
 	LabelOptions pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 }
