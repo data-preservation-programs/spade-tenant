@@ -13,12 +13,12 @@ type StorageProvider struct {
 	SPID              uint      `json:"sp_id"`
 	FirstActivatedAt  time.Time `json:"first_activated_at"`
 	StatusLastChanged time.Time `json:"status_last_changed"`
-	// Status:
+	// State:
 	// * eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process
-	// * pending-approval: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
+	// * pending: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
 	// * active: The SP is active and working with the tenant. Deals may be made with this SP.
 	// * suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended
-	Status string `json:"status" enums:"eligible,pending-approval,active,suspended"`
+	State string `json:"state" enums:"eligible,pending,active,suspended"`
 }
 
 //	@Summary		Get list of Storage Providers

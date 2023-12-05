@@ -17,7 +17,7 @@ func OpenDatabase(dbDsn string, debug bool) (*gorm.DB, error) {
 	if debug {
 		config = &gorm.Config{
 			// Logger: logger.Default.LogMode(logger.Info),
-			DryRun: true, // Don't apply to the db, just generate sql
+			// DryRun: true, // Don't apply to the db, just generate sql
 		}
 	}
 
