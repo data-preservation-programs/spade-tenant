@@ -3,6 +3,7 @@ package db
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	gormigrate "github.com/go-gormigrate/gormigrate/v2"
 	"gorm.io/gorm"
@@ -53,7 +54,7 @@ var Migrations []*gormigrate.Migration = []*gormigrate.Migration{
 
 // Ensure migrations are only run when env variable is specified
 func guardMigration(migration string) {
-	enabled := os.Getenv("DB_ALLOW_MIGRATIONS") == "true"
+	enabled := strings.ToUpper(os.Getenv("DB_ALLOW_MIGRATIONS")) == "TRUE"
 
 	if !enabled {
 		log.Fatalf("Unable to apply migration %s as migrations are disabled. Set ALLOW_MIGRATIONS=true to enable", migration)
