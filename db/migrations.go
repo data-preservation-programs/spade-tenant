@@ -57,6 +57,6 @@ func guardMigration(migration string) {
 	enabled := strings.ToUpper(os.Getenv("DB_ALLOW_MIGRATIONS")) == "TRUE"
 
 	if !enabled {
-		log.Fatalf("Unable to apply migration %s as migrations are disabled. Set ALLOW_MIGRATIONS=true to enable", migration)
+		log.Fatalf("Unable to apply migration %s as migrations are disabled. Set DB_ALLOW_MIGRATIONS=true to enable", migration)
 	}
 }

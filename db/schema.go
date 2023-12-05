@@ -45,8 +45,8 @@ type Tenant struct {
 
 type Address struct {
 	ModelBase
-	TenantID         ID     `json:"tenant_id" gorm:"uniqueIndex:idx_tenant_id_address_robust;not null"`
-	AddressRobust    string `json:"address_robust" gorm:"uniqueIndex:idx_tenant_id_address_robust;not null"`
+	TenantID         ID     `json:"tenant_id" gorm:"primaryKey"`
+	AddressRobust    string `json:"address_robust" gorm:"primaryKey"`
 	AddressActorID   uint   `json:"actor_id"`
 	AddressIsSigning bool   `json:"is_signing" gorm:"default:true;not null"`
 }
@@ -99,8 +99,8 @@ func (s *ComparisonOperator) Value() (driver.Value, error) {
 // retrieval.success_rate ComparisonOperator.GreaterThan 0.98
 type TenantSPEligibilityClauses struct {
 	ModelBase
-	TenantID        ID                 `json:"tenant_id" gorm:"uniqueIndex:idx_tenant_id_clause_attribute;not null"`
-	ClauseAttribute string             `json:"attribute" gorm:"uniqueIndex:idx_tenant_id_clause_attribute;not null"`
+	TenantID        ID                 `json:"tenant_id" gorm:"primaryKey"`
+	ClauseAttribute string             `json:"attribute" gorm:"primaryKey"`
 	ClauseOperator  ComparisonOperator `json:"operator" gorm:"type:comparison_operator;not null"`
 	ClauseValue     string             `json:"value" gorm:"not null"`
 }
@@ -118,9 +118,9 @@ type Collection struct {
 
 type ReplicationConstraint struct {
 	ModelBase
-	CollectionID uuid.UUID `json:"collection_id" gorm:"type:uuid;uniqueIndex:idx_collection_id_constraint_id;not null"`
+	CollectionID uuid.UUID `json:"collection_id" gorm:"type:uuid;primaryKey"`
 
-	ConstraintID  ID   `json:"constraint_id" gorm:"uniqueIndex:idx_collection_id_constraint_id;not null"`
+	ConstraintID  ID   `json:"constraint_id" gorm:"primaryKey"`
 	ConstraintMax uint `json:"constraint_max" gorm:"not null"`
 }
 

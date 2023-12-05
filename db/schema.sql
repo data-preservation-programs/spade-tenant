@@ -28,28 +28,28 @@ CREATE TABLE "addresses" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz NOT NULL,
     "deleted_at" timestamptz,
-    "tenant_id" integer NOT NULL,
-    "address_robust" text NOT NULL,
+    "tenant_id" integer,
+    "address_robust" text,
     "address_actor_id" bigint,
     "address_is_signing" boolean NOT NULL DEFAULT true,
+    PRIMARY KEY ("tenant_id","address_robust"),
     CONSTRAINT "fk_tenants_tenant_addresses" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_address_robust" ON "addresses" ("tenant_id","address_robust");
 CREATE INDEX IF NOT EXISTS "idx_addresses_deleted_at" ON "addresses" ("deleted_at");
 
 CREATE TABLE "tenant_sp_eligibility_clauses" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz NOT NULL,
     "deleted_at" timestamptz,
-    "tenant_id" integer NOT NULL,
-    "clause_attribute" text NOT NULL,
+    "tenant_id" integer,
+    "clause_attribute" text,
     "clause_operator" comparison_operator NOT NULL,
     "clause_value" text NOT NULL,
+    PRIMARY KEY ("tenant_id","clause_attribute"),
     CONSTRAINT "fk_tenants_tenant_sp_eligibility" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_tenant_id_clause_attribute" ON "tenant_sp_eligibility_clauses" ("tenant_id","clause_attribute");
 CREATE INDEX IF NOT EXISTS "idx_tenant_sp_eligibility_clauses_deleted_at" ON "tenant_sp_eligibility_clauses" ("deleted_at");
 
 CREATE TABLE "collections" (
@@ -93,11 +93,11 @@ CREATE TABLE "replication_constraints" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz NOT NULL,
     "deleted_at" timestamptz,
-    "collection_id" uuid NOT NULL,
-    "constraint_id" integer NOT NULL,
+    "collection_id" uuid,
+    "constraint_id" integer,
     "constraint_max" bigint NOT NULL,
+    PRIMARY KEY ("collection_id","constraint_id"),
     CONSTRAINT "fk_collections_replication_constraints" FOREIGN KEY ("collection_id") REFERENCES "collections"("collection_id")
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_collection_id_constraint_id" ON "replication_constraints" ("collection_id","constraint_id");
 CREATE INDEX IF NOT EXISTS "idx_replication_constraints_deleted_at" ON "replication_constraints" ("deleted_at");
