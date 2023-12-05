@@ -22,10 +22,11 @@ func NewApiV1() *apiV1 {
 
 // @host api.spade.storage
 // @BasePath  /tenant
-// @securityDefinitions.Bearer
-// @securityDefinitions.Bearer.type apiKey
-// @securityDefinitions.Bearer.in header
-// @securityDefinitions.Bearer.name Authorization
+
+// @securityDefinitions.apiKey apiKey
+// @type apiKey
+// @in header
+// @name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 	e.GET("/status", s.handleStatus)
 

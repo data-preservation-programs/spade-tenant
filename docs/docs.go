@@ -25,19 +25,15 @@ const docTemplate = `{
     "paths": {
         "/addresses": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Get addresses used by a tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -63,18 +59,16 @@ const docTemplate = `{
                 }
             },
             "put": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Update addresses associated with a tenant",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "New addresses to add or change is_signing flag of",
                         "name": "addresses",
@@ -113,18 +107,16 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Delete addresses used by a tenant",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "addresses to delete",
                         "name": "addresses",
@@ -165,19 +157,15 @@ const docTemplate = `{
         },
         "/collections": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Gets info about collections",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -200,18 +188,16 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Creates a new collection",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "Collection to create",
                         "name": "collection",
@@ -246,18 +232,16 @@ const docTemplate = `{
         },
         "/collections/:collectionUUID": {
             "put": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Modify a collection",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Collection UUID to modify",
@@ -297,18 +281,16 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Delete a collection",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "type": "string",
                         "description": "Collection UUID to modify",
@@ -341,19 +323,15 @@ const docTemplate = `{
         },
         "/constraint-labels": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "List all constraint labels for the tenant",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -381,19 +359,15 @@ const docTemplate = `{
         },
         "/settings": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Get the currently active Tenant Settings",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -416,18 +390,16 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Apply new Tenant Settings",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "New settings to apply",
                         "name": "settings",
@@ -462,19 +434,15 @@ const docTemplate = `{
         },
         "/sp": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Get list of Storage Providers",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -502,19 +470,17 @@ const docTemplate = `{
         },
         "/sp/approve": {
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Note: This is only required if auto_approve is false, requiring manual approval of SP subscription",
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Approves a list of Storage Providers to work with the tenant",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "List of SP IDs to approve",
                         "name": "body",
@@ -552,19 +518,15 @@ const docTemplate = `{
         },
         "/sp/eligibility-criteria": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Get sp eligibility criteria",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -587,18 +549,16 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Set sp eligibility criteria",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "New eligibility criteria to update to",
                         "name": "elibility_criteria",
@@ -633,19 +593,17 @@ const docTemplate = `{
         },
         "/sp/suspend": {
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Note: This is only required if auto_suspend is false, as manual suspension is required",
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Suspend storage providers",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "List of SP IDs to suspend",
                         "name": "body",
@@ -683,18 +641,16 @@ const docTemplate = `{
         },
         "/sp/unsuspend": {
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Unsuspend a storage provider",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "List of SP IDs to unsuspend",
                         "name": "body",
@@ -732,20 +688,16 @@ const docTemplate = `{
         },
         "/status": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to check the health of the service",
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Simple health check endpoint",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -770,19 +722,15 @@ const docTemplate = `{
         },
         "/storage-contract": {
             "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Get tenant storage contract",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -805,19 +753,17 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
                 "description": "Updates the storage contract. \u003cbr/\u003e\n\u003cbr/\u003e *Note* this will require SPs to resubscribe if changed.\n\u003cbr/\u003e *Note* CID is optional, if specified, then ` + "`" + `storage_contract` + "`" + ` becomes optional.\nIf both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.\nIf only CID is specified, then we will fetch it and update the storage contract to it.",
                 "produces": [
                     "application/json"
                 ],
                 "summary": "Update storage contract",
                 "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Auth token",
-                        "name": "token",
-                        "in": "header",
-                        "required": true
-                    },
                     {
                         "description": "New Storage Contract to update to",
                         "name": "collection",
@@ -960,7 +906,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "options": {
-                    "description": "example: {\"CANADA\": 10, \"USA\": 20}",
+                    "description": "example: {\"CA\": 10, \"US\": 20}",
                     "type": "object",
                     "additionalProperties": {
                         "type": "integer"
@@ -1125,12 +1071,12 @@ const docTemplate = `{
                 "sp_id": {
                     "type": "integer"
                 },
-                "status": {
-                    "description": "Status:\n* eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process\n* pending-approval: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)\n* active: The SP is active and working with the tenant. Deals may be made with this SP.\n* suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended",
+                "state": {
+                    "description": "State:\n* eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process\n* pending: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)\n* active: The SP is active and working with the tenant. Deals may be made with this SP.\n* suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended",
                     "type": "string",
                     "enum": [
                         "eligible",
-                        "pending-approval",
+                        "pending",
                         "active",
                         "suspended"
                     ]
@@ -1150,6 +1096,13 @@ const docTemplate = `{
                     }
                 }
             }
+        }
+    },
+    "securityDefinitions": {
+        "apiKey": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
         }
     }
 }`

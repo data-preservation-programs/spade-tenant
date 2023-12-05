@@ -42,12 +42,13 @@ type CreateCollectionResponse struct {
 }
 
 // handleCreateCollection godoc
-//	@Summary		Creates a new collection
-// 	@Param 		  token header string true "Auth token"
-//  @Param 			collection body MutableCollection true "Collection to create"
-//	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Collection}
-//	@Router			/collections [post]
+//
+//		@Summary		Creates a new collection
+//		@Security apiKey
+//	  @Param 			collection body MutableCollection true "Collection to create"
+//		@Produce		json
+//		@Success		200	{object}	ResponseEnvelope{response=Collection}
+//		@Router			/collections [post]
 func (s *apiV1) handleCreateCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
@@ -55,8 +56,9 @@ func (s *apiV1) handleCreateCollection(c echo.Context) error {
 type GetCollectionsResponse []Collection
 
 // handleGetCollections godoc
+//
 //	@Summary		Gets info about collections
-// 	@Param 		  token header string true "Auth token"
+//	@Security apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections [get]
@@ -65,10 +67,11 @@ func (s *apiV1) handleGetCollections(c echo.Context) error {
 }
 
 // handleModifyCollection godoc
+//
 //	@Summary		Modify a collection
-// 	@Param 		  token header string true "Auth token"
-// 	@Param 		  collectionUUID path string true "Collection UUID to modify"
-// 	@Param 		  collection body MutableCollection true "Collection data to update"
+//	@Security apiKey
+//	@Param 		  collectionUUID path string true "Collection UUID to modify"
+//	@Param 		  collection body MutableCollection true "Collection data to update"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections/:collectionUUID [put]
@@ -77,9 +80,10 @@ func (s *apiV1) handleModifyCollection(c echo.Context) error {
 }
 
 // handleDeleteCollection godoc
+//
 //	@Summary		Delete a collection
-// 	@Param 		  token header string true "Auth token"
-// 	@Param 		  collectionUUID path string true "Collection UUID to modify"
+//	@Security apiKey
+//	@Param 		  collectionUUID path string true "Collection UUID to modify"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=bool}
 //	@Router			/collections/:collectionUUID [delete]
