@@ -16,8 +16,9 @@ type Label struct {
 }
 
 // handleGetConstraintLabels godoc
+//
 //	@Summary		List all constraint labels for the tenant
-// 	@Param 		  token header string true "Auth token"
+//	@Security apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabels}
 //	@Router			/constraint-labels [get]

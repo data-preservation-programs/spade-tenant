@@ -75,7 +75,7 @@ definitions:
       options:
         additionalProperties:
           type: integer
-        description: 'example: {"CANADA": 10, "USA": 20}'
+        description: 'example: {"CA": 10, "US": 20}'
         type: object
       uuid:
         type: string
@@ -180,16 +180,16 @@ definitions:
         type: string
       sp_id:
         type: integer
-      status:
+      state:
         description: |-
-          Status:
+          State:
           * eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process
-          * pending-approval: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
+          * pending: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
           * active: The SP is active and working with the tenant. Deals may be made with this SP.
           * suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended
         enum:
         - eligible
-        - pending-approval
+        - pending
         - active
         - suspended
         type: string
@@ -219,11 +219,6 @@ paths:
   /addresses:
     delete:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: addresses to delete
         in: body
         name: addresses
@@ -246,14 +241,10 @@ paths:
                     $ref: '#/definitions/api.Address'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Delete addresses used by a tenant
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -268,14 +259,11 @@ paths:
                     $ref: '#/definitions/api.Address'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Get addresses used by a tenant
     put:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: New addresses to add or change is_signing flag of
         in: body
         name: addresses
@@ -298,15 +286,11 @@ paths:
                     $ref: '#/definitions/api.Address'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Update addresses associated with a tenant
   /collections:
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -319,14 +303,11 @@ paths:
                 response:
                   $ref: '#/definitions/api.Collection'
               type: object
+      security:
+      - apiKey: []
       summary: Gets info about collections
     post:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: Collection to create
         in: body
         name: collection
@@ -345,15 +326,12 @@ paths:
                 response:
                   $ref: '#/definitions/api.Collection'
               type: object
+      security:
+      - apiKey: []
       summary: Creates a new collection
   /collections/:collectionUUID:
     delete:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: Collection UUID to modify
         in: path
         name: collectionUUID
@@ -371,14 +349,11 @@ paths:
                 response:
                   type: boolean
               type: object
+      security:
+      - apiKey: []
       summary: Delete a collection
     put:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: Collection UUID to modify
         in: path
         name: collectionUUID
@@ -402,15 +377,11 @@ paths:
                 response:
                   $ref: '#/definitions/api.Collection'
               type: object
+      security:
+      - apiKey: []
       summary: Modify a collection
   /constraint-labels:
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -425,15 +396,11 @@ paths:
                     $ref: '#/definitions/api.Label'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: List all constraint labels for the tenant
   /settings:
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -446,14 +413,11 @@ paths:
                 response:
                   $ref: '#/definitions/api.Settings'
               type: object
+      security:
+      - apiKey: []
       summary: Get the currently active Tenant Settings
     post:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: New settings to apply
         in: body
         name: settings
@@ -472,15 +436,11 @@ paths:
                 response:
                   $ref: '#/definitions/api.Settings'
               type: object
+      security:
+      - apiKey: []
       summary: Apply new Tenant Settings
   /sp:
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -495,17 +455,14 @@ paths:
                     $ref: '#/definitions/api.StorageProvider'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Get list of Storage Providers
   /sp/approve:
     post:
       description: 'Note: This is only required if auto_approve is false, requiring
         manual approval of SP subscription'
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: List of SP IDs to approve
         in: body
         name: body
@@ -526,15 +483,11 @@ paths:
                     $ref: '#/definitions/api.StorageProvider'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Approves a list of Storage Providers to work with the tenant
   /sp/eligibility-criteria:
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -547,14 +500,11 @@ paths:
                 response:
                   $ref: '#/definitions/api.EligibilityCriteria'
               type: object
+      security:
+      - apiKey: []
       summary: Get sp eligibility criteria
     post:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: New eligibility criteria to update to
         in: body
         name: elibility_criteria
@@ -573,17 +523,14 @@ paths:
                 response:
                   $ref: '#/definitions/api.EligibilityCriteria'
               type: object
+      security:
+      - apiKey: []
       summary: Set sp eligibility criteria
   /sp/suspend:
     post:
       description: 'Note: This is only required if auto_suspend is false, as manual
         suspension is required'
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: List of SP IDs to suspend
         in: body
         name: body
@@ -604,15 +551,12 @@ paths:
                     $ref: '#/definitions/api.StorageProvider'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Suspend storage providers
   /sp/unsuspend:
     post:
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: List of SP IDs to unsuspend
         in: body
         name: body
@@ -633,16 +577,12 @@ paths:
                     $ref: '#/definitions/api.StorageProvider'
                   type: array
               type: object
+      security:
+      - apiKey: []
       summary: Unsuspend a storage provider
   /status:
     get:
       description: This endpoint is used to check the health of the service
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -655,15 +595,11 @@ paths:
                 response:
                   type: string
               type: object
+      security:
+      - apiKey: []
       summary: Simple health check endpoint
   /storage-contract:
     get:
-      parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -676,6 +612,8 @@ paths:
                 response:
                   $ref: '#/definitions/api.AddressedStorageContract'
               type: object
+      security:
+      - apiKey: []
       summary: Get tenant storage contract
     post:
       description: |-
@@ -685,11 +623,6 @@ paths:
         If both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.
         If only CID is specified, then we will fetch it and update the storage contract to it.
       parameters:
-      - description: Auth token
-        in: header
-        name: token
-        required: true
-        type: string
       - description: New Storage Contract to update to
         in: body
         name: collection
@@ -708,5 +641,12 @@ paths:
                 response:
                   $ref: '#/definitions/api.AddressedStorageContract'
               type: object
+      security:
+      - apiKey: []
       summary: Update storage contract
+securityDefinitions:
+  apiKey:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

@@ -21,9 +21,10 @@ type ResponseEnvelope struct {
 }
 
 // handleStatus godoc
+//
 //	@Summary		Simple health check endpoint
 //	@Description	This endpoint is used to check the health of the service
-// 	@Param 		  token header string true "Auth token"
+//	@Security apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=string}
 //	@Router			/status [get]
