@@ -1,6 +1,11 @@
 package api
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+	"time"
+
+	"github.com/labstack/echo/v4"
+)
 
 type apiV1 struct {
 }
@@ -28,9 +33,8 @@ func NewApiV1() *apiV1 {
 // @in header
 // @name Authorization
 func (s *apiV1) RegisterRoutes(e *echo.Echo) {
-	e.GET("/status", s.handleStatus)
-
 	e.Use(AuthMiddleware)
+	e.GET("/status", s.handleStatus)
 
 	// /collections
 	e.POST("/collections", s.handleCreateCollection)
@@ -61,4 +65,42 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo) {
 
 	// /constraint-labels
 	e.GET("/constraint-labels", s.handleGetConstraintLabels)
+}
+func GetTenantId(c echo.Context) int {
+	return int(c.Get(TENANT_CONTEXT).(AuthContext).TenantID)
+}
+
+func CreateErrorResponseEnvelop(c echo.Context, err string) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseCode:       http.StatusInternalServerError,
+		ErrCode:            http.StatusInternalServerError,
+		ErrSlug:            err,
+		Response:           err,
+	}
+}
+
+func CreateSuccessResponseEnvelop(c echo.Context, message interface{}) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseCode:       http.StatusOK,
+		Response:           message,
+	}
+}
+
+type ResponseEnvelope struct {
+	RequestUUID        string      `json:"request_uuid,omitempty"`
+	ResponseTime       time.Time   `json:"response_timestamp"`
+	ResponseStateEpoch int64       `json:"response_state_epoch,omitempty"`
+	ResponseCode       int         `json:"response_code"`
+	ErrCode            int         `json:"error_code,omitempty"`
+	ErrSlug            string      `json:"error_slug,omitempty"`
+	ErrLines           []string    `json:"error_lines,omitempty"`
+	InfoLines          []string    `json:"info_lines,omitempty"`
+	ResponseEntries    *int        `json:"response_entries,omitempty"`
+	Response           interface{} `json:"response"`
 }
