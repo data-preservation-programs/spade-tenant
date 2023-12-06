@@ -40,6 +40,7 @@ func (s *apiV1) RegisterRoutes(e *echo.Echo, config config.DeltaConfig) {
 	e.GET("/status", s.handleStatus)
 
 	e.Use(AuthMiddleware)
+	e.GET("/status", s.handleStatus)
 
 	ConfigureCollectionsRouter(e, s, config)
 	ConfigureStorageContractRouter(e, s, config)
