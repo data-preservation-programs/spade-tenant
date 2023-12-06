@@ -1,6 +1,10 @@
 package db
 
 import (
+	"os"
+	"strconv"
+
+	"github.com/data-preservation-programs/spade-tenant/initializers"
 	gormigrate "github.com/go-gormigrate/gormigrate/v2"
 	logging "github.com/ipfs/go-log/v2"
 	"gorm.io/driver/postgres"
@@ -9,7 +13,29 @@ import (
 
 var (
 	log = logging.Logger("router")
+	DB  *gorm.DB
 )
+
+func init() {
+	initializers.LoadEnvVariables()
+}
+
+func ConnectToDB() {
+	dbDsn := os.Getenv("DB_URL")
+
+	var err error
+	debug, err := strconv.ParseBool(os.Getenv("DRY_RUN"))
+
+	if err != nil {
+		log.Fatal("Failed to get or parse DRY_RUN env variable")
+	}
+
+	DB, err = OpenDatabase(dbDsn, debug)
+
+	if err != nil {
+		log.Fatal("Failed to connext to db")
+	}
+}
 
 // Opens a database connection, and returns a gorm DB object.
 func OpenDatabase(dbDsn string, debug bool) (*gorm.DB, error) {
