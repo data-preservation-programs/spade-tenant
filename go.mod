@@ -42,6 +42,8 @@ require (
 )
 
 require (
+	github.com/aws/smithy-go v1.19.0
+	github.com/caarlos0/env/v6 v6.10.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.0
 	github.com/ipfs/go-cid v0.4.1
 	github.com/ipfs/go-log/v2 v2.5.1

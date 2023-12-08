@@ -1,9 +1,11 @@
 package api
 
 import (
+	"math"
 	"net/http"
 	"time"
 
+	"github.com/data-preservation-programs/spade-tenant/config"
 	"github.com/labstack/echo/v4"
 )
 
@@ -13,6 +15,8 @@ type apiV1 struct {
 func NewApiV1() *apiV1 {
 	return &apiV1{}
 }
+
+var FILECOIN_GENESIS_UNIX_EPOCH int64 = 1598306400
 
 // @title Spade Tenant API
 // @version 1.0.0
@@ -32,53 +36,83 @@ func NewApiV1() *apiV1 {
 // @type apiKey
 // @in header
 // @name Authorization
-func (s *apiV1) RegisterRoutes(e *echo.Echo) {
-	e.Use(AuthMiddleware)
+func (s *apiV1) RegisterRoutes(e *echo.Echo, config config.DeltaConfig) {
 	e.GET("/status", s.handleStatus)
 
-	// /collections
+	e.Use(AuthMiddleware)
+
+	ConfigureCollectionsRouter(e, s, config)
+	ConfigureStorageContractRouter(e, s, config)
+	ConfigureSPRouter(e, s, config)
+	ConfigureAddressesRouter(e, s, config)
+	ConfigureSettingsRouter(e, s, config)
+	ConfigureConstraintLabelsRouter(e, s, config)
+}
+
+func ConfigureCollectionsRouter(e *echo.Echo, s *apiV1, config config.DeltaConfig) {
 	e.POST("/collections", s.handleCreateCollection)
 	e.GET("/collections", s.handleGetCollections)
 	e.PUT("/collections", s.handleModifyCollection)
 	e.DELETE("/collections", s.handleDeleteCollection)
+}
 
-	// /storage-contract
+func ConfigureStorageContractRouter(e *echo.Echo, s *apiV1, config config.DeltaConfig) {
 	e.GET("/storage-contract", s.handleGetStorageContract)
 	e.POST("/storage-contract", s.handleSetStorageContract)
+}
 
-	// /sp
+func ConfigureSPRouter(e *echo.Echo, s *apiV1, config config.DeltaConfig) {
 	e.GET("/sp", s.handleGetStorageProviders)
 	e.POST("/sp", s.handleApproveStorageProviders)
 	e.POST("/sp/suspend", s.handleSuspendStorageProviders)
 	e.POST("/sp/unsuspend", s.handleUnsuspendStorageProvider)
 	e.POST("/sp/eligibility-criteria", s.handleSetSpEligibilityCriteria)
 	e.GET("/sp/eligibility-criteria", s.handleGetSpEligibilityCriteria)
+}
 
-	// /addresses
+func ConfigureAddressesRouter(e *echo.Echo, s *apiV1, config config.DeltaConfig) {
 	e.PUT("/addresses", s.handleSetAddresses)
 	e.DELETE("/addresses", s.handleDeleteAddresses)
 	e.GET("/addresses", s.handleGetAddresses)
+}
 
-	// /settings
+func ConfigureSettingsRouter(e *echo.Echo, s *apiV1, config config.DeltaConfig) {
 	e.POST("/settings", s.handleGetSettings)
 	e.GET("/settings", s.handleSetSettings)
+}
 
-	// /constraint-labels
+func ConfigureConstraintLabelsRouter(e *echo.Echo, s *apiV1, config config.DeltaConfig) {
 	e.GET("/constraint-labels", s.handleGetConstraintLabels)
 }
+
 func GetTenantId(c echo.Context) int {
 	return int(c.Get(TENANT_CONTEXT).(AuthContext).TenantID)
 }
 
-func CreateErrorResponseEnvelop(c echo.Context, err string) ResponseEnvelope {
+func UnixToFilEpoch(unixEpoch int64) int64 {
+	return int64(math.Floor(float64(unixEpoch-FILECOIN_GENESIS_UNIX_EPOCH) / 30))
+}
+
+func GetSlugFromErrorCode(errorCode int) string {
+	switch errorCode {
+	case 1:
+		return "error_1"
+	case 2:
+		return "error_2"
+	default:
+		return "unknown"
+	}
+}
+
+func CreateErrorResponseEnvelop(c echo.Context, errorCode int, err string) ResponseEnvelope {
 	return ResponseEnvelope{
 		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
 		ResponseTime:       time.Now(),
-		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseStateEpoch: UnixToFilEpoch(time.Now().Unix()),
 		ResponseCode:       http.StatusInternalServerError,
-		ErrCode:            http.StatusInternalServerError,
-		ErrSlug:            err,
-		Response:           err,
+		ErrCode:            errorCode,
+		ErrSlug:            GetSlugFromErrorCode(errorCode),
+		Response:           nil,
 	}
 }
 
@@ -86,7 +120,7 @@ func CreateSuccessResponseEnvelop(c echo.Context, message interface{}) ResponseE
 	return ResponseEnvelope{
 		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
 		ResponseTime:       time.Now(),
-		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseStateEpoch: UnixToFilEpoch(time.Now().Unix()),
 		ResponseCode:       http.StatusOK,
 		Response:           message,
 	}
