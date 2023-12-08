@@ -27,7 +27,7 @@ type AddressMutable struct {
 //			@Produce		json
 //			@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //			@Router			/addresses [put]
-func (s *apiV1) handleSetAddresses(c echo.Context) error {
+func handleSetAddresses(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -39,7 +39,7 @@ func (s *apiV1) handleSetAddresses(c echo.Context) error {
 //		@Produce		json
 //		@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //		@Router			/addresses [delete]
-func (s *apiV1) handleDeleteAddresses(c echo.Context) error {
+func handleDeleteAddresses(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -50,6 +50,6 @@ func (s *apiV1) handleDeleteAddresses(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [get]
-func (s *apiV1) handleGetAddresses(c echo.Context) error {
+func handleGetAddresses(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

@@ -49,7 +49,7 @@ type CreateCollectionResponse struct {
 //		@Produce		json
 //		@Success		200	{object}	ResponseEnvelope{response=Collection}
 //		@Router			/collections [post]
-func (s *apiV1) handleCreateCollection(c echo.Context) error {
+func handleCreateCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -62,7 +62,7 @@ type GetCollectionsResponse []Collection
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections [get]
-func (s *apiV1) handleGetCollections(c echo.Context) error {
+func handleGetCollections(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -75,7 +75,7 @@ func (s *apiV1) handleGetCollections(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections/:collectionUUID [put]
-func (s *apiV1) handleModifyCollection(c echo.Context) error {
+func handleModifyCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -87,6 +87,6 @@ func (s *apiV1) handleModifyCollection(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=bool}
 //	@Router			/collections/:collectionUUID [delete]
-func (s *apiV1) handleDeleteCollection(c echo.Context) error {
+func handleDeleteCollection(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
