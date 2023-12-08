@@ -1,18 +1,16 @@
 package api
 
 import (
+	"math"
 	"net/http"
 	"time"
 
+	"github.com/data-preservation-programs/spade-tenant/config"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
-type apiV1 struct {
-}
-
-func NewApiV1() *apiV1 {
-	return &apiV1{}
-}
+var FILECOIN_GENESIS_UNIX_EPOCH int64 = 1598306400
 
 // @title Spade Tenant API
 // @version 1.0.0
@@ -32,61 +30,50 @@ func NewApiV1() *apiV1 {
 // @type apiKey
 // @in header
 // @name Authorization
-func (s *apiV1) RegisterRoutes(e *echo.Echo) {
+func RegisterRoutes(e *echo.Echo, config config.TenantServiceConfig) {
+	apiGroup := e.Group("/api/v1")
+	e.Use(middleware.RequestID())
 	e.Use(AuthMiddleware)
-	e.GET("/status", s.handleStatus)
 
-	// /collections
-	e.POST("/collections", s.handleCreateCollection)
-	e.GET("/collections", s.handleGetCollections)
-	e.PUT("/collections", s.handleModifyCollection)
-	e.DELETE("/collections", s.handleDeleteCollection)
-
-	// /storage-contract
-	e.GET("/storage-contract", s.handleGetStorageContract)
-	e.POST("/storage-contract", s.handleSetStorageContract)
-
-	// /sp
-	e.GET("/sp", s.handleGetStorageProviders)
-	e.POST("/sp", s.handleApproveStorageProviders)
-	e.POST("/sp/suspend", s.handleSuspendStorageProviders)
-	e.POST("/sp/unsuspend", s.handleUnsuspendStorageProvider)
-	e.POST("/sp/eligibility-criteria", s.handleSetSpEligibilityCriteria)
-	e.GET("/sp/eligibility-criteria", s.handleGetSpEligibilityCriteria)
-
-	// /addresses
-	e.PUT("/addresses", s.handleSetAddresses)
-	e.DELETE("/addresses", s.handleDeleteAddresses)
-	e.GET("/addresses", s.handleGetAddresses)
-
-	// /settings
-	e.POST("/settings", s.handleGetSettings)
-	e.GET("/settings", s.handleSetSettings)
-
-	// /constraint-labels
-	e.GET("/constraint-labels", s.handleGetConstraintLabels)
+	ConfigureStatusRouter(apiGroup, config)
 }
+
 func GetTenantId(c echo.Context) int {
 	return int(c.Get(TENANT_CONTEXT).(AuthContext).TenantID)
 }
 
-func CreateErrorResponseEnvelop(c echo.Context, err string) ResponseEnvelope {
-	return ResponseEnvelope{
-		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
-		ResponseTime:       time.Now(),
-		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
-		ResponseCode:       http.StatusInternalServerError,
-		ErrCode:            http.StatusInternalServerError,
-		ErrSlug:            err,
-		Response:           err,
+func UnixToFilEpoch(unixEpoch int64) int64 {
+	return int64(math.Floor(float64(unixEpoch-FILECOIN_GENESIS_UNIX_EPOCH) / 30))
+}
+
+func GetSlugFromErrorCode(errorCode int) string {
+	switch errorCode {
+	case 1:
+		return "error_1"
+	case 2:
+		return "error_2"
+	default:
+		return "unknown"
 	}
 }
 
-func CreateSuccessResponseEnvelop(c echo.Context, message interface{}) ResponseEnvelope {
+func CreateErrorResponseEnvelope(c echo.Context, errorCode int, err string) ResponseEnvelope {
 	return ResponseEnvelope{
 		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
 		ResponseTime:       time.Now(),
-		ResponseStateEpoch: time.Now().UTC().UnixMilli(),
+		ResponseStateEpoch: UnixToFilEpoch(time.Now().Unix()),
+		ResponseCode:       http.StatusInternalServerError,
+		ErrCode:            errorCode,
+		ErrSlug:            GetSlugFromErrorCode(errorCode),
+		Response:           nil,
+	}
+}
+
+func CreateSuccessResponseEnvelope(c echo.Context, message interface{}) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: UnixToFilEpoch(time.Now().Unix()),
 		ResponseCode:       http.StatusOK,
 		Response:           message,
 	}

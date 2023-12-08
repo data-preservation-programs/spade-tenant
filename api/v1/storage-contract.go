@@ -39,7 +39,7 @@ type AddressedStorageContract struct {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=AddressedStorageContract}
 //	@Router			/storage-contract [post]
-func (s *apiV1) handleSetStorageContract(c echo.Context) error {
+func handleSetStorageContract(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -50,6 +50,6 @@ func (s *apiV1) handleSetStorageContract(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=AddressedStorageContract}
 //	@Router			/storage-contract [get]
-func (s *apiV1) handleGetStorageContract(c echo.Context) error {
+func handleGetStorageContract(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
