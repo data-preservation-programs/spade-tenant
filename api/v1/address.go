@@ -27,6 +27,7 @@ func ConfigureAddressesRouter(e *echo.Group, service *db.SpdTenantSvc) {
 
 // handleSetAddresses godoc
 //
+<<<<<<< HEAD
 //	@Summary		Update addresses associated with a tenant
 //	@Param			token header string true "Auth token"
 //	@Param			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
@@ -58,10 +59,21 @@ func handleSetAddresses(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Updated Addresses associated with the tenant"))
+=======
+//			@Summary		Update addresses associated with a tenant
+//	 		@Security apiKey
+//		  @Param 			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
+//			@Produce		json
+//			@Success		200	{object}	ResponseEnvelope{response=Addresses}
+//			@Router			/addresses [put]
+func handleSetAddresses(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+>>>>>>> 3820fd7 (Addressing comments)
 }
 
 // handleDeleteAddresses godoc
 //
+<<<<<<< HEAD
 //	@Summary		Delete addresses used by a tenant
 //	@Param 			token header string true "Auth token"
 //	@Param 			addresses body []string true "addresses to delete"
@@ -83,6 +95,16 @@ func handleDeleteAddresses(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Deleted Addresses associated with the tenant"))
+=======
+//		@Summary		Delete addresses used by a tenant
+//		@Security apiKey
+//	  @Param 			addresses body []string true "addresses to delete"
+//		@Produce		json
+//		@Success		200	{object}	ResponseEnvelope{response=Addresses}
+//		@Router			/addresses [delete]
+func handleDeleteAddresses(c echo.Context) error {
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+>>>>>>> 3820fd7 (Addressing comments)
 }
 
 // handleGetAddresses godoc
@@ -93,6 +115,7 @@ func handleDeleteAddresses(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [get]
 func handleGetAddresses(c echo.Context) error {
+<<<<<<< HEAD
 	var addresses []AddressResponse
 	res := db.DB.Table("addresses").Where("tenant_id = ? AND deleted_at IS NULL", GetTenantId(c)).Find(&addresses)
 
@@ -101,4 +124,7 @@ func handleGetAddresses(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, addresses))
+=======
+	return c.JSON(http.StatusNotImplemented, map[string]string{})
+>>>>>>> 3820fd7 (Addressing comments)
 }

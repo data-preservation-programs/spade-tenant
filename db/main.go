@@ -1,7 +1,10 @@
 package db
 
 import (
+<<<<<<< HEAD
 	"github.com/data-preservation-programs/spade-tenant/config"
+=======
+>>>>>>> 3820fd7 (Addressing comments)
 	gormigrate "github.com/go-gormigrate/gormigrate/v2"
 	logging "github.com/ipfs/go-log/v2"
 	"github.com/labstack/echo"
@@ -14,6 +17,7 @@ var (
 	DB  = NewSpdTenantSvc().DB
 )
 
+<<<<<<< HEAD
 type SpdTenantSvc struct {
 	DB         *gorm.DB
 	DryRunMode bool
@@ -43,6 +47,8 @@ func SpdTenantSvcMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+=======
+>>>>>>> 3820fd7 (Addressing comments)
 // Opens a database connection, and returns a gorm DB object.
 func OpenDatabase(dbDsn string, debug bool, dryRun bool) (*gorm.DB, error) {
 	var config = &gorm.Config{}

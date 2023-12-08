@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/data-preservation-programs/spade-tenant/config"
+	"github.com/data-preservation-programs/spade-tenant/core"
 	"github.com/data-preservation-programs/spade-tenant/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -28,7 +28,7 @@ import (
 // @type apiKey
 // @in header
 // @name Authorization
-func RegisterRoutes(e *echo.Echo, config config.TenantServiceConfig) {
+func RegisterRoutes(e *echo.Echo, service *core.SpdTenantSvc) {
 	apiGroup := e.Group("/api/v1")
 	e.Use(middleware.RequestID())
 	e.Use(AuthMiddleware)
