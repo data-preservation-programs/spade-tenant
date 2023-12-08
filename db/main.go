@@ -1,6 +1,7 @@
 package db
 
 import (
+	"github.com/data-preservation-programs/spade-tenant/config"
 	gormigrate "github.com/go-gormigrate/gormigrate/v2"
 	logging "github.com/ipfs/go-log/v2"
 	"gorm.io/driver/postgres"
@@ -11,6 +12,26 @@ var (
 	log = logging.Logger("router")
 	DB  *gorm.DB
 )
+
+type SpdTenantSvc struct {
+	DB         *gorm.DB
+	DryRunMode bool
+	Config     config.TenantServiceConfig
+}
+
+func NewSpdTenantSvc() *SpdTenantSvc {
+	config := config.InitConfig()
+	if config.DEBUG {
+		logging.SetDebugLogging()
+	}
+
+	dbi, err := OpenDatabase(config.DB_URL, config.DEBUG, config.DRY_RUN)
+	if err != nil {
+		log.Fatalf("could not open db: %s", err)
+	}
+
+	return &SpdTenantSvc{DB: dbi, DryRunMode: config.DRY_RUN, Config: config}
+}
 
 // Opens a database connection, and returns a gorm DB object.
 func OpenDatabase(dbDsn string, debug bool, dryRun bool) (*gorm.DB, error) {
