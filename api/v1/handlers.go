@@ -3,7 +3,6 @@ package api
 import (
 	"net/http"
 
-	"github.com/data-preservation-programs/spade-tenant/config"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,7 +14,7 @@ import (
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=string}
 //	@Router			/status [get]
-func ConfigureStatusRouter(e *echo.Group, config config.TenantServiceConfig) {
+func ConfigureStatusRouter(e *echo.Group) {
 	status := e.Group("/status")
 
 	status.GET("", func(c echo.Context) error {

@@ -40,7 +40,7 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return c.JSON(401, err.Error())
 		}
 
-		if !res.Validated {
+		if !res.Validated || res.Meta.TenantID == 0 {
 			return c.JSON(401, "invalid auth key")
 		}
 

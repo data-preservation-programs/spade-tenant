@@ -1,11 +1,12 @@
 package api
 
 import (
+	"fmt"
 	"math"
 	"net/http"
 	"time"
 
-	"github.com/data-preservation-programs/spade-tenant/config"
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -30,16 +31,18 @@ var FILECOIN_GENESIS_UNIX_EPOCH int64 = 1598306400
 // @type apiKey
 // @in header
 // @name Authorization
-func RegisterRoutes(e *echo.Echo, config config.TenantServiceConfig) {
+func RegisterRoutes(e *echo.Echo, service *db.SpdTenantSvc) {
 	apiGroup := e.Group("/api/v1")
 	e.Use(middleware.RequestID())
 	e.Use(AuthMiddleware)
 
-	ConfigureStatusRouter(apiGroup, config)
+	ConfigureStatusRouter(apiGroup)
+	fmt.Println("here")
+	ConfigureAddressesRouter(apiGroup, service)
 }
 
-func GetTenantId(c echo.Context) int {
-	return int(c.Get(TENANT_CONTEXT).(AuthContext).TenantID)
+func GetTenantId(c echo.Context) db.ID {
+	return db.ID(c.Get(TENANT_CONTEXT).(AuthContext).TenantID)
 }
 
 func UnixToFilEpoch(unixEpoch int64) int64 {
