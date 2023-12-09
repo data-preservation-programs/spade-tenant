@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,6 +28,12 @@ type AddressedStorageContract struct {
 	StorageContract StorageContract `json:"storage_contract"`
 }
 
+func (a *apiV1) ConfigureStorageContractRouter(e *echo.Group) {
+	g := e.Group("/storage-contract")
+	g.POST("", a.handleSetStorageContract)
+	g.GET("", a.handleGetStorageContract)
+}
+
 // handleSetStorageContract godoc
 //
 //	@Summary		Update storage contract
@@ -34,22 +42,56 @@ type AddressedStorageContract struct {
 //	@Description <br/> *Note* CID is optional, if specified, then `storage_contract` becomes optional.
 //	@Description If both are specified, then we will validate that the CID matches the proposed storage contract and return an error if not.
 //	@Description If only CID is specified, then we will fetch it and update the storage contract to it.
-//	@Security apiKey
+//	@Security		apiKey
 //	@Param 			collection body AddressedStorageContract true "New Storage Contract to update to"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=AddressedStorageContract}
 //	@Router			/storage-contract [post]
-func handleSetStorageContract(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func (a *apiV1) handleSetStorageContract(c echo.Context) error {
+	var addressedStorageContract AddressedStorageContract
+	err := json.NewDecoder(c.Request().Body).Decode(&addressedStorageContract)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	if len(addressedStorageContract.Cid) == 0 {
+		return c.JSON(http.StatusNotImplemented, CreateErrorResponseEnvelope(c, http.StatusNotImplemented, "StorageContract is not currently supported. Please pass in a CID."))
+	}
+
+	var tenant db.Tenant
+	tenant.TenantID = db.ID(GetTenantContext(c).TenantID)
+	err = a.db.Find(&tenant).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	tenant.TenantStorageContractCid = addressedStorageContract.Cid
+	err = a.db.Model(&tenant).Updates(&tenant).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Set Storage Contract CID to "+addressedStorageContract.Cid))
 }
 
 // handleGetStorageContract godoc
 //
 //	@Summary		Get tenant storage contract
-//	@Security apiKey
+//	@Security		apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=AddressedStorageContract}
 //	@Router			/storage-contract [get]
-func handleGetStorageContract(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func (a *apiV1) handleGetStorageContract(c echo.Context) error {
+	var tenant db.Tenant
+	tenant.TenantID = db.ID(GetTenantContext(c).TenantID)
+	err := a.db.Find(&tenant).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, tenant.TenantStorageContractCid))
 }
