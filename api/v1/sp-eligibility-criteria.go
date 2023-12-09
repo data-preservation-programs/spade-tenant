@@ -17,14 +17,17 @@ type EligibilityClause struct {
 	Value interface{} `json:"value"` // TODO: type - either []string or string
 }
 
+// todo maybe an update 1-1
 // handleSetSpEligibilityCriteria godoc
 //
-//		@Summary		Set sp eligibility criteria
-//		@Security apiKey
-//	  @Param 			elibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
-//		@Produce		json
-//		@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
-//		@Router			/sp/eligibility-criteria [post]
+//	@Summary		Set sp eligibility criteria
+//	@Security		apiKey
+//	@Param			eligibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
+//	@Router			/sp/eligibility-criteria [post]
+//
+// todo put 1-1
 func handleSetSpEligibilityCriteria(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

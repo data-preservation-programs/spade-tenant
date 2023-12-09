@@ -1,13 +1,15 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 )
 
-type GetStorageProvidersResponse []StorageProvider
+type StorageProvidersResponse []StorageProvider
 
 type StorageProvider struct {
 	SPID              uint      `json:"sp_id"`
@@ -21,17 +23,37 @@ type StorageProvider struct {
 	State string `json:"state" enums:"eligible,pending,active,suspended"`
 }
 
-// @Summary		Get list of Storage Providers
-// @Security apiKey
-// @Produce		json
-// @Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
-// @Router			/sp [get]
-func handleGetStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func ConfigureSPRouter(e *echo.Group, service *db.SpdTenantSvc) {
+	g := e.Group("/sp")
+	g.GET("", handleGetStorageProviders)
+	g.POST("", handleApproveStorageProviders)
+	g.POST("/suspend", handleSuspendStorageProviders)
+	g.POST("/unsuspend", handleUnsuspendStorageProvider)
 }
 
+// todo should work on tenant sp table
 type StorageProviderIDs struct {
 	SPIDs []uint `json:"sp_ids"`
+}
+
+// @Summary		Get list of Storage Providers
+// @Security	apiKey
+// @Produce		json
+// @Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+// @Router		/sp [get]
+func handleGetStorageProviders(c echo.Context) error {
+	var storageProviderIds StorageProviderIDs
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	var storageProviderResponse StorageProvidersResponse
+	db.DB.Table("sps").Where("sp_id in (?)", storageProviderIds.SPIDs).Find(&storageProviderResponse)
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderResponse))
 }
 
 // handleApproveStorageProviders godoc
@@ -44,7 +66,18 @@ type StorageProviderIDs struct {
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/approve [post]
 func handleApproveStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var storageProviderIds StorageProviderIDs
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	var storageProviderResponse StorageProvidersResponse
+	db.DB.Table("sps").Where("sp_id in (?)", storageProviderIds.SPIDs).UpdateColumn("tenant_sp_state", "eligible") //@jcace is active the right state
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderResponse))
 }
 
 // handleSuspendStorageProviders godoc
@@ -57,7 +90,18 @@ func handleApproveStorageProviders(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/suspend [post]
 func handleSuspendStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var storageProviderIds StorageProviderIDs
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	var storageProviderResponse StorageProvidersResponse
+	db.DB.Table("sps").Where("sp_id in (?)", storageProviderIds.SPIDs).UpdateColumn("tenant_sp_state", "suspended") //@jcace is active the right state
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderResponse))
 }
 
 // handleUnsuspendStorageProvider godoc
@@ -69,5 +113,16 @@ func handleSuspendStorageProviders(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/unsuspend [post]
 func handleUnsuspendStorageProvider(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var storageProviderIds StorageProviderIDs
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	var storageProviderResponse StorageProvidersResponse
+	db.DB.Table("sps").Where("sp_id in (?)", storageProviderIds.SPIDs).UpdateColumn("tenant_sp_state", "active") //@jcace is active the right state
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderResponse))
 }
