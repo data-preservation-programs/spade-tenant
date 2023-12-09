@@ -19,12 +19,14 @@ type EligibilityClause struct {
 
 // handleSetSpEligibilityCriteria godoc
 //
-//		@Summary		Set sp eligibility criteria
-//		@Security apiKey
-//	  @Param 			elibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
-//		@Produce		json
-//		@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
-//		@Router			/sp/eligibility-criteria [post]
+//	@Summary		Set sp eligibility criteria
+//	@Security		apiKey
+//	@Param			eligibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
+//	@Router			/sp/eligibility-criteria [post]
+//
+
 func handleSetSpEligibilityCriteria(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
