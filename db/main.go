@@ -1,54 +1,16 @@
 package db
 
 import (
-<<<<<<< HEAD
-	"github.com/data-preservation-programs/spade-tenant/config"
-=======
->>>>>>> 3820fd7 (Addressing comments)
 	gormigrate "github.com/go-gormigrate/gormigrate/v2"
 	logging "github.com/ipfs/go-log/v2"
-	"github.com/labstack/echo"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var (
 	log = logging.Logger("router")
-	DB  = NewSpdTenantSvc().DB
 )
 
-<<<<<<< HEAD
-type SpdTenantSvc struct {
-	DB         *gorm.DB
-	DryRunMode bool
-	Config     config.TenantServiceConfig
-}
-
-func NewSpdTenantSvc() *SpdTenantSvc {
-	config := config.InitConfig()
-	if config.DEBUG {
-		logging.SetDebugLogging()
-	}
-
-	dbi, err := OpenDatabase(config.DB_URL, config.DEBUG, config.DRY_RUN)
-	if err != nil {
-		log.Fatalf("could not open db: %s", err)
-	}
-
-	return &SpdTenantSvc{DB: dbi, DryRunMode: config.DRY_RUN, Config: config}
-}
-
-func SpdTenantSvcMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-
-		c.Set("SERVICE_CONTEXT", NewSpdTenantSvc)
-
-		return next(c)
-	}
-}
-
-=======
->>>>>>> 3820fd7 (Addressing comments)
 // Opens a database connection, and returns a gorm DB object.
 func OpenDatabase(dbDsn string, debug bool, dryRun bool) (*gorm.DB, error) {
 	var config = &gorm.Config{}

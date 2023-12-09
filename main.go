@@ -10,6 +10,13 @@ import (
 func main() {
 	e := echo.New()
 	config := config.InitConfig()
-	api.RegisterRoutes(e, db.NewSpdTenantSvc())
+	db, err := db.OpenDatabase(config.DB_URL, config.DEBUG, config.DRY_RUN)
+
+	if err != nil {
+		e.Logger.Error(err)
+	}
+
+	a := api.NewApiV1(db)
+	a.RegisterRoutes(e)
 	e.Logger.Fatal(e.Start(":" + config.PORT))
 }

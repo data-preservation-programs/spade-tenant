@@ -45,10 +45,10 @@ type Tenant struct {
 
 type Address struct {
 	ModelBase
-	TenantID         ID     `json:"tenant_id" gorm:"primaryKey"`
-	AddressRobust    string `json:"address_robust" gorm:"primaryKey"`
-	AddressActorID   *uint  `json:"actor_id"`
-	AddressIsSigning *bool  `json:"is_signing" gorm:"default:true;not null"`
+	TenantID         ID      `json:"tenant_id" gorm:"primaryKey"`
+	AddressRobust    *string `json:"address_robust" gorm:"primaryKey"`
+	AddressActorID   *uint   `json:"actor_id"`
+	AddressIsSigning *bool   `json:"is_signing" gorm:"default:true;not null"`
 }
 
 // * Schema of the Storage Contract which will be stored in IPFS, referenced by CID

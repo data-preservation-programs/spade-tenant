@@ -7,34 +7,35 @@ import (
 	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type Addresses []db.Address
 type Address db.Address
 
 type AddressResponse struct {
-	AddressRobust    string `json:"address_robust" gorm:"primaryKey"`
+	AddressRobust    string `json:"address_robust"`
 	AddressActorID   uint   `json:"actor_id"`
-	AddressIsSigning bool   `json:"is_signing" gorm:"default:true;not null"`
+	AddressIsSigning bool   `json:"is_signing"`
 }
 
-func ConfigureAddressesRouter(e *echo.Group, service *db.SpdTenantSvc) {
+func (a *apiV1) ConfigureAddressesRouter(e *echo.Group) {
 	g := e.Group("/addresses")
-	g.PUT("", handleSetAddresses)
-	g.DELETE("", handleDeleteAddresses)
-	g.GET("", handleGetAddresses)
+	g.PUT("", a.handleUpdateAddresses)
+	g.POST("", a.handleCreateAddresses)
+	g.DELETE("", a.handleDeleteAddresses)
+	g.GET("", a.handleGetAddresses)
 }
 
 // handleSetAddresses godoc
 //
-<<<<<<< HEAD
 //	@Summary		Update addresses associated with a tenant
-//	@Param			token header string true "Auth token"
+//	@Security		apiKey header string true "Auth token"
 //	@Param			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [put]
-func handleSetAddresses(c echo.Context) error {
+func (a *apiV1) handleUpdateAddresses(c echo.Context) error {
 	var addresses Addresses
 	err := json.NewDecoder(c.Request().Body).Decode(&addresses)
 
@@ -42,11 +43,98 @@ func handleSetAddresses(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	err = db.DB.Transaction(func(tx *gorm.DB) error {
+	var response []string
+	err = a.db.Transaction(func(tx *gorm.DB) error {
 		for _, address := range addresses {
-			address.TenantID = GetTenantId(c)
-			res := tx.Where("tenant_id = ? AND address_robust in (?) AND deleted_at IS NULL").Save(&address)
+			address.TenantID = db.ID(GetTenantContext(c).TenantID)
+
+			res := tx.Model(&address).Updates(&address)
+
 			if res.Error != nil {
+				return err
+			}
+
+			if res.RowsAffected > 0 {
+				response = append(response, *address.AddressRobust)
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, response))
+}
+
+// handleSetAddresses godoc
+//
+//	@Summary		Creates addresses associated with a tenant
+//	@Security		apiKey header string true "Auth token"
+//	@Param			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=Addresses}
+//	@Router			/addresses [post]
+func (a *apiV1) handleCreateAddresses(c echo.Context) error {
+	var addresses Addresses
+	err := json.NewDecoder(c.Request().Body).Decode(&addresses)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	var response []string
+	err = a.db.Transaction(func(tx *gorm.DB) error {
+		for _, address := range addresses {
+			address.TenantID = db.ID(GetTenantContext(c).TenantID)
+
+			res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&address)
+
+			if res.Error != nil {
+				return err
+			}
+
+			if res.RowsAffected > 0 {
+				response = append(response, *address.AddressRobust)
+			}
+		}
+		return nil
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, response))
+}
+
+// handleDeleteAddresses godoc
+//
+//	@Summary		Delete addresses used by a tenant
+//	@Security		apiKey header string true "Auth token"
+//	@Param 			addresses body []string true "addresses to delete"
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=Addresses}
+//	@Router			/addresses [delete]
+func (a *apiV1) handleDeleteAddresses(c echo.Context) error {
+	var addressesIds []string
+	err := json.NewDecoder(c.Request().Body).Decode(&addressesIds)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+	var response []string
+	err = a.db.Transaction(func(tx *gorm.DB) error {
+		for _, address := range addressesIds {
+			res := a.db.Delete(&Address{TenantID: db.ID(GetTenantContext(c).TenantID), AddressRobust: &address})
+
+			if res.RowsAffected > 0 {
+				response = append(response, address)
+			}
+
+			if err != nil {
 				return err
 			}
 		}
@@ -58,73 +146,23 @@ func handleSetAddresses(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Updated Addresses associated with the tenant"))
-=======
-//			@Summary		Update addresses associated with a tenant
-//	 		@Security apiKey
-//		  @Param 			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
-//			@Produce		json
-//			@Success		200	{object}	ResponseEnvelope{response=Addresses}
-//			@Router			/addresses [put]
-func handleSetAddresses(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
->>>>>>> 3820fd7 (Addressing comments)
-}
-
-// handleDeleteAddresses godoc
-//
-<<<<<<< HEAD
-//	@Summary		Delete addresses used by a tenant
-//	@Param 			token header string true "Auth token"
-//	@Param 			addresses body []string true "addresses to delete"
-//	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Addresses}
-//	@Router			/addresses [delete]
-func handleDeleteAddresses(c echo.Context) error {
-	var addressesIds []string
-	err := json.NewDecoder(c.Request().Body).Decode(&addressesIds)
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
-	}
-
-	err = db.DB.Where("tenant_id = ? AND address_robust in (?) AND deleted_at IS NULL", GetTenantId(c), addressesIds).Delete(&Address{}).Error
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
-	}
-
-	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Deleted Addresses associated with the tenant"))
-=======
-//		@Summary		Delete addresses used by a tenant
-//		@Security apiKey
-//	  @Param 			addresses body []string true "addresses to delete"
-//		@Produce		json
-//		@Success		200	{object}	ResponseEnvelope{response=Addresses}
-//		@Router			/addresses [delete]
-func handleDeleteAddresses(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
->>>>>>> 3820fd7 (Addressing comments)
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, response))
 }
 
 // handleGetAddresses godoc
 //
 //	@Summary		Get addresses used by a tenant
-//	@Param			token header string true "Auth token"
+//	@Security		apiKey header string true "Auth token"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [get]
-func handleGetAddresses(c echo.Context) error {
-<<<<<<< HEAD
+func (a *apiV1) handleGetAddresses(c echo.Context) error {
 	var addresses []AddressResponse
-	res := db.DB.Table("addresses").Where("tenant_id = ? AND deleted_at IS NULL", GetTenantId(c)).Find(&addresses)
+	res := a.db.Model(Address{TenantID: db.ID(GetTenantContext(c).TenantID)}).Find(&addresses)
 
 	if res.Error != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, res.Error.Error()))
 	}
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, addresses))
-=======
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
->>>>>>> 3820fd7 (Addressing comments)
 }

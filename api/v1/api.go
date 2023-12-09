@@ -4,11 +4,15 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/data-preservation-programs/spade-tenant/core"
 	"github.com/data-preservation-programs/spade-tenant/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"gorm.io/gorm"
 )
+
+type apiV1 struct {
+	db *gorm.DB
+}
 
 // @title Spade Tenant API
 // @version 1.0.0
@@ -28,12 +32,17 @@ import (
 // @type apiKey
 // @in header
 // @name Authorization
-func RegisterRoutes(e *echo.Echo, service *core.SpdTenantSvc) {
+func (a *apiV1) RegisterRoutes(e *echo.Echo) {
 	apiGroup := e.Group("/api/v1")
 	e.Use(middleware.RequestID())
 	e.Use(AuthMiddleware)
 
 	ConfigureStatusRouter(apiGroup)
+	a.ConfigureAddressesRouter(apiGroup)
+}
+
+func NewApiV1(db *gorm.DB) *apiV1 {
+	return &apiV1{db: db}
 }
 
 func GetTenantContext(c echo.Context) AuthContext {
@@ -41,6 +50,7 @@ func GetTenantContext(c echo.Context) AuthContext {
 }
 
 func GetSlugFromErrorCode(errorCode int) string {
+	//TODO Agree on what the slug to error codes we want to use are.
 	switch errorCode {
 	case 1:
 		return "error_1"
