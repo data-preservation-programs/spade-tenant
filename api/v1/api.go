@@ -33,7 +33,7 @@ func RegisterRoutes(e *echo.Echo, config config.TenantServiceConfig) {
 	e.Use(middleware.RequestID())
 	e.Use(AuthMiddleware)
 
-	ConfigureStatusRouter(apiGroup, config)
+	ConfigureStatusRouter(apiGroup)
 }
 
 func GetTenantContext(c echo.Context) AuthContext {

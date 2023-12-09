@@ -4,13 +4,14 @@ import (
 	"github.com/data-preservation-programs/spade-tenant/config"
 	gormigrate "github.com/go-gormigrate/gormigrate/v2"
 	logging "github.com/ipfs/go-log/v2"
+	"github.com/labstack/echo"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 var (
 	log = logging.Logger("router")
-	DB  *gorm.DB
+	DB  = NewSpdTenantSvc().DB
 )
 
 type SpdTenantSvc struct {
@@ -31,6 +32,15 @@ func NewSpdTenantSvc() *SpdTenantSvc {
 	}
 
 	return &SpdTenantSvc{DB: dbi, DryRunMode: config.DRY_RUN, Config: config}
+}
+
+func SpdTenantSvcMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		c.Set("SERVICE_CONTEXT", NewSpdTenantSvc)
+
+		return next(c)
+	}
 }
 
 // Opens a database connection, and returns a gorm DB object.
