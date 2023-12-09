@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,6 +28,12 @@ type AddressedStorageContract struct {
 	StorageContract StorageContract `json:"storage_contract"`
 }
 
+func ConfigureStorageContractRouter(e *echo.Group, service *db.SpdTenantSvc) {
+	g := e.Group("/storage-contract")
+	g.POST("", handleSetStorageContract)
+	g.GET("", handleGetStorageContract)
+}
+
 // handleSetStorageContract godoc
 //
 //	@Summary		Update storage contract
@@ -40,7 +48,34 @@ type AddressedStorageContract struct {
 //	@Success		200	{object}	ResponseEnvelope{response=AddressedStorageContract}
 //	@Router			/storage-contract [post]
 func handleSetStorageContract(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var addressedStorageContract AddressedStorageContract
+	err := json.NewDecoder(c.Request().Body).Decode(&addressedStorageContract)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	if len(addressedStorageContract.Cid) == 0 {
+		return c.JSON(http.StatusNotImplemented, CreateErrorResponseEnvelope(c, http.StatusNotImplemented, "StorageContract is not currently supported. Please pass in a CID."))
+	}
+
+	var tenant db.Tenant
+
+	err = DB.Where("tenant_id = ?", GetTenantId(c)).Find(&tenant).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	tenant.TenantStorageContractCid = addressedStorageContract.Cid
+
+	err = db.DB.Save(&tenant).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Set Storage Contract CID to "+addressedStorageContract.Cid))
 }
 
 // handleGetStorageContract godoc
@@ -51,5 +86,13 @@ func handleSetStorageContract(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=AddressedStorageContract}
 //	@Router			/storage-contract [get]
 func handleGetStorageContract(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+	var tenant db.Tenant
+
+	err := DB.Where("tenant_id = ?", GetTenantId(c)).Find(&tenant).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, tenant.TenantStorageContractCid))
 }
