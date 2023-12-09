@@ -18,11 +18,7 @@ type AddressResponse struct {
 	AddressIsSigning bool   `json:"is_signing" gorm:"default:true;not null"`
 }
 
-var DB *gorm.DB
-
 func ConfigureAddressesRouter(e *echo.Group, service *db.SpdTenantSvc) {
-	DB = service.DB
-
 	g := e.Group("/addresses")
 	g.PUT("", handleSetAddresses)
 	g.DELETE("", handleDeleteAddresses)
@@ -45,7 +41,7 @@ func handleSetAddresses(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	err = DB.Transaction(func(tx *gorm.DB) error {
+	err = db.DB.Transaction(func(tx *gorm.DB) error {
 		for _, address := range addresses {
 			address.TenantID = GetTenantId(c)
 			res := tx.Save(&address)
@@ -80,7 +76,7 @@ func handleDeleteAddresses(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	err = DB.Where("tenant_id = ? AND address_robust in (?)", GetTenantId(c), addressesIds).Delete(&Address{}).Error
+	err = db.DB.Where("tenant_id = ? AND address_robust in (?)", GetTenantId(c), addressesIds).Delete(&Address{}).Error
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
@@ -98,7 +94,7 @@ func handleDeleteAddresses(c echo.Context) error {
 //	@Router			/addresses [get]
 func handleGetAddresses(c echo.Context) error {
 	var addresses []AddressResponse
-	res := DB.Table("addresses").Where("tenant_id = ? and deleted_at is NULL", GetTenantId(c)).Find(&addresses)
+	res := db.DB.Table("addresses").Where("tenant_id = ? and deleted_at is NULL", GetTenantId(c)).Find(&addresses)
 
 	if res.Error != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, res.Error.Error()))

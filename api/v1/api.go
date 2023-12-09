@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"math"
 	"net/http"
 	"time"
@@ -37,8 +36,8 @@ func RegisterRoutes(e *echo.Echo, service *db.SpdTenantSvc) {
 	e.Use(AuthMiddleware)
 
 	ConfigureStatusRouter(apiGroup)
-	fmt.Println("here")
 	ConfigureAddressesRouter(apiGroup, service)
+	ConfigureSettingsRouter(apiGroup, service)
 }
 
 func GetTenantId(c echo.Context) db.ID {
