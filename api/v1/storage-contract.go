@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/data-preservation-programs/spade-tenant/db"
+	"github.com/ipfs/go-cid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -55,7 +56,9 @@ func (a *apiV1) handleSetStorageContract(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	if len(addressedStorageContract.Cid) == 0 {
+	_, err = cid.Decode(addressedStorageContract.Cid)
+
+	if err != nil || len(addressedStorageContract.Cid) == 0 {
 		return c.JSON(http.StatusNotImplemented, CreateErrorResponseEnvelope(c, http.StatusNotImplemented, "StorageContract is not currently supported. Please pass in a CID."))
 	}
 
