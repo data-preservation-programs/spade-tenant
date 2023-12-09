@@ -38,6 +38,7 @@ func RegisterRoutes(e *echo.Echo, service *db.SpdTenantSvc) {
 	ConfigureStatusRouter(apiGroup)
 	ConfigureAddressesRouter(apiGroup, service)
 	ConfigureSettingsRouter(apiGroup, service)
+	ConfigureSpEligibilityCriteriaRouter(apiGroup, service)
 }
 
 func GetTenantId(c echo.Context) db.ID {
