@@ -19,6 +19,7 @@ type CollectionMutable struct {
 	ReplicationConstraints []db.ReplicationConstraint `json:"replication_constraints"`
 }
 
+// TODO add default replication reconstraint
 // handleCreateCollection godoc
 //
 //	@Summary		Creates a new collection
@@ -35,6 +36,7 @@ func handleCreateCollection(c echo.Context) error {
 	}
 	collection.TenantID = GetTenantId(c)
 	collection.CollectionID = uuid.New()
+	collection.ReplicationConstraints = [1]db.ReplicationConstraint{db.ReplicationConstraint{CollectionID: collection.CollectionID, ConstraintID: 0, ConstraintMax: 1}}
 
 	err = db.DB.Create(&collection).Error
 
