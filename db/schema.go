@@ -111,7 +111,7 @@ type Collection struct {
 	CollectionID          uuid.UUID    `json:"collection_id" gorm:"type:uuid;primaryKey"`
 	TenantID              ID           `json:"tenant_id" gorm:"not null"`
 	CollectionName        string       `json:"name" gorm:"not null"`
-	CollectionActive      bool         `json:"active" gorm:"not null"`
+	CollectionActive      *bool        `json:"active" gorm:"not null"`
 	CollectionPieceSource pgtype.JSONB `json:"piece_list_source" gorm:"type:jsonb;default:'{}';not null"`
 	CollectionDealParams  pgtype.JSONB `json:"deal_params" gorm:"type:jsonb;default:'{}';not null"`
 

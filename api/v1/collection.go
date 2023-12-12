@@ -10,13 +10,20 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type CollectionMutable struct {
+type CollectionResponse struct {
+	CollectionID          uuid.UUID    `json:"collection_id"`
 	CollectionName        string       `json:"name"`
-	CollectionActive      bool         `json:"active"`
+	CollectionActive      *bool        `json:"active"`
 	CollectionPieceSource pgtype.JSONB `json:"piece_list_source"`
 	CollectionDealParams  pgtype.JSONB `json:"deal_params"`
+}
 
-	ReplicationConstraints []db.ReplicationConstraint `json:"replication_constraints"`
+func (a *apiV1) ConfigureCollectionRouter(e *echo.Group) {
+	g := e.Group("/collections")
+	g.GET("", a.handleGetCollections)
+	g.PUT("/:collectionUUID", a.handleModifyCollection)
+	g.POST("", a.handleCreateCollection)
+	g.DELETE("/:collectionUUID", a.handleDeleteCollection)
 }
 
 // handleCreateCollection godoc
@@ -27,29 +34,32 @@ type CollectionMutable struct {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections [post]
-func handleCreateCollection(c echo.Context) error {
+func (a *apiV1) handleCreateCollection(c echo.Context) error {
 	var collection db.Collection
+
 	err := json.NewDecoder(c.Request().Body).Decode(&collection)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
+
 	collection.TenantID = db.ID(GetTenantContext(c).TenantID)
 	collection.CollectionID = uuid.New()
+	collection.ReplicationConstraints = []db.ReplicationConstraint{{CollectionID: collection.CollectionID, ConstraintID: 0, ConstraintMax: 10}}
+	active := true
+	collection.CollectionActive = &active
 
-	err = db.DB.Create(&collection).Error
+	err = a.db.Create(&collection).Error
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Updated Addresses associated with the tenant"))
-}
-
-func ConfigureCollectionRouter(e *echo.Group, service *db.SpdTenantSvc) {
-	g := e.Group("/collections")
-	g.GET("", handleGetCollections)
-	g.PUT("", handleModifyCollection)
-	g.DELETE("", handleDeleteCollection)
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c,
+		&CollectionResponse{CollectionID: collection.CollectionID,
+			CollectionName:        collection.CollectionName,
+			CollectionActive:      collection.CollectionActive,
+			CollectionPieceSource: collection.CollectionPieceSource,
+			CollectionDealParams:  collection.CollectionDealParams}))
 }
 
 // handleGetCollections godoc
@@ -59,9 +69,11 @@ func ConfigureCollectionRouter(e *echo.Group, service *db.SpdTenantSvc) {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections [get]
-func handleGetCollections(c echo.Context) error {
-	var collectionResponse []db.Collection
-	err := db.DB.Omit("tenant_id").Where("tenant_id = ? ", db.ID(GetTenantContext(c).TenantID)).Find(&collectionResponse).Error
+func (a *apiV1) handleGetCollections(c echo.Context) error {
+
+	var collectionResponse []CollectionResponse
+
+	err := a.db.Model(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID)}).Find(&collectionResponse).Error
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
@@ -79,21 +91,32 @@ func handleGetCollections(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Collection}
 //	@Router			/collections/:collectionUUID [put]
-func handleModifyCollection(c echo.Context) error {
-	var collection db.Collection
+func (a *apiV1) handleModifyCollection(c echo.Context) error {
+	var collection CollectionResponse
 	err := json.NewDecoder(c.Request().Body).Decode(&collection)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	err = db.DB.Where("collection_id = ?", c.Param("collectionUUID")).Updates(&collection).Error
+	id, err := uuid.Parse(c.Param("collectionUUID"))
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, collection))
+	err = a.db.Model(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: id}).Updates(&collection).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c,
+		&CollectionResponse{CollectionID: collection.CollectionID,
+			CollectionName:        collection.CollectionName,
+			CollectionActive:      collection.CollectionActive,
+			CollectionPieceSource: collection.CollectionPieceSource,
+			CollectionDealParams:  collection.CollectionDealParams}))
 }
 
 // handleDeleteCollection godoc
@@ -104,19 +127,12 @@ func handleModifyCollection(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=bool}
 //	@Router			/collections/:collectionUUID [delete]
-func handleDeleteCollection(c echo.Context) error {
-	var collection db.Collection
-	err := json.NewDecoder(c.Request().Body).Decode(&collection)
+func (a *apiV1) handleDeleteCollection(c echo.Context) error {
+	err := a.db.Delete(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: uuid.MustParse(c.Param("collectionUUID"))}).Error
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	err = db.DB.Where("collection_id = ?", c.Param("collectionUUID")).Delete(&db.Collection{}).Error
-
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
-	}
-
-	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Deleted Collection associated with the tenant"))
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, "Deleted Collection associated with the tenant with id "+c.Param("collectionUUID")))
 }
