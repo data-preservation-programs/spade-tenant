@@ -42,9 +42,11 @@ require (
 )
 
 require (
+	github.com/Workiva/go-datastructures v1.1.1
 	github.com/aws/smithy-go v1.19.0
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/go-gormigrate/gormigrate/v2 v2.1.0
+	github.com/gofrs/uuid/v5 v5.0.0
 	github.com/ipfs/go-cid v0.4.1
 	github.com/ipfs/go-log/v2 v2.5.1
 	github.com/jackc/pgtype v1.14.0
