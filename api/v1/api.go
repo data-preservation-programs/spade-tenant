@@ -45,6 +45,8 @@ func (a *apiV1) RegisterRoutes(e *echo.Echo) {
 	a.ConfigureSpEligibilityCriteriaRouter(apiGroup)
 	a.ConfigureSpConstraintLabelsRouter(apiGroup)
 	a.ConfigureCollectionRouter(apiGroup)
+	a.ConfigureReplicationConstraintsRouter(apiGroup)
+
 }
 
 func NewApiV1(db *gorm.DB) *apiV1 {
@@ -72,7 +74,7 @@ func CreateErrorResponseEnvelope(c echo.Context, errorCode int, err string) Resp
 		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
 		ResponseTime:       time.Now(),
 		ResponseStateEpoch: utils.UnixToFilEpoch(time.Now().Unix()),
-		ResponseCode:       http.StatusInternalServerError,
+		ResponseCode:       errorCode,
 		ErrCode:            errorCode,
 		ErrSlug:            GetSlugFromErrorCode(errorCode),
 		Response:           nil,
