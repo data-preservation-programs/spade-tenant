@@ -1,10 +1,14 @@
 package main
 
-import "github.com/data-preservation-programs/spade-tenant/db"
+import (
+	"github.com/data-preservation-programs/spade-tenant/api/v1"
+	"github.com/data-preservation-programs/spade-tenant/config"
+	"github.com/labstack/echo/v4"
+)
 
 func main() {
-	dbDsn := "postgres://postgres:password@localhost:5432/spade-tenant"
-	debug := true
-
-	db.OpenDatabase(dbDsn, debug)
+	e := echo.New()
+	config := config.InitConfig()
+	api.RegisterRoutes(e, config)
+	e.Logger.Fatal(e.Start(":" + config.PORT))
 }

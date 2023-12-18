@@ -22,7 +22,7 @@ type Label struct {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabels}
 //	@Router			/constraint-labels [get]
-func (s *apiV1) handleGetConstraintLabels(c echo.Context) error {
+func handleGetConstraintLabels(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 

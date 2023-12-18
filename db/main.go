@@ -9,15 +9,16 @@ import (
 
 var (
 	log = logging.Logger("router")
+	DB  *gorm.DB
 )
 
 // Opens a database connection, and returns a gorm DB object.
-func OpenDatabase(dbDsn string, debug bool) (*gorm.DB, error) {
+func OpenDatabase(dbDsn string, debug bool, dryRun bool) (*gorm.DB, error) {
 	var config = &gorm.Config{}
 	if debug {
 		config = &gorm.Config{
 			// Logger: logger.Default.LogMode(logger.Info),
-			DryRun: true, // Don't apply to the db, just generate sql
+			DryRun: dryRun, // Don't apply to the db, just generate sql
 		}
 	}
 
@@ -35,6 +36,7 @@ func OpenDatabase(dbDsn string, debug bool) (*gorm.DB, error) {
 	if err = m.Migrate(); err != nil {
 		log.Fatalf("Could not migrate: %v", err)
 	}
+
 	log.Debugf("Migration ran successfully")
 
 	return DB, nil

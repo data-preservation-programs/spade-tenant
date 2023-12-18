@@ -25,7 +25,7 @@ type EligibilityClause struct {
 //		@Produce		json
 //		@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
 //		@Router			/sp/eligibility-criteria [post]
-func (s *apiV1) handleSetSpEligibilityCriteria(c echo.Context) error {
+func handleSetSpEligibilityCriteria(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -36,6 +36,6 @@ func (s *apiV1) handleSetSpEligibilityCriteria(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
 //	@Router			/sp/eligibility-criteria [get]
-func (s *apiV1) handleGetSpEligibilityCriteria(c echo.Context) error {
+func handleGetSpEligibilityCriteria(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

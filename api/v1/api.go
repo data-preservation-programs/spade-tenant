@@ -1,13 +1,14 @@
 package api
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+	"time"
 
-type apiV1 struct {
-}
-
-func NewApiV1() *apiV1 {
-	return &apiV1{}
-}
+	"github.com/data-preservation-programs/spade-tenant/config"
+	"github.com/data-preservation-programs/spade-tenant/utils"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+)
 
 // @title Spade Tenant API
 // @version 1.0.0
@@ -27,38 +28,60 @@ func NewApiV1() *apiV1 {
 // @type apiKey
 // @in header
 // @name Authorization
-func (s *apiV1) RegisterRoutes(e *echo.Echo) {
-	e.GET("/status", s.handleStatus)
-
+func RegisterRoutes(e *echo.Echo, config config.TenantServiceConfig) {
+	apiGroup := e.Group("/api/v1")
+	e.Use(middleware.RequestID())
 	e.Use(AuthMiddleware)
 
-	// /collections
-	e.POST("/collections", s.handleCreateCollection)
-	e.GET("/collections", s.handleGetCollections)
-	e.PUT("/collections", s.handleModifyCollection)
-	e.DELETE("/collections", s.handleDeleteCollection)
+	ConfigureStatusRouter(apiGroup, config)
+}
 
-	// /storage-contract
-	e.GET("/storage-contract", s.handleGetStorageContract)
-	e.POST("/storage-contract", s.handleSetStorageContract)
+func GetTenantContext(c echo.Context) AuthContext {
+	return c.Get(TENANT_CONTEXT).(AuthContext)
+}
 
-	// /sp
-	e.GET("/sp", s.handleGetStorageProviders)
-	e.POST("/sp", s.handleApproveStorageProviders)
-	e.POST("/sp/suspend", s.handleSuspendStorageProviders)
-	e.POST("/sp/unsuspend", s.handleUnsuspendStorageProvider)
-	e.POST("/sp/eligibility-criteria", s.handleSetSpEligibilityCriteria)
-	e.GET("/sp/eligibility-criteria", s.handleGetSpEligibilityCriteria)
+func GetSlugFromErrorCode(errorCode int) string {
+	switch errorCode {
+	case 1:
+		return "error_1"
+	case 2:
+		return "error_2"
+	default:
+		return "unknown"
+	}
+}
 
-	// /addresses
-	e.PUT("/addresses", s.handleSetAddresses)
-	e.DELETE("/addresses", s.handleDeleteAddresses)
-	e.GET("/addresses", s.handleGetAddresses)
+func CreateErrorResponseEnvelope(c echo.Context, errorCode int, err string) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: utils.UnixToFilEpoch(time.Now().Unix()),
+		ResponseCode:       http.StatusInternalServerError,
+		ErrCode:            errorCode,
+		ErrSlug:            GetSlugFromErrorCode(errorCode),
+		Response:           nil,
+	}
+}
 
-	// /settings
-	e.POST("/settings", s.handleGetSettings)
-	e.GET("/settings", s.handleSetSettings)
+func CreateSuccessResponseEnvelope(c echo.Context, message interface{}) ResponseEnvelope {
+	return ResponseEnvelope{
+		RequestUUID:        c.Response().Header().Get(echo.HeaderXRequestID),
+		ResponseTime:       time.Now(),
+		ResponseStateEpoch: utils.UnixToFilEpoch(time.Now().Unix()),
+		ResponseCode:       http.StatusOK,
+		Response:           message,
+	}
+}
 
-	// /constraint-labels
-	e.GET("/constraint-labels", s.handleGetConstraintLabels)
+type ResponseEnvelope struct {
+	RequestUUID        string      `json:"request_uuid,omitempty"`
+	ResponseTime       time.Time   `json:"response_timestamp"`
+	ResponseStateEpoch int64       `json:"response_state_epoch,omitempty"`
+	ResponseCode       int         `json:"response_code"`
+	ErrCode            int         `json:"error_code,omitempty"`
+	ErrSlug            string      `json:"error_slug,omitempty"`
+	ErrLines           []string    `json:"error_lines,omitempty"`
+	InfoLines          []string    `json:"info_lines,omitempty"`
+	ResponseEntries    *int        `json:"response_entries,omitempty"`
+	Response           interface{} `json:"response"`
 }

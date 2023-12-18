@@ -26,7 +26,7 @@ type StorageProvider struct {
 // @Produce		json
 // @Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 // @Router			/sp [get]
-func (s *apiV1) handleGetStorageProviders(c echo.Context) error {
+func handleGetStorageProviders(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -43,7 +43,7 @@ type StorageProviderIDs struct {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/approve [post]
-func (s *apiV1) handleApproveStorageProviders(c echo.Context) error {
+func handleApproveStorageProviders(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -56,7 +56,7 @@ func (s *apiV1) handleApproveStorageProviders(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/suspend [post]
-func (s *apiV1) handleSuspendStorageProviders(c echo.Context) error {
+func handleSuspendStorageProviders(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -68,6 +68,6 @@ func (s *apiV1) handleSuspendStorageProviders(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/unsuspend [post]
-func (s *apiV1) handleUnsuspendStorageProvider(c echo.Context) error {
+func handleUnsuspendStorageProvider(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }

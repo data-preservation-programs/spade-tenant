@@ -20,7 +20,7 @@ type Settings struct {
 //		@Produce		json
 //		@Success		200	{object}	ResponseEnvelope{response=Settings}
 //		@Router			/settings [post]
-func (s *apiV1) handleGetSettings(c echo.Context) error {
+func handleGetSettings(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
 
@@ -31,6 +31,6 @@ func (s *apiV1) handleGetSettings(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Settings}
 //	@Router			/settings [get]
-func (s *apiV1) handleSetSettings(c echo.Context) error {
+func handleSetSettings(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, map[string]string{})
 }
