@@ -3,6 +3,7 @@ package db
 import (
 	"database/sql/driver"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -152,6 +153,24 @@ type TenantsSPs struct {
 	SPID          ID            `json:"sp_id" gorm:"primaryKey;column:sp_id"`
 	TenantSpState TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
 	TenantSpsMeta pgtype.JSONB  `gorm:"type:jsonb;default:'{}';not null"`
+}
+
+func (tenantSPs *TenantsSPs) BeforeUpdate(tx *gorm.DB) error {
+
+	var currentValue TenantsSPs
+	tx.Model(&TenantsSPs{SPID: ID(tenantSPs.SPID), TenantID: tenantSPs.TenantID}).Find(&currentValue)
+
+	if currentValue.TenantSpState == TenantSpStateActive && tenantSPs.TenantSpState == TenantSpStateSuspended {
+		return nil
+	}
+	if currentValue.TenantSpState == TenantSpStatePending && tenantSPs.TenantSpState == TenantSpStateActive {
+		return nil
+	}
+	if currentValue.TenantSpState == TenantSpStateSuspended && tenantSPs.TenantSpState == TenantSpStateActive {
+		return nil
+	}
+
+	return fmt.Errorf("cannot go from state %s to state %s", currentValue.TenantSpState, tenantSPs.TenantSpState)
 }
 
 func (TenantsSPs) TableName() string {
