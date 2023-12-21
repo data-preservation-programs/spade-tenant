@@ -1,10 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm"
 )
 
 type GetStorageProvidersResponse []StorageProvider
@@ -43,8 +46,31 @@ type StorageProviderIDs struct {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/approve [post]
-func handleApproveStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func (a *apiV1) handleApproveStorageProviders(c echo.Context) error {
+	var storageProviderIds []int
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+	if err != nil {
+		return err
+	}
+
+	err = a.db.Transaction(func(tx *gorm.DB) error {
+		for _, id := range storageProviderIds {
+			err = a.db.Model(&db.TenantsSPs{SPID: db.ID(id), TenantID: db.ID(GetTenantContext(c).TenantID), TenantSpState: db.TenantSpStateActive}).Update("tenant_sp_state", db.TenantSpStateActive).Error
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderIds))
 }
 
 // handleSuspendStorageProviders godoc
@@ -56,8 +82,31 @@ func handleApproveStorageProviders(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/suspend [post]
-func handleSuspendStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func (a *apiV1) handleSuspendStorageProviders(c echo.Context) error {
+	var storageProviderIds []int
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+	if err != nil {
+		return err
+	}
+
+	err = a.db.Transaction(func(tx *gorm.DB) error {
+		for _, id := range storageProviderIds {
+			err = a.db.Model(&db.TenantsSPs{SPID: db.ID(id), TenantID: db.ID(GetTenantContext(c).TenantID), TenantSpState: db.TenantSpStateSuspended}).Update("tenant_sp_state", db.TenantSpStateSuspended).Error
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderIds))
 }
 
 // handleUnsuspendStorageProvider godoc
@@ -68,6 +117,29 @@ func handleSuspendStorageProviders(c echo.Context) error {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
 //	@Router			/sp/unsuspend [post]
-func handleUnsuspendStorageProvider(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func (a *apiV1) handleUnsuspendStorageProvider(c echo.Context) error {
+	var storageProviderIds []int
+
+	err := json.NewDecoder(c.Request().Body).Decode(&storageProviderIds)
+	if err != nil {
+		return err
+	}
+
+	err = a.db.Transaction(func(tx *gorm.DB) error {
+		for _, id := range storageProviderIds {
+			err = a.db.Model(&db.TenantsSPs{SPID: db.ID(id), TenantID: db.ID(GetTenantContext(c).TenantID), TenantSpState: db.TenantSpStateActive}).Update("tenant_sp_state", db.TenantSpStateActive).Error
+
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
+	})
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderIds))
 }
