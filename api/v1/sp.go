@@ -3,34 +3,38 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/data-preservation-programs/spade-tenant/db"
+	"github.com/jackc/pgtype"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
 
-type GetStorageProvidersResponse []StorageProvider
-
-type StorageProvider struct {
-	SPID              uint      `json:"sp_id"`
-	FirstActivatedAt  time.Time `json:"first_activated_at"`
-	StatusLastChanged time.Time `json:"status_last_changed"`
-	// State:
-	// * eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process
-	// * pending: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
-	// * active: The SP is active and working with the tenant. Deals may be made with this SP.
-	// * suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended
-	State string `json:"state" enums:"eligible,pending,active,suspended"`
+type TenantsSPsResponse struct {
+	SPID          db.ID            `json:"sp_id" gorm:"primaryKey;column:sp_id"`
+	TenantSpState db.TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
+	TenantSpsMeta pgtype.JSONB     `gorm:"type:jsonb;default:'{}';not null"`
 }
 
-// @Summary		Get list of Storage Providers
-// @Security apiKey
+func (a *apiV1) ConfigureSPRouter(e *echo.Group) {
+	g := e.Group("/sp")
+	g.GET("", a.handleGetStorageProviders)
+	g.POST("/approve", a.handleApproveStorageProviders)
+	g.POST("/suspend", a.handleSuspendStorageProviders)
+	g.POST("/unsuspend", a.handleUnsuspendStorageProvider)
+}
+
+// @Summary		Get list of Storage Providers in all states
+// @Security	apiKey
 // @Produce		json
 // @Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
-// @Router			/sp [get]
-func handleGetStorageProviders(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+// @Router		/sp [get]
+func (a *apiV1) handleGetStorageProviders(c echo.Context) error {
+	var storageProviderIds []TenantsSPsResponse
+
+	a.db.Model(&db.TenantsSPs{TenantID: db.ID(GetTenantContext(c).TenantID)}).Find(&storageProviderIds)
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, storageProviderIds))
 }
 
 type StorageProviderIDs struct {
