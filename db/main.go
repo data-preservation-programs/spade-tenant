@@ -9,7 +9,6 @@ import (
 
 var (
 	log = logging.Logger("router")
-	DB  *gorm.DB
 )
 
 // Opens a database connection, and returns a gorm DB object.
