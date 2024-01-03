@@ -41,6 +41,7 @@ func (a *apiV1) RegisterRoutes(e *echo.Echo) {
 	a.ConfigureAddressesRouter(apiGroup)
 	a.ConfigureStorageContractRouter(apiGroup)
 	a.ConfigureSPRouter(apiGroup)
+	a.ConfigureSettingsRouter(apiGroup)
 }
 
 func NewApiV1(db *gorm.DB) *apiV1 {
