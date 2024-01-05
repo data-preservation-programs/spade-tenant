@@ -3,16 +3,20 @@ package api
 import (
 	"net/http"
 
-	"github.com/google/uuid"
+	"github.com/data-preservation-programs/spade-tenant/db"
+	"github.com/jackc/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
-type ConstraintLabels []Label
+type LabelResponse struct {
+	LabelID      db.ID  `json:"id"`
+	LabelText    string `json:"label"`
+	LabelOptions pgtype.JSONB
+}
 
-type Label struct {
-	UUID    uuid.UUID       `json:"uuid"`
-	Label   string          `json:"label"`
-	Options map[string]uint `json:"options"` // example: {"CA": 10, "US": 20}
+func (a *apiV1) ConfigureSpConstraintLabelsRouter(e *echo.Group) {
+	g := e.Group("/constraint-labels")
+	g.GET("", a.handleGetConstraintLabels)
 }
 
 // handleGetConstraintLabels godoc
@@ -22,8 +26,16 @@ type Label struct {
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabels}
 //	@Router			/constraint-labels [get]
-func handleGetConstraintLabels(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, map[string]string{})
+func (a *apiV1) handleGetConstraintLabels(c echo.Context) error {
+	var constraintLabels LabelResponse
+
+	res := a.db.Model(&db.Label{TenantID: db.ID(GetTenantContext(c).TenantID)}).Find(&constraintLabels)
+
+	if res.Error != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, res.Error.Error()))
+	}
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, constraintLabels))
 }
 
 // TODO: PUT - for V2

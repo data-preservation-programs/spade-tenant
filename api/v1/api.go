@@ -43,6 +43,7 @@ func (a *apiV1) RegisterRoutes(e *echo.Echo) {
 	a.ConfigureSPRouter(apiGroup)
 	a.ConfigureSettingsRouter(apiGroup)
 	a.ConfigureSpEligibilityCriteriaRouter(apiGroup)
+	a.ConfigureSpConstraintLabelsRouter(apiGroup)
 }
 
 func NewApiV1(db *gorm.DB) *apiV1 {
