@@ -105,6 +105,7 @@ type TenantSPEligibilityClauses struct {
 	ClauseOperator  ComparisonOperator `json:"operator" gorm:"type:comparison_operator;not null"`
 	ClauseValue     string             `json:"value" gorm:"not null"`
 }
+
 type Collection struct {
 	ModelBase
 	CollectionID          uuid.UUID    `json:"collection_id" gorm:"type:uuid;primaryKey"`
