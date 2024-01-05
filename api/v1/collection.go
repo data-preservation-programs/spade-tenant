@@ -56,7 +56,7 @@ func (a *apiV1) handleCreateCollection(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c,
 		&CollectionResponse{CollectionID: collection.CollectionID,
-			CollectionName:        collection.CollectionName,
+			CollectionName:        *collection.CollectionName,
 			CollectionActive:      collection.CollectionActive,
 			CollectionPieceSource: collection.CollectionPieceSource,
 			CollectionDealParams:  collection.CollectionDealParams}))
