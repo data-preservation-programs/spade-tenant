@@ -93,11 +93,13 @@ CREATE TABLE "replication_constraints" (
     "created_at" timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" timestamptz NOT NULL,
     "deleted_at" timestamptz,
+    "tenant_id" integer NOT NULL,
     "collection_id" uuid,
     "constraint_id" integer,
     "constraint_max" bigint NOT NULL,
     PRIMARY KEY ("collection_id","constraint_id"),
-    CONSTRAINT "fk_collections_replication_constraints" FOREIGN KEY ("collection_id") REFERENCES "collections"("collection_id")
+    CONSTRAINT "fk_collections_replication_constraints" FOREIGN KEY ("collection_id") REFERENCES "collections"("collection_id"), 
+    CONSTRAINT "fk_tenants_labels" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
 CREATE INDEX IF NOT EXISTS "idx_replication_constraints_deleted_at" ON "replication_constraints" ("deleted_at");

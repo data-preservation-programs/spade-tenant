@@ -105,10 +105,14 @@ func (a *apiV1) handleModifyCollection(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
-	err = a.db.Model(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: id}).Updates(&collection).Error
+	res := a.db.Model(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: id}).Updates(&collection)
 
-	if err != nil {
-		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	if res.Error != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, res.Error.Error()))
+	}
+
+	if res.RowsAffected == 0 {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusNotFound, "Collection not found"))
 	}
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c,
@@ -128,7 +132,17 @@ func (a *apiV1) handleModifyCollection(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=bool}
 //	@Router			/collections/:collectionUUID [delete]
 func (a *apiV1) handleDeleteCollection(c echo.Context) error {
-	err := a.db.Delete(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: uuid.MustParse(c.Param("collectionUUID"))}).Error
+	id, err := uuid.Parse(c.Param("collectionUUID"))
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+	err = a.db.Delete(&db.ReplicationConstraint{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: id}).Error
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
+	}
+
+	err = a.db.Delete(&db.Collection{TenantID: db.ID(GetTenantContext(c).TenantID), CollectionID: id}).Error
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
