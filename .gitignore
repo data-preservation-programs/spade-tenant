@@ -2,3 +2,4 @@
 rep-poly
 *.env
 *.vscode/*
+spade-tenant-svc

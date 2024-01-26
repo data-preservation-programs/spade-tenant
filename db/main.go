@@ -5,6 +5,7 @@ import (
 	logging "github.com/ipfs/go-log/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 var (
@@ -14,12 +15,14 @@ var (
 // Opens a database connection, and returns a gorm DB object.
 func OpenDatabase(dbDsn string, debug bool, dryRun bool) (*gorm.DB, error) {
 	var config = &gorm.Config{}
+
 	if debug {
 		config = &gorm.Config{
-			// Logger: logger.Default.LogMode(logger.Info),
-			DryRun: dryRun, // Don't apply to the db, just generate sql
+			Logger: logger.Default.LogMode(logger.Info),
 		}
 	}
+
+	config.DryRun = dryRun
 
 	DB, err := gorm.Open(postgres.Open(dbDsn), config)
 
