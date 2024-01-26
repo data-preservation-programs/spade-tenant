@@ -22,7 +22,7 @@ A high level architecture diagram of the Tenant functionalities and their relati
 # API
 All functionality is exposed over a REST API. Live API docs can be viewed at https://spade.storage (Coming soon), or inside the repository [docs folder.](https://github.com/data-preservation-programs/spade-tenant/tree/main/docs)
 
-Version 0 of the Tenant Services API will be made available at https://api.spade.storage/api/v0/ (Coming soon)
+Users are encouraged to deploy their own instance of the Spade Tenant Services, and customize it for their specific applications, however we will make a public, hosted instance available at https://apiv1.spade.storage/ (Coming soon).
 
 # How to run Spade Tenant Services
 
