@@ -16,6 +16,7 @@ func (a *apiV1) ConfigureSpEligibilityCriteriaRouter(e *echo.Group) {
 	g.DELETE("/eligibility-criteria/attribute/:attribute", a.handleDeleteSpEligibilityCriteria)
 }
 
+type TenantSPEligibilityClauses []TenantSPEligibilityClausesResponse
 type TenantSPEligibilityClausesResponse struct {
 	ClauseAttribute string                `json:"attribute"`
 	ClauseOperator  db.ComparisonOperator `json:"operator"`
@@ -26,9 +27,9 @@ type TenantSPEligibilityClausesResponse struct {
 //
 //	@Summary		Set sp eligibility criteria
 //	@Security		apiKey
-//	@Param			eligibility_criteria body EligibilityCriteria true "New eligibility criteria to update to"
+//	@Param			eligibility_criteria body TenantSPEligibilityClauses true "New eligibility criteria to update to"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantSPEligibilityClauses}
 //	@Router			/sp/eligibility-criteria [post]
 //
 
@@ -64,7 +65,7 @@ func (a *apiV1) handleSetSpEligibilityCriteria(c echo.Context) error {
 //	@Summary		Get sp eligibility criteria
 //	@Security		apiKey
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantSPEligibilityClauses}
 //	@Router			/sp/eligibility-criteria [get]
 func (a *apiV1) handleGetSpEligibilityCriteria(c echo.Context) error {
 	var eligibilityCriteria []TenantSPEligibilityClausesResponse
@@ -82,10 +83,10 @@ func (a *apiV1) handleGetSpEligibilityCriteria(c echo.Context) error {
 
 // handleDeleteSpEligibilityCriteria godoc
 //
-//	@Summary		Get sp eligibility criteria
+//	@Summary		delete sp eligibility criteria
 //	@Security		apiKey
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=EligibilityCriteria}
+//	@Success		200
 //	@Router			/sp/eligibility-criteria/attribute/:attribute [delete]
 func (a *apiV1) handleDeleteSpEligibilityCriteria(c echo.Context) error {
 	res := a.db.Find(&db.TenantSPEligibilityClauses{TenantID: db.ID(GetTenantContext(c).TenantID), ClauseAttribute: c.Param("attribute")})

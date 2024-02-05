@@ -1,26 +1,5 @@
 basePath: /tenant
 definitions:
-  api.Address:
-    properties:
-      actor_id:
-        description: TODO :swagger docs should be null not 0
-        type: integer
-      address:
-        type: string
-      is_signing:
-        description: true - active dealmaking from this address, false - still counts
-          as an associated wallet
-        type: boolean
-    type: object
-  api.AddressMutable:
-    properties:
-      address:
-        type: string
-      is_signing:
-        description: true - active dealmaking from this address, false - still counts
-          as an associated wallet
-        type: boolean
-    type: object
   api.AddressedStorageContract:
     properties:
       cid:
@@ -28,89 +7,44 @@ definitions:
       storage_contract:
         $ref: '#/definitions/api.StorageContract'
     type: object
-  api.Collection:
+  api.CollectionResponse:
     properties:
-      deal_params:
-        $ref: '#/definitions/api.DealParams'
-      inactive:
+      active:
         type: boolean
+      collection_id:
+        type: string
+      deal_params:
+        $ref: '#/definitions/pgtype.JSONB'
       name:
         type: string
       piece_list_source:
-        $ref: '#/definitions/api.PieceListSource'
-      replication_constraints:
-        items:
-          $ref: '#/definitions/api.ReplicationConstraint'
-        type: array
-      uuid:
-        type: string
+        $ref: '#/definitions/pgtype.JSONB'
     type: object
-  api.DealParams:
+  api.LabelResponse:
     properties:
-      duration_days:
+      id:
         type: integer
-      start_within_hours:
-        type: integer
-    type: object
-  api.EligibilityClause:
-    properties:
-      attribute:
-        type: string
-      operator:
-        type: string
-      value:
-        description: 'TODO: type - either []string or string'
-    type: object
-  api.EligibilityCriteria:
-    properties:
-      clauses:
-        items:
-          $ref: '#/definitions/api.EligibilityClause'
-        type: array
-    type: object
-  api.Label:
-    properties:
       label:
         type: string
-      options:
-        additionalProperties:
-          type: integer
-        description: 'example: {"CA": 10, "US": 20}'
-        type: object
-      uuid:
-        type: string
-    type: object
-  api.MutableCollection:
-    properties:
-      deal_params:
-        $ref: '#/definitions/api.DealParams'
-      inactive:
-        type: boolean
-      name:
-        type: string
-      piece_list_source:
-        $ref: '#/definitions/api.PieceListSource'
-      replication_constraints:
-        items:
-          $ref: '#/definitions/api.ReplicationConstraint'
-        type: array
-    type: object
-  api.PieceListSource:
-    properties:
-      connection_details:
-        description: 'TODO: better types / validation for the connection details'
-        type: string
-      method:
-        type: string
-      poll_interval_hours:
-        type: integer
+      labelOptions:
+        $ref: '#/definitions/pgtype.JSONB'
     type: object
   api.ReplicationConstraint:
     properties:
+      collection_id:
+        type: string
       constraint_id:
         type: integer
       constraint_max:
         type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      tenant_id:
+        type: integer
+      updatedAt:
+        type: string
     type: object
   api.ResponseEnvelope:
     properties:
@@ -174,28 +108,6 @@ definitions:
             type: object
         type: object
     type: object
-  api.StorageProvider:
-    properties:
-      first_activated_at:
-        type: string
-      sp_id:
-        type: integer
-      state:
-        description: |-
-          State:
-          * eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process
-          * pending: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)
-          * active: The SP is active and working with the tenant. Deals may be made with this SP.
-          * suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended
-        enum:
-        - eligible
-        - pending
-        - active
-        - suspended
-        type: string
-      status_last_changed:
-        type: string
-    type: object
   api.StorageProviderIDs:
     properties:
       sp_ids:
@@ -203,6 +115,100 @@ definitions:
           type: integer
         type: array
     type: object
+  api.TenantSPEligibilityClausesResponse:
+    properties:
+      attribute:
+        type: string
+      operator:
+        $ref: '#/definitions/db.ComparisonOperator'
+      value:
+        type: string
+    type: object
+  api.TenantSPResponse:
+    properties:
+      sp_id:
+        type: integer
+      tenantSpState:
+        $ref: '#/definitions/db.TenantSpState'
+      tenantSpsMeta:
+        $ref: '#/definitions/pgtype.JSONB'
+    type: object
+  db.Address:
+    properties:
+      actor_id:
+        type: integer
+      address_robust:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      is_signing:
+        type: boolean
+      tenant_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  db.ComparisonOperator:
+    enum:
+    - '>'
+    - <
+    - =
+    - '>='
+    - <=
+    - in
+    - nin
+    - '!='
+    type: string
+    x-enum-varnames:
+    - GreaterThan
+    - LessThan
+    - EqualTo
+    - GreaterThanOrEqual
+    - LessThanOrEqual
+    - IncludedIn
+    - ExcludedFrom
+    - NotEqualTo
+  db.TenantSpState:
+    enum:
+    - eligible
+    - pending
+    - active
+    - suspended
+    type: string
+    x-enum-varnames:
+    - TenantSpStateEligible
+    - TenantSpStatePending
+    - TenantSpStateActive
+    - TenantSpStateSuspended
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  pgtype.JSONB:
+    properties:
+      bytes:
+        items:
+          type: integer
+        type: array
+      status:
+        $ref: '#/definitions/pgtype.Status'
+    type: object
+  pgtype.Status:
+    enum:
+    - 0
+    - 1
+    - 2
+    type: integer
+    x-enum-varnames:
+    - Undefined
+    - "Null"
+    - Present
 host: api.spade.storage
 info:
   contact:
@@ -238,11 +244,11 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.Address'
+                    $ref: '#/definitions/db.Address'
                   type: array
               type: object
       security:
-      - apiKey: []
+      - apiKey header string true "Auth token": []
       summary: Delete addresses used by a tenant
     get:
       produces:
@@ -256,13 +262,13 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.Address'
+                    $ref: '#/definitions/db.Address'
                   type: array
               type: object
       security:
-      - apiKey: []
+      - apiKey header string true "Auth token": []
       summary: Get addresses used by a tenant
-    put:
+    post:
       parameters:
       - description: New addresses to add or change is_signing flag of
         in: body
@@ -270,7 +276,7 @@ paths:
         required: true
         schema:
           items:
-            $ref: '#/definitions/api.AddressMutable'
+            $ref: '#/definitions/db.Address'
           type: array
       produces:
       - application/json
@@ -283,11 +289,38 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.Address'
+                    $ref: '#/definitions/db.Address'
                   type: array
               type: object
       security:
-      - apiKey: []
+      - apiKey header string true "Auth token": []
+      summary: Creates addresses associated with a tenant
+    put:
+      parameters:
+      - description: New addresses to add or change is_signing flag of
+        in: body
+        name: addresses
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/db.Address'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/db.Address'
+                  type: array
+              type: object
+      security:
+      - apiKey header string true "Auth token": []
       summary: Update addresses associated with a tenant
   /collections:
     get:
@@ -301,7 +334,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.Collection'
+                  $ref: '#/definitions/api.CollectionResponse'
               type: object
       security:
       - apiKey: []
@@ -313,7 +346,7 @@ paths:
         name: collection
         required: true
         schema:
-          $ref: '#/definitions/api.MutableCollection'
+          $ref: '#/definitions/api.CollectionResponse'
       produces:
       - application/json
       responses:
@@ -324,7 +357,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.Collection'
+                  $ref: '#/definitions/api.CollectionResponse'
               type: object
       security:
       - apiKey: []
@@ -364,7 +397,7 @@ paths:
         name: collection
         required: true
         schema:
-          $ref: '#/definitions/api.MutableCollection'
+          $ref: '#/definitions/api.CollectionResponse'
       produces:
       - application/json
       responses:
@@ -375,11 +408,87 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.Collection'
+                  $ref: '#/definitions/api.CollectionResponse'
               type: object
       security:
       - apiKey: []
       summary: Modify a collection
+  /collections/:collectionUUID/replication-constraints:
+    delete:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/api.ReplicationConstraint'
+                  type: array
+              type: object
+      summary: Deletes ReplicationConstraints used by a tenant.
+    get:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/api.ReplicationConstraint'
+                  type: array
+              type: object
+      summary: Get ReplicationConstraints used by a tenant
+    put:
+      parameters:
+      - description: Auth token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: New replication constraints to add or change
+        in: body
+        name: replication_constraints
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/api.ReplicationConstraint'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/api.ReplicationConstraint'
+                  type: array
+              type: object
+      summary: Creates or updates ReplicationConstraints associated with a tenant
+        and collection
   /constraint-labels:
     get:
       produces:
@@ -393,7 +502,7 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.Label'
+                    $ref: '#/definitions/api.LabelResponse'
                   type: array
               type: object
       security:
@@ -452,12 +561,12 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.StorageProvider'
+                    $ref: '#/definitions/api.TenantSPResponse'
                   type: array
               type: object
       security:
       - apiKey: []
-      summary: Get list of Storage Providers
+      summary: Get list of Storage Providers in all states
   /sp/approve:
     post:
       description: 'Note: This is only required if auto_approve is false, requiring
@@ -480,7 +589,7 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.StorageProvider'
+                    $ref: '#/definitions/api.TenantSPResponse'
                   type: array
               type: object
       security:
@@ -498,34 +607,23 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.EligibilityCriteria'
+                  items:
+                    $ref: '#/definitions/api.TenantSPEligibilityClausesResponse'
+                  type: array
               type: object
       security:
       - apiKey: []
       summary: Get sp eligibility criteria
-    post:
-      parameters:
-      - description: New eligibility criteria to update to
-        in: body
-        name: elibility_criteria
-        required: true
-        schema:
-          $ref: '#/definitions/api.EligibilityCriteria'
+  /sp/eligibility-criteria/attribute/:attribute:
+    delete:
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.EligibilityCriteria'
-              type: object
       security:
       - apiKey: []
-      summary: Set sp eligibility criteria
+      summary: delete sp eligibility criteria
   /sp/suspend:
     post:
       description: 'Note: This is only required if auto_suspend is false, as manual
@@ -548,7 +646,7 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.StorageProvider'
+                    $ref: '#/definitions/api.TenantSPResponse'
                   type: array
               type: object
       security:
@@ -574,7 +672,7 @@ paths:
             - properties:
                 response:
                   items:
-                    $ref: '#/definitions/api.StorageProvider'
+                    $ref: '#/definitions/api.TenantSPResponse'
                   type: array
               type: object
       security:

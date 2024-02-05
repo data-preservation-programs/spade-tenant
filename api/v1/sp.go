@@ -10,7 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-type TenantsSPsResponse struct {
+type TenantsSPsResponse []TenantSPResponse
+type TenantSPResponse struct {
 	SPID          db.ID            `json:"sp_id" gorm:"primaryKey;column:sp_id"`
 	TenantSpState db.TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
 	TenantSpsMeta pgtype.JSONB     `gorm:"type:jsonb;default:'{}';not null"`
@@ -27,7 +28,7 @@ func (a *apiV1) ConfigureSPRouter(e *echo.Group) {
 // @Summary		Get list of Storage Providers in all states
 // @Security	apiKey
 // @Produce		json
-// @Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+// @Success		200	{object}	ResponseEnvelope{response=TenantsSPsResponse}
 // @Router		/sp [get]
 func (a *apiV1) handleGetStorageProviders(c echo.Context) error {
 	var storageProviderIds []TenantsSPsResponse
@@ -48,7 +49,7 @@ type StorageProviderIDs struct {
 //	@Security apiKey
 //	@Param body body StorageProviderIDs true "List of SP IDs to approve"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantsSPsResponse}
 //	@Router			/sp/approve [post]
 func (a *apiV1) handleApproveStorageProviders(c echo.Context) error {
 	var storageProviderIds []int
@@ -84,7 +85,7 @@ func (a *apiV1) handleApproveStorageProviders(c echo.Context) error {
 //	@Security apiKey
 //	@Param body body StorageProviderIDs true "List of SP IDs to suspend"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantsSPsResponse}
 //	@Router			/sp/suspend [post]
 func (a *apiV1) handleSuspendStorageProviders(c echo.Context) error {
 	var storageProviderIds []int
@@ -119,7 +120,7 @@ func (a *apiV1) handleSuspendStorageProviders(c echo.Context) error {
 //	@Security apiKey
 //	@Param body body StorageProviderIDs true "List of SP IDs to unsuspend"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=GetStorageProvidersResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=TenantsSPsResponse}
 //	@Router			/sp/unsuspend [post]
 func (a *apiV1) handleUnsuspendStorageProvider(c echo.Context) error {
 	var storageProviderIds []int

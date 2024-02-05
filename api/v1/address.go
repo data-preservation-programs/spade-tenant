@@ -31,7 +31,7 @@ func (a *apiV1) ConfigureAddressesRouter(e *echo.Group) {
 //
 //	@Summary		Update addresses associated with a tenant
 //	@Security		apiKey header string true "Auth token"
-//	@Param			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
+//	@Param			addresses body Addresses true "New addresses to add or change is_signing flag of"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [put]
@@ -73,7 +73,7 @@ func (a *apiV1) handleUpdateAddresses(c echo.Context) error {
 //
 //	@Summary		Creates addresses associated with a tenant
 //	@Security		apiKey header string true "Auth token"
-//	@Param			addresses body AddressesMutable true "New addresses to add or change is_signing flag of"
+//	@Param			addresses body Addresses true "New addresses to add or change is_signing flag of"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [post]

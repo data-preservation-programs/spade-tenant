@@ -31,7 +31,7 @@ func (a *apiV1) ConfigureReplicationConstraintsRouter(e *echo.Group) {
 //
 //	@Summary		Creates or updates ReplicationConstraints associated with a tenant and collection
 //	@Param			token header string true "Auth token"
-//	@Param			ReplicationConstraints body
+//	@Param			replication_constraints body ReplicationConstraints true "New replication constraints to add or change"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=ReplicationConstraints}
 //	@Router			/collections/:collectionUUID/replication-constraints [put]
