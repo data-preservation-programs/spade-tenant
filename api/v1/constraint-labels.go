@@ -8,6 +8,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+type LabelsResponse []LabelResponse
+
 type LabelResponse struct {
 	LabelID      db.ID  `json:"id"`
 	LabelText    string `json:"label"`
@@ -24,7 +26,7 @@ func (a *apiV1) ConfigureSpConstraintLabelsRouter(e *echo.Group) {
 //	@Summary		List all constraint labels for the tenant
 //	@Security apiKey
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=ConstraintLabels}
+//	@Success		200	{object}	ResponseEnvelope{response=LabelsResponse}
 //	@Router			/constraint-labels [get]
 func (a *apiV1) handleGetConstraintLabels(c echo.Context) error {
 	var constraintLabels LabelResponse

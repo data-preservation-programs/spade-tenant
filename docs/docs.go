@@ -27,7 +27,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "apiKey": []
+                        "apiKey header string true \"Auth token\"": []
                     }
                 ],
                 "produces": [
@@ -48,7 +48,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.Address"
+                                                "$ref": "#/definitions/db.Address"
                                             }
                                         }
                                     }
@@ -61,7 +61,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "apiKey": []
+                        "apiKey header string true \"Auth token\"": []
                     }
                 ],
                 "produces": [
@@ -77,7 +77,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/api.AddressMutable"
+                                "$ref": "#/definitions/db.Address"
                             }
                         }
                     }
@@ -96,7 +96,55 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.Address"
+                                                "$ref": "#/definitions/db.Address"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "apiKey header string true \"Auth token\"": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates addresses associated with a tenant",
+                "parameters": [
+                    {
+                        "description": "New addresses to add or change is_signing flag of",
+                        "name": "addresses",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/db.Address"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/db.Address"
                                             }
                                         }
                                     }
@@ -109,7 +157,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "apiKey": []
+                        "apiKey header string true \"Auth token\"": []
                     }
                 ],
                 "produces": [
@@ -144,7 +192,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.Address"
+                                                "$ref": "#/definitions/db.Address"
                                             }
                                         }
                                     }
@@ -178,7 +226,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.Collection"
+                                            "$ref": "#/definitions/api.CollectionResponse"
                                         }
                                     }
                                 }
@@ -204,7 +252,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.MutableCollection"
+                            "$ref": "#/definitions/api.CollectionResponse"
                         }
                     }
                 ],
@@ -220,7 +268,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.Collection"
+                                            "$ref": "#/definitions/api.CollectionResponse"
                                         }
                                     }
                                 }
@@ -255,7 +303,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.MutableCollection"
+                            "$ref": "#/definitions/api.CollectionResponse"
                         }
                     }
                 ],
@@ -271,7 +319,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.Collection"
+                                            "$ref": "#/definitions/api.CollectionResponse"
                                         }
                                     }
                                 }
@@ -321,6 +369,134 @@ const docTemplate = `{
                 }
             }
         },
+        "/collections/:collectionUUID/replication-constraints": {
+            "get": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get ReplicationConstraints used by a tenant",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.ReplicationConstraint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Creates or updates ReplicationConstraints associated with a tenant and collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "New replication constraints to add or change",
+                        "name": "replication_constraints",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/api.ReplicationConstraint"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.ReplicationConstraint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Deletes ReplicationConstraints used by a tenant.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Auth token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.ReplicationConstraint"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/constraint-labels": {
             "get": {
                 "security": [
@@ -346,7 +522,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.Label"
+                                                "$ref": "#/definitions/api.LabelResponse"
                                             }
                                         }
                                     }
@@ -442,7 +618,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get list of Storage Providers",
+                "summary": "Get list of Storage Providers in all states",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -457,7 +633,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.StorageProvider"
+                                                "$ref": "#/definitions/api.TenantSPResponse"
                                             }
                                         }
                                     }
@@ -505,7 +681,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.StorageProvider"
+                                                "$ref": "#/definitions/api.TenantSPResponse"
                                             }
                                         }
                                     }
@@ -539,7 +715,10 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.EligibilityCriteria"
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.TenantSPEligibilityClausesResponse"
+                                            }
                                         }
                                     }
                                 }
@@ -547,8 +726,10 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
+            }
+        },
+        "/sp/eligibility-criteria/attribute/:attribute": {
+            "delete": {
                 "security": [
                     {
                         "apiKey": []
@@ -557,36 +738,10 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Set sp eligibility criteria",
-                "parameters": [
-                    {
-                        "description": "New eligibility criteria to update to",
-                        "name": "elibility_criteria",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.EligibilityCriteria"
-                        }
-                    }
-                ],
+                "summary": "delete sp eligibility criteria",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.EligibilityCriteria"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
+                        "description": "OK"
                     }
                 }
             }
@@ -628,7 +783,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.StorageProvider"
+                                                "$ref": "#/definitions/api.TenantSPResponse"
                                             }
                                         }
                                     }
@@ -675,7 +830,7 @@ const docTemplate = `{
                                         "response": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/api.StorageProvider"
+                                                "$ref": "#/definitions/api.TenantSPResponse"
                                             }
                                         }
                                     }
@@ -798,34 +953,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "api.Address": {
-            "type": "object",
-            "properties": {
-                "actor_id": {
-                    "description": "TODO :swagger docs should be null not 0",
-                    "type": "integer"
-                },
-                "address": {
-                    "type": "string"
-                },
-                "is_signing": {
-                    "description": "true - active dealmaking from this address, false - still counts as an associated wallet",
-                    "type": "boolean"
-                }
-            }
-        },
-        "api.AddressMutable": {
-            "type": "object",
-            "properties": {
-                "address": {
-                    "type": "string"
-                },
-                "is_signing": {
-                    "description": "true - active dealmaking from this address, false - still counts as an associated wallet",
-                    "type": "boolean"
-                }
-            }
-        },
         "api.AddressedStorageContract": {
             "type": "object",
             "properties": {
@@ -837,132 +964,63 @@ const docTemplate = `{
                 }
             }
         },
-        "api.Collection": {
+        "api.CollectionResponse": {
             "type": "object",
             "properties": {
-                "deal_params": {
-                    "$ref": "#/definitions/api.DealParams"
-                },
-                "inactive": {
+                "active": {
                     "type": "boolean"
+                },
+                "collection_id": {
+                    "type": "string"
+                },
+                "deal_params": {
+                    "$ref": "#/definitions/pgtype.JSONB"
                 },
                 "name": {
                     "type": "string"
                 },
                 "piece_list_source": {
-                    "$ref": "#/definitions/api.PieceListSource"
-                },
-                "replication_constraints": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.ReplicationConstraint"
-                    }
-                },
-                "uuid": {
-                    "type": "string"
+                    "$ref": "#/definitions/pgtype.JSONB"
                 }
             }
         },
-        "api.DealParams": {
+        "api.LabelResponse": {
             "type": "object",
             "properties": {
-                "duration_days": {
+                "id": {
                     "type": "integer"
                 },
-                "start_within_hours": {
-                    "type": "integer"
-                }
-            }
-        },
-        "api.EligibilityClause": {
-            "type": "object",
-            "properties": {
-                "attribute": {
-                    "type": "string"
-                },
-                "operator": {
-                    "type": "string"
-                },
-                "value": {
-                    "description": "TODO: type - either []string or string"
-                }
-            }
-        },
-        "api.EligibilityCriteria": {
-            "type": "object",
-            "properties": {
-                "clauses": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.EligibilityClause"
-                    }
-                }
-            }
-        },
-        "api.Label": {
-            "type": "object",
-            "properties": {
                 "label": {
                     "type": "string"
                 },
-                "options": {
-                    "description": "example: {\"CA\": 10, \"US\": 20}",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "uuid": {
-                    "type": "string"
-                }
-            }
-        },
-        "api.MutableCollection": {
-            "type": "object",
-            "properties": {
-                "deal_params": {
-                    "$ref": "#/definitions/api.DealParams"
-                },
-                "inactive": {
-                    "type": "boolean"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "piece_list_source": {
-                    "$ref": "#/definitions/api.PieceListSource"
-                },
-                "replication_constraints": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/api.ReplicationConstraint"
-                    }
-                }
-            }
-        },
-        "api.PieceListSource": {
-            "type": "object",
-            "properties": {
-                "connection_details": {
-                    "description": "TODO: better types / validation for the connection details",
-                    "type": "string"
-                },
-                "method": {
-                    "type": "string"
-                },
-                "poll_interval_hours": {
-                    "type": "integer"
+                "labelOptions": {
+                    "$ref": "#/definitions/pgtype.JSONB"
                 }
             }
         },
         "api.ReplicationConstraint": {
             "type": "object",
             "properties": {
+                "collection_id": {
+                    "type": "string"
+                },
                 "constraint_id": {
                     "type": "integer"
                 },
                 "constraint_max": {
                     "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
                 }
             }
         },
@@ -1062,30 +1120,6 @@ const docTemplate = `{
                 }
             }
         },
-        "api.StorageProvider": {
-            "type": "object",
-            "properties": {
-                "first_activated_at": {
-                    "type": "string"
-                },
-                "sp_id": {
-                    "type": "integer"
-                },
-                "state": {
-                    "description": "State:\n* eligible: The SP is eligible to work with the tenant, but has not yet begun the subscription process\n* pending: The SP has begun the subscription process, but has not yet been approved by the tenant (note: only valid if auto-approve=false)\n* active: The SP is active and working with the tenant. Deals may be made with this SP.\n* suspended: The SP is suspended and deals may not be made with this SP, until it is un-suspended",
-                    "type": "string",
-                    "enum": [
-                        "eligible",
-                        "pending",
-                        "active",
-                        "suspended"
-                    ]
-                },
-                "status_last_changed": {
-                    "type": "string"
-                }
-            }
-        },
         "api.StorageProviderIDs": {
             "type": "object",
             "properties": {
@@ -1096,6 +1130,137 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "api.TenantSPEligibilityClausesResponse": {
+            "type": "object",
+            "properties": {
+                "attribute": {
+                    "type": "string"
+                },
+                "operator": {
+                    "$ref": "#/definitions/db.ComparisonOperator"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.TenantSPResponse": {
+            "type": "object",
+            "properties": {
+                "sp_id": {
+                    "type": "integer"
+                },
+                "tenantSpState": {
+                    "$ref": "#/definitions/db.TenantSpState"
+                },
+                "tenantSpsMeta": {
+                    "$ref": "#/definitions/pgtype.JSONB"
+                }
+            }
+        },
+        "db.Address": {
+            "type": "object",
+            "properties": {
+                "actor_id": {
+                    "type": "integer"
+                },
+                "address_robust": {
+                    "type": "string"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "is_signing": {
+                    "type": "boolean"
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "db.ComparisonOperator": {
+            "type": "string",
+            "enum": [
+                "\u003e",
+                "\u003c",
+                "=",
+                "\u003e=",
+                "\u003c=",
+                "in",
+                "nin",
+                "!="
+            ],
+            "x-enum-varnames": [
+                "GreaterThan",
+                "LessThan",
+                "EqualTo",
+                "GreaterThanOrEqual",
+                "LessThanOrEqual",
+                "IncludedIn",
+                "ExcludedFrom",
+                "NotEqualTo"
+            ]
+        },
+        "db.TenantSpState": {
+            "type": "string",
+            "enum": [
+                "eligible",
+                "pending",
+                "active",
+                "suspended"
+            ],
+            "x-enum-varnames": [
+                "TenantSpStateEligible",
+                "TenantSpStatePending",
+                "TenantSpStateActive",
+                "TenantSpStateSuspended"
+            ]
+        },
+        "gorm.DeletedAt": {
+            "type": "object",
+            "properties": {
+                "time": {
+                    "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
+        "pgtype.JSONB": {
+            "type": "object",
+            "properties": {
+                "bytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "status": {
+                    "$ref": "#/definitions/pgtype.Status"
+                }
+            }
+        },
+        "pgtype.Status": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2
+            ],
+            "x-enum-varnames": [
+                "Undefined",
+                "Null",
+                "Present"
+            ]
         }
     },
     "securityDefinitions": {

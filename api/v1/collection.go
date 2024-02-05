@@ -30,18 +30,21 @@ func (a *apiV1) ConfigureCollectionRouter(e *echo.Group) {
 //
 //	@Summary		Creates a new collection
 //	@Security		apiKey
-//	@Param 			collection CollectionMutable body true "Collection to create"
+//	@Param 			collection body CollectionResponse true "Collection to create"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Collection}
+//	@Success		200	{object}	ResponseEnvelope{response=CollectionResponse}
 //	@Router			/collections [post]
 func (a *apiV1) handleCreateCollection(c echo.Context) error {
-	var collection db.Collection
+	var collectionInput CollectionResponse
 
-	err := json.NewDecoder(c.Request().Body).Decode(&collection)
+	err := json.NewDecoder(c.Request().Body).Decode(&collectionInput)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, CreateErrorResponseEnvelope(c, http.StatusInternalServerError, err.Error()))
 	}
 
+	var collection db.Collection
+
+	collection.CollectionName = &collectionInput.CollectionName
 	collection.TenantID = db.ID(GetTenantContext(c).TenantID)
 	collection.CollectionID = uuid.New()
 	collection.ReplicationConstraints = []db.ReplicationConstraint{{CollectionID: collection.CollectionID, ConstraintID: 0, ConstraintMax: 10}}
@@ -67,7 +70,7 @@ func (a *apiV1) handleCreateCollection(c echo.Context) error {
 //	@Summary		Gets info about collections
 //	@Security		apiKey
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Collection}
+//	@Success		200	{object}	ResponseEnvelope{response=CollectionResponse}
 //	@Router			/collections [get]
 func (a *apiV1) handleGetCollections(c echo.Context) error {
 
@@ -87,9 +90,9 @@ func (a *apiV1) handleGetCollections(c echo.Context) error {
 //	@Summary		Modify a collection
 //	@Security apiKey
 //	@Param 		  collectionUUID path string true "Collection UUID to modify"
-//	@Param 		  collection body MutableCollection true "Collection data to update"
+//	@Param 		  collection body CollectionResponse true "Collection data to update"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Collection}
+//	@Success		200	{object}	ResponseEnvelope{response=CollectionResponse}
 //	@Router			/collections/:collectionUUID [put]
 func (a *apiV1) handleModifyCollection(c echo.Context) error {
 	var collection CollectionResponse
