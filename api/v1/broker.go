@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 
+	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
 )
 
@@ -12,12 +13,34 @@ func (a *apiV1) ConfigureBrokerRouter(e *echo.Group) {
 	g.POST("", a.handlePostNotifyTenantService)
 }
 
+type BrokerResponse []TenantBrokerPayload
+
+type TenantBrokerPayload struct {
+	TenantID           db.ID  `json:"tenant_id"`
+	StorageContractCID string `json:"storage_contract_cid"`
+	TenantSettings     struct {
+		DealLengthDays int `json:"deal_length_days"`
+	}
+	TenantAddresses []db.Address   `json:"tenant_addresses"`
+	CandidateSPs    []CandidateSPs `json:"candidate_sps"`
+	Collections     []db.Collection
+}
+
+type CandidateSPs struct {
+	SPID                db.ID             `json:"sp_id"`
+	ProviderTenantState string            `json:"provider_tenant_state"`
+	AttributeValues     map[string]string `json:"attribute_values"`
+	ProviderMetadata    struct {
+		MaxBytesInFlight int `json:"max_bytes_in_flight"`
+	}
+}
+
 // handleGetTenantsInformation godoc
 //
 //	@Summary		List of all tenants in a JSON object to be consumed by the broker.
 //	@Security apiKey
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=LabelsResponse}
+//	@Success		200	{object}	ResponseEnvelope{response=BrokerResponse}
 //	@Router			/broker [get]
 func (a *apiV1) handleGetTenantsInformation(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, CreateErrorResponseEnvelope(c, http.StatusNotImplemented, ""))
