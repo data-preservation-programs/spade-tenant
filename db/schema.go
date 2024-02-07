@@ -149,10 +149,11 @@ func (s *TenantSpState) Value() (driver.Value, error) {
 
 // Many:Many relation table between Tenants and SPs
 type TenantsSPs struct {
-	TenantID      ID            `json:"tenant_id" gorm:"primaryKey"`
-	SPID          ID            `json:"sp_id" gorm:"primaryKey;column:sp_id"`
-	TenantSpState TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
-	TenantSpsMeta pgtype.JSONB  `gorm:"type:jsonb;default:'{}';not null"`
+	TenantID          ID            `json:"tenant_id" gorm:"primaryKey"`
+	SPID              ID            `json:"sp_id" gorm:"primaryKey;column:sp_id"`
+	TenantSpState     TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
+	TenantSpStateInfo string        `json:"tenant_sp_state_info"`
+	TenantSpsMeta     pgtype.JSONB  `gorm:"type:jsonb;default:'{}';not null"`
 }
 
 func (tenantSPs *TenantsSPs) BeforeUpdate(tx *gorm.DB) error {
