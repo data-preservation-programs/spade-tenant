@@ -16,7 +16,7 @@ func main() {
 		e.Logger.Error(err)
 	}
 
-	a := api.NewApiV1(db)
+	a := api.NewApiV1(db, &config)
 	a.RegisterRoutes(e)
 	e.Logger.Fatal(e.Start(":" + config.PORT))
 }

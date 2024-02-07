@@ -12,6 +12,7 @@ type TenantServiceConfig struct {
 	DRY_RUN             bool   `env:"DRY_RUN" envDefault:"false"`
 	DEBUG               bool   `env:"DEBUG" envDefault:"false"`
 	DB_ALLOW_MIGRATIONS bool   `env:"DB_ALLOW_MIGRATIONS" envDefault:"true"`
+	BROKER_ACCESS_TOKEN string `env:"BROKER_ACCESS_TOKEN"`
 }
 
 func InitConfig() TenantServiceConfig {

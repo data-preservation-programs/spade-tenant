@@ -24,6 +24,24 @@ type AuthContext struct {
 	TenantID int32
 }
 
+func BrokerAuthMiddleware(brokerKey string) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			authKey, err := extractAuthKey(c.Request().Header.Get("Authorization"))
+
+			if err != nil {
+				return c.JSON(401, err.Error())
+			}
+
+			if *authKey != brokerKey {
+				return c.JSON(401, "invalid auth key")
+			}
+
+			return next(c)
+		}
+	}
+}
+
 // Secure routes by requiring a valid auth token
 // This will place the Tenant's metadata into the context for use in downstream handlers
 // To access them, call `tc := c.Get(TENANT_CONTEXT).(AuthContext)`

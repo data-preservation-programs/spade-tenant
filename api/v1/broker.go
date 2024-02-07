@@ -10,9 +10,8 @@ import (
 )
 
 func (a *apiV1) ConfigureBrokerRouter(e *echo.Group) {
-	g := e.Group("/broker")
-	g.GET("", a.handleGetTenantsInformation)
-	g.POST("", a.handlePostNotifyTenantService)
+	e.GET("", a.handleGetTenantsInformation)
+	e.POST("", a.handlePostNotifyTenantService)
 }
 
 type BrokerResponse []TenantBrokerPayload
