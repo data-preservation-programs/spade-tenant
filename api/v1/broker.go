@@ -5,6 +5,7 @@ import (
 
 	"github.com/data-preservation-programs/spade-tenant/db"
 	"github.com/labstack/echo/v4"
+	"gorm.io/gorm/clause"
 )
 
 func (a *apiV1) ConfigureBrokerRouter(e *echo.Group) {
@@ -16,9 +17,9 @@ func (a *apiV1) ConfigureBrokerRouter(e *echo.Group) {
 type BrokerResponse []TenantBrokerPayload
 
 type TenantBrokerPayload struct {
-	TenantID           db.ID  `json:"tenant_id"`
-	StorageContractCID string `json:"storage_contract_cid"`
-	TenantSettings     struct {
+	TenantID                 db.ID  `json:"tenant_id"`
+	TenantStorageContractCID string `json:"tenant_storage_contract_cid"`
+	TenantSettings           struct {
 		DealLengthDays int `json:"deal_length_days"`
 	}
 	TenantAddresses []db.Address   `json:"tenant_addresses"`
@@ -43,7 +44,13 @@ type CandidateSPs struct {
 //	@Success		200	{object}	ResponseEnvelope{response=BrokerResponse}
 //	@Router			/broker [get]
 func (a *apiV1) handleGetTenantsInformation(c echo.Context) error {
-	return c.JSON(http.StatusNotImplemented, CreateErrorResponseEnvelope(c, http.StatusNotImplemented, ""))
+	// var br BrokerResponse
+
+	var queryResult []db.Tenant
+	a.db.Preload(clause.Associations).Preload("Collections.ReplicationConstraints").Find(&queryResult)
+	// a.db.Preload(clause.Associations).Preload("Collections").Preload("SPs").Preload("SP").Preload("TenantAddresses").Preload("Labels").Preload("Collections.ReplicationConstraints").Find(&queryResult)
+
+	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, queryResult))
 }
 
 // handlePostNotifyTenantService godoc

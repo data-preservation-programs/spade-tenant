@@ -25,7 +25,7 @@ type Tenant struct {
 
 	Collections []Collection `json:"collections"`
 	Labels      []Label      `json:"labels"`
-	SPs         []SP         `json:"storage_providers" gorm:"many2many:tenants_sps;"`
+	SPs         []SP         `json:"storage_providers" gorm:"many2many:tenants_sps;joinForeignKey:TenantID;joinReferences:SPID"`
 
 	TenantAddresses []Address `json:"tenant_addresses"`
 
