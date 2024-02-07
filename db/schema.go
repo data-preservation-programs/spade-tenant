@@ -132,6 +132,7 @@ const (
 	TenantSpStatePending   TenantSpState = "pending"
 	TenantSpStateActive    TenantSpState = "active"
 	TenantSpStateSuspended TenantSpState = "suspended"
+	TenantSpStateDisabled  TenantSpState = "disabled"
 )
 
 func (s *TenantSpState) Scan(value interface{}) error {
