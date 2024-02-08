@@ -1,11 +1,37 @@
 basePath: /tenant
 definitions:
+  api.AddressMutable:
+    properties:
+      actor_id:
+        type: integer
+      address_robust:
+        type: string
+      is_signing:
+        type: boolean
+    type: object
   api.AddressedStorageContract:
     properties:
       cid:
         type: string
       storage_contract:
         $ref: '#/definitions/api.StorageContract'
+    type: object
+  api.CandidateSP:
+    properties:
+      attribute_values:
+        additionalProperties:
+          type: string
+        type: object
+      provider_metadata:
+        allOf:
+        - $ref: '#/definitions/pgtype.JSONB'
+        description: 'TODO: struct for what we expect here (i.e, max_bytes_in_flight)'
+      provider_tenant_state:
+        type: string
+      provider_tenant_state_info:
+        type: string
+      sp_id:
+        type: integer
     type: object
   api.CollectionResponse:
     properties:
@@ -115,6 +141,29 @@ definitions:
           type: integer
         type: array
     type: object
+  api.TenantBrokerPayload:
+    properties:
+      candidate_sps:
+        items:
+          $ref: '#/definitions/api.CandidateSP'
+        type: array
+      collections:
+        items:
+          $ref: '#/definitions/db.Collection'
+        type: array
+      tenant_addresses:
+        items:
+          $ref: '#/definitions/db.Address'
+        type: array
+      tenant_id:
+        type: integer
+      tenant_settings:
+        allOf:
+        - $ref: '#/definitions/pgtype.JSONB'
+        description: 'TODO: struct for what we expect here (i.e, max_deal_length)'
+      tenant_storage_contract_cid:
+        type: string
+    type: object
   api.TenantSPEligibilityClausesResponse:
     properties:
       attribute:
@@ -150,38 +199,70 @@ definitions:
       updatedAt:
         type: string
     type: object
+  db.Collection:
+    properties:
+      collection_active:
+        type: boolean
+      collection_deal_params:
+        $ref: '#/definitions/pgtype.JSONB'
+      collection_id:
+        type: string
+      collection_name:
+        type: string
+      collection_piece_source:
+        $ref: '#/definitions/pgtype.JSONB'
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      replication_constraints:
+        items:
+          $ref: '#/definitions/db.ReplicationConstraint'
+        type: array
+      tenant_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
   db.ComparisonOperator:
     enum:
-    - '>'
-    - <
-    - =
-    - '>='
-    - <=
     - in
     - nin
-    - '!='
     type: string
     x-enum-varnames:
-    - GreaterThan
-    - LessThan
-    - EqualTo
-    - GreaterThanOrEqual
-    - LessThanOrEqual
     - IncludedIn
     - ExcludedFrom
-    - NotEqualTo
+  db.ReplicationConstraint:
+    properties:
+      collection_id:
+        type: string
+      constraint_id:
+        type: integer
+      constraint_max:
+        type: integer
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      tenant_id:
+        type: integer
+      updatedAt:
+        type: string
+    type: object
   db.TenantSpState:
     enum:
     - eligible
     - pending
     - active
     - suspended
+    - disabled
     type: string
     x-enum-varnames:
     - TenantSpStateEligible
     - TenantSpStatePending
     - TenantSpStateActive
     - TenantSpStateSuspended
+    - TenantSpStateDisabled
   gorm.DeletedAt:
     properties:
       time:
@@ -248,7 +329,7 @@ paths:
                   type: array
               type: object
       security:
-      - apiKey header string true "Auth token": []
+      - apiKey: []
       summary: Delete addresses used by a tenant
     get:
       produces:
@@ -266,18 +347,16 @@ paths:
                   type: array
               type: object
       security:
-      - apiKey header string true "Auth token": []
+      - apiKey: []
       summary: Get addresses used by a tenant
     post:
       parameters:
-      - description: New addresses to add or change is_signing flag of
+      - description: New addresses to add
         in: body
         name: addresses
         required: true
         schema:
-          items:
-            $ref: '#/definitions/db.Address'
-          type: array
+          $ref: '#/definitions/api.AddressMutable'
       produces:
       - application/json
       responses:
@@ -288,12 +367,10 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  items:
-                    $ref: '#/definitions/db.Address'
-                  type: array
+                  $ref: '#/definitions/api.AddressMutable'
               type: object
       security:
-      - apiKey header string true "Auth token": []
+      - apiKey: []
       summary: Creates addresses associated with a tenant
     put:
       parameters:
@@ -320,8 +397,46 @@ paths:
                   type: array
               type: object
       security:
-      - apiKey header string true "Auth token": []
+      - apiKey: []
       summary: Update addresses associated with a tenant
+  /broker/subscriptionEvent:
+    post:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/api.LabelResponse'
+                  type: array
+              type: object
+      security:
+      - apiKey: []
+      summary: Allows the broker to notify the tenant service.
+  /broker/tenant-state:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  items:
+                    $ref: '#/definitions/api.TenantBrokerPayload'
+                  type: array
+              type: object
+      security:
+      - apiKey: []
+      summary: List of all tenants in a JSON object to be consumed by the broker.
   /collections:
     get:
       produces:
@@ -362,57 +477,6 @@ paths:
       security:
       - apiKey: []
       summary: Creates a new collection
-  /collections/:collectionUUID:
-    delete:
-      parameters:
-      - description: Collection UUID to modify
-        in: path
-        name: collectionUUID
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  type: boolean
-              type: object
-      security:
-      - apiKey: []
-      summary: Delete a collection
-    put:
-      parameters:
-      - description: Collection UUID to modify
-        in: path
-        name: collectionUUID
-        required: true
-        type: string
-      - description: Collection data to update
-        in: body
-        name: collection
-        required: true
-        schema:
-          $ref: '#/definitions/api.CollectionResponse'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  $ref: '#/definitions/api.CollectionResponse'
-              type: object
-      security:
-      - apiKey: []
-      summary: Modify a collection
   /collections/:collectionUUID/replication-constraints:
     delete:
       parameters:
@@ -489,6 +553,57 @@ paths:
               type: object
       summary: Creates or updates ReplicationConstraints associated with a tenant
         and collection
+  /collections/{collectionUUID}:
+    delete:
+      parameters:
+      - description: Collection UUID to modify
+        in: path
+        name: collectionUUID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  type: boolean
+              type: object
+      security:
+      - apiKey: []
+      summary: Delete a collection
+    put:
+      parameters:
+      - description: Collection UUID to modify
+        in: path
+        name: collectionUUID
+        required: true
+        type: string
+      - description: Collection data to update
+        in: body
+        name: collection
+        required: true
+        schema:
+          $ref: '#/definitions/api.CollectionResponse'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/api.ResponseEnvelope'
+            - properties:
+                response:
+                  $ref: '#/definitions/api.CollectionResponse'
+              type: object
+      security:
+      - apiKey: []
+      summary: Modify a collection
   /constraint-labels:
     get:
       produces:
