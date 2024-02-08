@@ -30,7 +30,7 @@ func (a *apiV1) ConfigureAddressesRouter(e *echo.Group) {
 // handleSetAddresses godoc
 //
 //	@Summary		Update addresses associated with a tenant
-//	@Security		apiKey header string true "Auth token"
+//	@Security apiKey
 //	@Param			addresses body Addresses true "New addresses to add or change is_signing flag of"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
@@ -72,8 +72,8 @@ func (a *apiV1) handleUpdateAddresses(c echo.Context) error {
 // handleSetAddresses godoc
 //
 //	@Summary		Creates addresses associated with a tenant
-//	@Security		apiKey header string true "Auth token"
-//	@Param			addresses body Addresses true "New addresses to add or change is_signing flag of"
+//	@Security apiKey
+//	@Param			addresses body AddressMutable true "New addresses to add"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [post]
@@ -113,7 +113,7 @@ func (a *apiV1) handleCreateAddresses(c echo.Context) error {
 // handleDeleteAddresses godoc
 //
 //	@Summary		Delete addresses used by a tenant
-//	@Security		apiKey header string true "Auth token"
+//	@Security apiKey
 //	@Param 			addresses body []string true "addresses to delete"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
@@ -152,7 +152,7 @@ func (a *apiV1) handleDeleteAddresses(c echo.Context) error {
 // handleGetAddresses godoc
 //
 //	@Summary		Get addresses used by a tenant
-//	@Security		apiKey header string true "Auth token"
+//	@Security apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [get]

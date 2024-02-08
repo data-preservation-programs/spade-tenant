@@ -27,7 +27,7 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
-                        "apiKey header string true \"Auth token\"": []
+                        "apiKey": []
                     }
                 ],
                 "produces": [
@@ -61,7 +61,7 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
-                        "apiKey header string true \"Auth token\"": []
+                        "apiKey": []
                     }
                 ],
                 "produces": [
@@ -109,7 +109,7 @@ const docTemplate = `{
             "post": {
                 "security": [
                     {
-                        "apiKey header string true \"Auth token\"": []
+                        "apiKey": []
                     }
                 ],
                 "produces": [
@@ -118,15 +118,12 @@ const docTemplate = `{
                 "summary": "Creates addresses associated with a tenant",
                 "parameters": [
                     {
-                        "description": "New addresses to add or change is_signing flag of",
+                        "description": "New addresses to add",
                         "name": "addresses",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/db.Address"
-                            }
+                            "$ref": "#/definitions/api.AddressMutable"
                         }
                     }
                 ],
@@ -142,10 +139,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/db.Address"
-                                            }
+                                            "$ref": "#/definitions/api.AddressMutable"
                                         }
                                     }
                                 }
@@ -157,7 +151,7 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
-                        "apiKey header string true \"Auth token\"": []
+                        "apiKey": []
                     }
                 ],
                 "produces": [
@@ -193,6 +187,78 @@ const docTemplate = `{
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/definitions/db.Address"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/broker/subscriptionEvent": {
+            "post": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Allows the broker to notify the tenant service.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.LabelResponse"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/broker/tenant-state": {
+            "get": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "List of all tenants in a JSON object to be consumed by the broker.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/api.TenantBrokerPayload"
                                             }
                                         }
                                     }
@@ -269,97 +335,6 @@ const docTemplate = `{
                                     "properties": {
                                         "response": {
                                             "$ref": "#/definitions/api.CollectionResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/collections/:collectionUUID": {
-            "put": {
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Modify a collection",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Collection UUID to modify",
-                        "name": "collectionUUID",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Collection data to update",
-                        "name": "collection",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/api.CollectionResponse"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "$ref": "#/definitions/api.CollectionResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Delete a collection",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Collection UUID to modify",
-                        "name": "collectionUUID",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -488,6 +463,97 @@ const docTemplate = `{
                                             "items": {
                                                 "$ref": "#/definitions/api.ReplicationConstraint"
                                             }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/collections/{collectionUUID}": {
+            "put": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Modify a collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Collection UUID to modify",
+                        "name": "collectionUUID",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Collection data to update",
+                        "name": "collection",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/api.CollectionResponse"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "$ref": "#/definitions/api.CollectionResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Delete a collection",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Collection UUID to modify",
+                        "name": "collectionUUID",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/api.ResponseEnvelope"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "response": {
+                                            "type": "boolean"
                                         }
                                     }
                                 }
@@ -953,6 +1019,20 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "api.AddressMutable": {
+            "type": "object",
+            "properties": {
+                "actor_id": {
+                    "type": "integer"
+                },
+                "address_robust": {
+                    "type": "string"
+                },
+                "is_signing": {
+                    "type": "boolean"
+                }
+            }
+        },
         "api.AddressedStorageContract": {
             "type": "object",
             "properties": {
@@ -961,6 +1041,34 @@ const docTemplate = `{
                 },
                 "storage_contract": {
                     "$ref": "#/definitions/api.StorageContract"
+                }
+            }
+        },
+        "api.CandidateSP": {
+            "type": "object",
+            "properties": {
+                "attribute_values": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "provider_metadata": {
+                    "description": "TODO: struct for what we expect here (i.e, max_bytes_in_flight)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.JSONB"
+                        }
+                    ]
+                },
+                "provider_tenant_state": {
+                    "type": "string"
+                },
+                "provider_tenant_state_info": {
+                    "type": "string"
+                },
+                "sp_id": {
+                    "type": "integer"
                 }
             }
         },
@@ -1131,6 +1239,43 @@ const docTemplate = `{
                 }
             }
         },
+        "api.TenantBrokerPayload": {
+            "type": "object",
+            "properties": {
+                "candidate_sps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/api.CandidateSP"
+                    }
+                },
+                "collections": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.Collection"
+                    }
+                },
+                "tenant_addresses": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.Address"
+                    }
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "tenant_settings": {
+                    "description": "TODO: struct for what we expect here (i.e, max_deal_length)",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/pgtype.JSONB"
+                        }
+                    ]
+                },
+                "tenant_storage_contract_cid": {
+                    "type": "string"
+                }
+            }
+        },
         "api.TenantSPEligibilityClausesResponse": {
             "type": "object",
             "properties": {
@@ -1185,28 +1330,80 @@ const docTemplate = `{
                 }
             }
         },
+        "db.Collection": {
+            "type": "object",
+            "properties": {
+                "collection_active": {
+                    "type": "boolean"
+                },
+                "collection_deal_params": {
+                    "$ref": "#/definitions/pgtype.JSONB"
+                },
+                "collection_id": {
+                    "type": "string"
+                },
+                "collection_name": {
+                    "type": "string"
+                },
+                "collection_piece_source": {
+                    "$ref": "#/definitions/pgtype.JSONB"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "replication_constraints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/db.ReplicationConstraint"
+                    }
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "db.ComparisonOperator": {
             "type": "string",
             "enum": [
-                "\u003e",
-                "\u003c",
-                "=",
-                "\u003e=",
-                "\u003c=",
                 "in",
-                "nin",
-                "!="
+                "nin"
             ],
             "x-enum-varnames": [
-                "GreaterThan",
-                "LessThan",
-                "EqualTo",
-                "GreaterThanOrEqual",
-                "LessThanOrEqual",
                 "IncludedIn",
-                "ExcludedFrom",
-                "NotEqualTo"
+                "ExcludedFrom"
             ]
+        },
+        "db.ReplicationConstraint": {
+            "type": "object",
+            "properties": {
+                "collection_id": {
+                    "type": "string"
+                },
+                "constraint_id": {
+                    "type": "integer"
+                },
+                "constraint_max": {
+                    "type": "integer"
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "deletedAt": {
+                    "$ref": "#/definitions/gorm.DeletedAt"
+                },
+                "tenant_id": {
+                    "type": "integer"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
         },
         "db.TenantSpState": {
             "type": "string",
@@ -1214,13 +1411,15 @@ const docTemplate = `{
                 "eligible",
                 "pending",
                 "active",
-                "suspended"
+                "suspended",
+                "disabled"
             ],
             "x-enum-varnames": [
                 "TenantSpStateEligible",
                 "TenantSpStatePending",
                 "TenantSpStateActive",
-                "TenantSpStateSuspended"
+                "TenantSpStateSuspended",
+                "TenantSpStateDisabled"
             ]
         },
         "gorm.DeletedAt": {

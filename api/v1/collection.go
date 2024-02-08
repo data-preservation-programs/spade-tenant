@@ -93,7 +93,7 @@ func (a *apiV1) handleGetCollections(c echo.Context) error {
 //	@Param 		  collection body CollectionResponse true "Collection data to update"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=CollectionResponse}
-//	@Router			/collections/:collectionUUID [put]
+//	@Router			/collections/{collectionUUID} [put]
 func (a *apiV1) handleModifyCollection(c echo.Context) error {
 	var collection CollectionResponse
 	err := json.NewDecoder(c.Request().Body).Decode(&collection)
@@ -133,7 +133,7 @@ func (a *apiV1) handleModifyCollection(c echo.Context) error {
 //	@Param 		  collectionUUID path string true "Collection UUID to modify"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=bool}
-//	@Router			/collections/:collectionUUID [delete]
+//	@Router			/collections/{collectionUUID} [delete]
 func (a *apiV1) handleDeleteCollection(c echo.Context) error {
 	id, err := uuid.Parse(c.Param("collectionUUID"))
 	if err != nil {
