@@ -19,6 +19,7 @@ func OpenDatabase(dbDsn string, debug bool, dryRun bool) (*gorm.DB, error) {
 	if debug {
 		config = &gorm.Config{
 			Logger: logger.Default.LogMode(logger.Info),
+			DryRun: dryRun,
 		}
 	}
 

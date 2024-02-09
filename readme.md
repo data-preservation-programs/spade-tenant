@@ -51,7 +51,7 @@ To apply migrations to the database run the following command:
 `DB_ALLOW_MIRGATIONS=true ./spade-tenant-svc`
 
 To simply output generated SQL without applying to the database, you can execute this instead
-`DRY_RUN=true DB_ALLOW_MIRGATIONS=true go run ./spade-tenant-svc out.sql`
+`DRY_RUN=true DB_ALLOW_MIRGATIONS=true ./spade-tenant-svc > out.sql`
 
 ## 3. Run
 

@@ -39,7 +39,9 @@ type CandidateSP struct {
 //	@Security apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=BrokerResponse}
-//	@Router			/broker [get]
+//	@Router			/broker/tenant-state [get]
+//
+// TODO: rename tenant-state
 func (a *apiV1) handleGetTenantsInformation(c echo.Context) error {
 	var br BrokerResponse
 
@@ -62,7 +64,7 @@ func (a *apiV1) handleGetTenantsInformation(c echo.Context) error {
 		// For simplicity, we simply query this table directly for the Tenant, and use that to construct the CandidateSPs struct
 		// It should be possible to be done in one query but will require some raw SQL
 		var tenantSPsRelation []db.TenantsSPs
-		a.db.Model(&db.TenantsSPs{SPID: tenant.TenantID}).Find(&tenantSPsRelation)
+		a.db.Model(&db.TenantsSPs{TenantID: tenant.TenantID}).Find(&tenantSPsRelation)
 
 		// Construct the CandidateSPs struct for this tenant
 		for _, sp := range tenant.SPs {
@@ -99,7 +101,15 @@ func (a *apiV1) handleGetTenantsInformation(c echo.Context) error {
 //	@Security apiKey
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=LabelsResponse}
-//	@Router			/broker [post]
+//	@Router			/broker/subscriptionEvent [post]
+//
+// TODO: subscriptionEvent
 func (a *apiV1) handlePostNotifyTenantService(c echo.Context) error {
 	return c.JSON(http.StatusNotImplemented, CreateErrorResponseEnvelope(c, http.StatusNotImplemented, ""))
 }
+
+/**
+ * [
+ *   { "spid" : 1 , tenantID: "5", "storage_contract_cid": "bafy1234", "authorization": "abcd" }
+ * ]
+ */

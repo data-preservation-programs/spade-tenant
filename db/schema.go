@@ -25,7 +25,7 @@ type Tenant struct {
 
 	Collections []Collection `json:"collections"`
 	Labels      []Label      `json:"labels"`
-	SPs         []SP         `json:"storage_providers" gorm:"many2many:tenants_sps;joinForeignKey:TenantID;joinReferences:SPID"`
+	SPs         []TenantsSPs `json:"storage_providers"`
 
 	TenantAddresses []Address `json:"tenant_addresses"`
 
@@ -111,8 +111,8 @@ type Collection struct {
 	TenantID              ID           `json:"tenant_id" gorm:"not null"`
 	CollectionName        *string      `json:"collection_name" gorm:"not null"`
 	CollectionActive      *bool        `json:"collection_active" gorm:"not null"`
-	CollectionPieceSource pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
-	CollectionDealParams  pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
+	CollectionPieceSource pgtype.JSONB `json:"collection_piece_source" gorm:"type:jsonb;default:'{}';not null"`
+	CollectionDealParams  pgtype.JSONB `json:"collection_deal_params" gorm:"type:jsonb;default:'{}';not null"`
 
 	ReplicationConstraints []ReplicationConstraint `json:"replication_constraints"`
 }
@@ -155,6 +155,7 @@ type TenantsSPs struct {
 	TenantSpState     TenantSpState `gorm:"type:tenant_sp_state;column:tenant_sp_state;default:eligible;not null"`
 	TenantSpStateInfo string        `json:"tenant_sp_state_info"`
 	TenantSpsMeta     pgtype.JSONB  `gorm:"type:jsonb;default:'{}';not null"`
+	SPAttributes      []SPAttribute `json:"sp_attributes" gorm:"foreignKey:TenantID,SPID;references:TenantID,SPID"`
 }
 
 func (tenantSPs *TenantsSPs) BeforeUpdate(tx *gorm.DB) error {
@@ -181,8 +182,22 @@ func (TenantsSPs) TableName() string {
 
 type SP struct {
 	ModelBase
-	SPID    ID       `json:"sp_id" gorm:"primaryKey"`
-	Tenants []Tenant `json:"tenants" gorm:"many2many:tenants_sps;"`
+	SPID    ID           `json:"sp_id" gorm:"primaryKey"`
+	Tenants []TenantsSPs `json:"tenants"`
+}
+
+// A relation table between SPs and their attributes
+// Each SP has a set of attributes, which are a combination of labels and values
+// For example, an SP may have the following attributes:
+// - location.country = CANADA
+// - location.city = TORONTO
+// This relationship is modelled as 2 foreign keys to the Labels table - one for the "attribute label" and one for the "value label"
+type SPAttribute struct {
+	ModelBase
+	SPID             ID `json:"sp_id"`
+	TenantID         ID `json:"tenant_id"`
+	AttributeLabelID ID `json:"attribute_label_id" gorm:"primaryKey"`
+	AttributeValueID ID `json:"attribute_value_id" gorm:"primaryKey"`
 }
 
 // A label maps a uint to a human readable string
@@ -194,3 +209,5 @@ type Label struct {
 	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_tenant_id_label_text;not null"`
 	LabelOptions pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 }
+
+// Global unique on labelID itself?
