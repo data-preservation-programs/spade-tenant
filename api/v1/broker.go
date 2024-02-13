@@ -75,7 +75,6 @@ func (a *apiV1) handleGetTenantsState(c echo.Context) error {
 
 			// Construct the attribute values for this SP
 			for _, attribute := range sp.SPAttributes {
-				println(attribute.AttributeLabelID, attribute.AttributeValueID)
 				candidateSP.AttributeValues[strconv.Itoa(int(attribute.AttributeLabelID))] = strconv.Itoa(int(attribute.AttributeValueID))
 			}
 
@@ -169,5 +168,4 @@ func (a *apiV1) handlePostBrokerSubscriptionEvent(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, CreateSuccessResponseEnvelope(c, subscriptionEvents))
-
 }
