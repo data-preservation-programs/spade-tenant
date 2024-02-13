@@ -37,11 +37,14 @@ type Tenant struct {
 	// - tenant_suspended
 	TenantMeta pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 
-	// Settings:
-	// - SP Auto Approve
-	// - SP Auto Suspend
-	// - Max In Flight GiB
 	TenantSettings pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
+}
+
+// JSON type for the TenantSettings field
+type TenantSettings struct {
+	SpAutoApprove  bool `json:"sp_auto_approve"`
+	SpAutoSuspend  bool `json:"sp_auto_suspend"`
+	MaxInFlightGiB uint `json:"max_in_flight_gib"`
 }
 
 type Address struct {
@@ -127,6 +130,13 @@ type ReplicationConstraint struct {
 
 type TenantSpState string
 
+// TenantSpState represents the state of a Tenant's relationship with a Storage Provider
+// The state machine is as follows:
+// - eligible: A given storage provider is eligible (i.e, conforms to all Eligibility clauses) to be associated with a tenant
+// - pending: A given storage provider has subscribed to the tenant's Storage Contract, and is awaiting approval from the tenant
+// - active: A given storage provider has been approved by the tenant. This is the only state where deals may be made.
+// - suspended: A given storage provider has been suspended by the tenant for breach of Storage Contract or related SLA terms. It may be moved back to Active state once it is rectified.
+// - disabled: A given storage provider has been disabled. This is a terminal state.
 const (
 	TenantSpStateEligible  TenantSpState = "eligible"
 	TenantSpStatePending   TenantSpState = "pending"
@@ -158,18 +168,43 @@ type TenantsSPs struct {
 	SPAttributes      []SPAttribute `json:"sp_attributes" gorm:"foreignKey:TenantID,SPID;references:TenantID,SPID"`
 }
 
+// JSON type for the TenantSpsMeta field
+type TenantsSpsMeta struct {
+	Signature         string `json:"signature"`
+	SignedContractCID string `json:"signed_contract_cid"`
+}
+
 func (tenantSPs *TenantsSPs) BeforeUpdate(tx *gorm.DB) error {
+
+	println("BeforeUpdate")
+	println(tenantSPs.TenantSpState)
 
 	var currentValue TenantsSPs
 	tx.Model(&TenantsSPs{SPID: ID(tenantSPs.SPID), TenantID: tenantSPs.TenantID}).Find(&currentValue)
 
-	if currentValue.TenantSpState == TenantSpStateActive && tenantSPs.TenantSpState == TenantSpStateSuspended {
+	// Valid state transitions:
+	// eligilble -> pending
+	if currentValue.TenantSpState == TenantSpStateEligible && tenantSPs.TenantSpState == TenantSpStatePending {
 		return nil
 	}
+	// eligible -> active (auto-approve)
+	if currentValue.TenantSpState == TenantSpStateEligible && tenantSPs.TenantSpState == TenantSpStateActive {
+		return nil
+	}
+	// pending -> active
 	if currentValue.TenantSpState == TenantSpStatePending && tenantSPs.TenantSpState == TenantSpStateActive {
 		return nil
 	}
+	// active -> suspended
+	if currentValue.TenantSpState == TenantSpStateActive && tenantSPs.TenantSpState == TenantSpStateSuspended {
+		return nil
+	}
+	// suspended -> active
 	if currentValue.TenantSpState == TenantSpStateSuspended && tenantSPs.TenantSpState == TenantSpStateActive {
+		return nil
+	}
+	// *(any) -> disabled
+	if tenantSPs.TenantSpState == TenantSpStateDisabled {
 		return nil
 	}
 

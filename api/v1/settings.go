@@ -8,12 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type Settings struct {
-	SpAutoApprove  bool `json:"sp_auto_approve"`
-	SpAutoSuspend  bool `json:"sp_auto_suspend"`
-	MaxInFlightGiB uint `json:"max_in_flight_gib"`
-}
-
 func (a *apiV1) ConfigureSettingsRouter(e *echo.Group) {
 	g := e.Group("/settings")
 	g.POST("", a.handleSetSettings)
@@ -25,7 +19,7 @@ func (a *apiV1) ConfigureSettingsRouter(e *echo.Group) {
 //	@Summary		Get the currently active Tenant Settings
 //	@Security		apiKey
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Settings}
+//	@Success		200	{object}	ResponseEnvelope{response=db.TenantSettings}
 //	@Router			/settings [get]
 func (a *apiV1) handleGetSettings(c echo.Context) error {
 	var tenant db.Tenant
@@ -45,10 +39,10 @@ func (a *apiV1) handleGetSettings(c echo.Context) error {
 //	@Security		apiKey
 //	@Param			settings body Settings true "New settings to apply"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Settings}
+//	@Success		200	{object}	ResponseEnvelope{response=db.TenantSettings}
 //	@Router			/settings [post]
 func (a *apiV1) handleSetSettings(c echo.Context) error {
-	var settings Settings
+	var settings db.TenantSettings
 
 	err := json.NewDecoder(c.Request().Body).Decode(&settings)
 

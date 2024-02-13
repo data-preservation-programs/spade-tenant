@@ -84,6 +84,7 @@ func CreateErrorResponseEnvelope(c echo.Context, errorCode int, err string) Resp
 		ResponseCode:       errorCode,
 		ErrCode:            errorCode,
 		ErrSlug:            GetSlugFromErrorCode(errorCode),
+		ErrLines:           []string{err},
 		Response:           nil,
 	}
 }
