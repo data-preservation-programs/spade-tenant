@@ -176,9 +176,6 @@ type TenantsSpsMeta struct {
 
 func (tenantSPs *TenantsSPs) BeforeUpdate(tx *gorm.DB) error {
 
-	println("BeforeUpdate")
-	println(tenantSPs.TenantSpState)
-
 	var currentValue TenantsSPs
 	tx.Model(&TenantsSPs{SPID: ID(tenantSPs.SPID), TenantID: tenantSPs.TenantID}).Find(&currentValue)
 
@@ -244,5 +241,3 @@ type Label struct {
 	LabelText    string       `json:"label" gorm:"uniqueIndex:idx_tenant_id_label_text;not null"`
 	LabelOptions pgtype.JSONB `gorm:"type:jsonb;default:'{}';not null"`
 }
-
-// Global unique on labelID itself?
