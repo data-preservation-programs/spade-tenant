@@ -27,7 +27,7 @@ type TenantBrokerPayload struct {
 	TenantSettings           db.TenantSettings `json:"tenant_settings"`
 	TenantAddresses          []db.Address      `json:"tenant_addresses"`
 	CandidateSPs             []CandidateSP     `json:"candidate_sps"`
-	Collections              []db.Collection
+	Collections              []db.Collection   `json:"collections"`
 }
 
 type CandidateSP struct {
