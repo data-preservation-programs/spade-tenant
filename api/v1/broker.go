@@ -38,7 +38,14 @@ type CandidateSP struct {
 	ProviderMetadata        pgtype.JSONB      `json:"provider_metadata"` // TODO: struct for what we expect here (i.e, max_bytes_in_flight)
 }
 
-// /broker/tenant-state [get]
+// handleGetTenantsState
+// *Not included in Swagger docs
+//
+//	@Summary		List of all tenants in a JSON object to be consumed by the broker.
+//	@Security Boker API Key
+//	@Produce		json
+//	@Success		200	{object}	ResponseEnvelope{response=BrokerResponse}
+//	Route:		/broker/tenant-state [get]
 func (a *apiV1) handleGetTenantsState(c echo.Context) error {
 	var br BrokerResponse
 
@@ -101,7 +108,14 @@ type SubscriptionEventPayload struct {
 	Authorization      string `json:"authorization"`
 }
 
-// /broker/subscription-event [post]
+// handlePostBrokerSubscriptionEvent
+// *Not included in Swagger docs
+//
+//	@Summary		Process subscription events from the Broker, updating tenant state
+//	@Security Broker API Key
+//	@Param 		  broker_subscription_events body BrokerSubscriptionEvents true "broker subscription events"
+//	@Produce		json
+//	Route:		200	{object}	ResponseEnvelope{response=BrokerSubscriptionEvents}
 func (a *apiV1) handlePostBrokerSubscriptionEvent(c echo.Context) error {
 	var subscriptionEvents BrokerSubscriptionEvents
 

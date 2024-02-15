@@ -98,15 +98,6 @@ definitions:
       response_timestamp:
         type: string
     type: object
-  api.Settings:
-    properties:
-      max_in_flight_gib:
-        type: integer
-      sp_auto_approve:
-        type: boolean
-      sp_auto_suspend:
-        type: boolean
-    type: object
   api.StorageContract:
     properties:
       content:
@@ -141,6 +132,17 @@ definitions:
           type: integer
         type: array
     type: object
+  api.SubscriptionEventPayload:
+    properties:
+      authorization:
+        type: string
+      sp_id:
+        type: integer
+      storage_contract_cid:
+        type: string
+      tenant_id:
+        type: integer
+    type: object
   api.TenantBrokerPayload:
     properties:
       candidate_sps:
@@ -158,9 +160,7 @@ definitions:
       tenant_id:
         type: integer
       tenant_settings:
-        allOf:
-        - $ref: '#/definitions/pgtype.JSONB'
-        description: 'TODO: struct for what we expect here (i.e, max_deal_length)'
+        $ref: '#/definitions/db.TenantSettings'
       tenant_storage_contract_cid:
         type: string
     type: object
@@ -226,12 +226,24 @@ definitions:
     type: object
   db.ComparisonOperator:
     enum:
+    - '>'
+    - <
+    - =
+    - '>='
+    - <=
     - in
     - nin
+    - '!='
     type: string
     x-enum-varnames:
+    - GreaterThan
+    - LessThan
+    - EqualTo
+    - GreaterThanOrEqual
+    - LessThanOrEqual
     - IncludedIn
     - ExcludedFrom
+    - NotEqualTo
   db.ReplicationConstraint:
     properties:
       collection_id:
@@ -248,6 +260,15 @@ definitions:
         type: integer
       updatedAt:
         type: string
+    type: object
+  db.TenantSettings:
+    properties:
+      max_in_flight_gib:
+        type: integer
+      sp_auto_approve:
+        type: boolean
+      sp_auto_suspend:
+        type: boolean
     type: object
   db.TenantSpState:
     enum:
@@ -399,44 +420,6 @@ paths:
       security:
       - apiKey: []
       summary: Update addresses associated with a tenant
-  /broker/subscriptionEvent:
-    post:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  items:
-                    $ref: '#/definitions/api.LabelResponse'
-                  type: array
-              type: object
-      security:
-      - apiKey: []
-      summary: Allows the broker to notify the tenant service.
-  /broker/tenant-state:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/api.ResponseEnvelope'
-            - properties:
-                response:
-                  items:
-                    $ref: '#/definitions/api.TenantBrokerPayload'
-                  type: array
-              type: object
-      security:
-      - apiKey: []
-      summary: List of all tenants in a JSON object to be consumed by the broker.
   /collections:
     get:
       produces:
@@ -635,7 +618,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.Settings'
+                  $ref: '#/definitions/db.TenantSettings'
               type: object
       security:
       - apiKey: []
@@ -647,7 +630,7 @@ paths:
         name: settings
         required: true
         schema:
-          $ref: '#/definitions/api.Settings'
+          $ref: '#/definitions/db.TenantSettings'
       produces:
       - application/json
       responses:
@@ -658,7 +641,7 @@ paths:
             - $ref: '#/definitions/api.ResponseEnvelope'
             - properties:
                 response:
-                  $ref: '#/definitions/api.Settings'
+                  $ref: '#/definitions/db.TenantSettings'
               type: object
       security:
       - apiKey: []

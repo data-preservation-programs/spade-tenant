@@ -37,7 +37,7 @@ func (a *apiV1) handleGetSettings(c echo.Context) error {
 //
 //	@Summary		Apply new Tenant Settings
 //	@Security		apiKey
-//	@Param			settings body Settings true "New settings to apply"
+//	@Param			settings body db.TenantSettings true "New settings to apply"
 //	@Produce		json
 //	@Success		200	{object}	ResponseEnvelope{response=db.TenantSettings}
 //	@Router			/settings [post]

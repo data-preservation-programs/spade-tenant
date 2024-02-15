@@ -197,78 +197,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/broker/subscriptionEvent": {
-            "post": {
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "Allows the broker to notify the tenant service.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.LabelResponse"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/broker/tenant-state": {
-            "get": {
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "summary": "List of all tenants in a JSON object to be consumed by the broker.",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/api.ResponseEnvelope"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "response": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/definitions/api.TenantBrokerPayload"
-                                            }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/collections": {
             "get": {
                 "security": [
@@ -622,7 +550,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.Settings"
+                                            "$ref": "#/definitions/db.TenantSettings"
                                         }
                                     }
                                 }
@@ -648,7 +576,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/api.Settings"
+                            "$ref": "#/definitions/db.TenantSettings"
                         }
                     }
                 ],
@@ -664,7 +592,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "response": {
-                                            "$ref": "#/definitions/api.Settings"
+                                            "$ref": "#/definitions/db.TenantSettings"
                                         }
                                     }
                                 }
@@ -1171,20 +1099,6 @@ const docTemplate = `{
                 }
             }
         },
-        "api.Settings": {
-            "type": "object",
-            "properties": {
-                "max_in_flight_gib": {
-                    "type": "integer"
-                },
-                "sp_auto_approve": {
-                    "type": "boolean"
-                },
-                "sp_auto_suspend": {
-                    "type": "boolean"
-                }
-            }
-        },
         "api.StorageContract": {
             "type": "object",
             "properties": {
@@ -1239,6 +1153,23 @@ const docTemplate = `{
                 }
             }
         },
+        "api.SubscriptionEventPayload": {
+            "type": "object",
+            "properties": {
+                "authorization": {
+                    "type": "string"
+                },
+                "sp_id": {
+                    "type": "integer"
+                },
+                "storage_contract_cid": {
+                    "type": "string"
+                },
+                "tenant_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "api.TenantBrokerPayload": {
             "type": "object",
             "properties": {
@@ -1264,12 +1195,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "tenant_settings": {
-                    "description": "TODO: struct for what we expect here (i.e, max_deal_length)",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/pgtype.JSONB"
-                        }
-                    ]
+                    "$ref": "#/definitions/db.TenantSettings"
                 },
                 "tenant_storage_contract_cid": {
                     "type": "string"
@@ -1371,12 +1297,24 @@ const docTemplate = `{
         "db.ComparisonOperator": {
             "type": "string",
             "enum": [
+                "\u003e",
+                "\u003c",
+                "=",
+                "\u003e=",
+                "\u003c=",
                 "in",
-                "nin"
+                "nin",
+                "!="
             ],
             "x-enum-varnames": [
+                "GreaterThan",
+                "LessThan",
+                "EqualTo",
+                "GreaterThanOrEqual",
+                "LessThanOrEqual",
                 "IncludedIn",
-                "ExcludedFrom"
+                "ExcludedFrom",
+                "NotEqualTo"
             ]
         },
         "db.ReplicationConstraint": {
@@ -1402,6 +1340,20 @@ const docTemplate = `{
                 },
                 "updatedAt": {
                     "type": "string"
+                }
+            }
+        },
+        "db.TenantSettings": {
+            "type": "object",
+            "properties": {
+                "max_in_flight_gib": {
+                    "type": "integer"
+                },
+                "sp_auto_approve": {
+                    "type": "boolean"
+                },
+                "sp_auto_suspend": {
+                    "type": "boolean"
                 }
             }
         },
