@@ -31,11 +31,11 @@ type TenantBrokerPayload struct {
 }
 
 type CandidateSP struct {
-	SPID                    db.ID             `json:"sp_id"`
-	ProviderTenantState     string            `json:"provider_tenant_state"`
-	ProviderTenantStateInfo string            `json:"provider_tenant_state_info"`
-	AttributeValues         map[string]string `json:"attribute_values"`
-	ProviderMetadata        pgtype.JSONB      `json:"provider_metadata"` // TODO: struct for what we expect here (i.e, max_bytes_in_flight)
+	SPID                    db.ID        `json:"sp_id"`
+	ProviderTenantState     string       `json:"provider_tenant_state"`
+	ProviderTenantStateInfo string       `json:"provider_tenant_state_info"`
+	AttributeValues         map[int]int  `json:"attribute_values"`
+	ProviderMetadata        pgtype.JSONB `json:"provider_metadata"` // TODO: struct for what we expect here (i.e, max_bytes_in_flight)
 }
 
 // handleGetTenantsState
@@ -77,12 +77,13 @@ func (a *apiV1) handleGetTenantsState(c echo.Context) error {
 				ProviderTenantState:     string(sp.TenantSpState),
 				ProviderMetadata:        sp.TenantSpsMeta,
 				ProviderTenantStateInfo: sp.TenantSpStateInfo,
-				AttributeValues:         make(map[string]string),
+				AttributeValues:         make(map[int]int),
 			}
 
 			// Construct the attribute values for this SP
 			for _, attribute := range sp.SPAttributes {
-				candidateSP.AttributeValues[strconv.Itoa(int(attribute.AttributeLabelID))] = strconv.Itoa(int(attribute.AttributeValueID))
+				// candidateSP.AttributeValues[strconv.Itoa(int(attribute.AttributeLabelID))] = strconv.Itoa(int(attribute.AttributeValueID))
+				candidateSP.AttributeValues[int(attribute.AttributeLabelID)] = int(attribute.AttributeValueID)
 			}
 
 			payload.CandidateSPs = append(payload.CandidateSPs, candidateSP)
