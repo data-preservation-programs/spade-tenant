@@ -13,7 +13,7 @@ import (
 type Addresses []db.Address
 type Address db.Address
 
-type AddressResponse struct {
+type AddressMutable struct {
 	AddressRobust    string `json:"address_robust"`
 	AddressActorID   uint   `json:"actor_id"`
 	AddressIsSigning bool   `json:"is_signing"`
@@ -75,10 +75,10 @@ func (a *apiV1) handleUpdateAddresses(c echo.Context) error {
 //	@Security apiKey
 //	@Param			addresses body AddressMutable true "New addresses to add"
 //	@Produce		json
-//	@Success		200	{object}	ResponseEnvelope{response=Addresses}
+//	@Success		200	{object}	ResponseEnvelope{response=AddressMutable}
 //	@Router			/addresses [post]
 func (a *apiV1) handleCreateAddresses(c echo.Context) error {
-	var addresses Addresses
+	var addresses []AddressMutable
 	err := json.NewDecoder(c.Request().Body).Decode(&addresses)
 
 	if err != nil {
@@ -88,16 +88,19 @@ func (a *apiV1) handleCreateAddresses(c echo.Context) error {
 	var response []string
 	err = a.db.Transaction(func(tx *gorm.DB) error {
 		for _, address := range addresses {
-			address.TenantID = db.ID(GetTenantContext(c).TenantID)
+			var addrInput db.Address
+			addrInput.TenantID = db.ID(GetTenantContext(c).TenantID)
+			addrInput.AddressActorID = &address.AddressActorID
+			addrInput.AddressRobust = &address.AddressRobust
 
-			res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&address)
+			res := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&addrInput)
 
 			if res.Error != nil {
 				return err
 			}
 
 			if res.RowsAffected > 0 {
-				response = append(response, *address.AddressRobust)
+				response = append(response, address.AddressRobust)
 			}
 		}
 		return nil
@@ -157,7 +160,7 @@ func (a *apiV1) handleDeleteAddresses(c echo.Context) error {
 //	@Success		200	{object}	ResponseEnvelope{response=Addresses}
 //	@Router			/addresses [get]
 func (a *apiV1) handleGetAddresses(c echo.Context) error {
-	var addresses []AddressResponse
+	var addresses []AddressMutable
 	res := a.db.Model(Address{TenantID: db.ID(GetTenantContext(c).TenantID)}).Find(&addresses)
 
 	if res.Error != nil {

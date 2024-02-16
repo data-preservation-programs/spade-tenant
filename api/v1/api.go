@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/data-preservation-programs/spade-tenant/config"
 	"github.com/data-preservation-programs/spade-tenant/utils"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -11,7 +12,8 @@ import (
 )
 
 type apiV1 struct {
-	db *gorm.DB
+	db  *gorm.DB
+	cfg *config.TenantServiceConfig
 }
 
 // @title Spade Tenant API
@@ -33,24 +35,29 @@ type apiV1 struct {
 // @in header
 // @name Authorization
 func (a *apiV1) RegisterRoutes(e *echo.Echo) {
-	apiGroup := e.Group("/api/v1")
+	tenantApiGroup := e.Group("/api/v1")
+	brokerApiGroup := e.Group("/api/v1/broker")
 	e.Use(middleware.RequestID())
-	e.Use(AuthMiddleware)
 
-	ConfigureStatusRouter(apiGroup)
-	a.ConfigureAddressesRouter(apiGroup)
-	a.ConfigureStorageContractRouter(apiGroup)
-	a.ConfigureSPRouter(apiGroup)
-	a.ConfigureSettingsRouter(apiGroup)
-	a.ConfigureSpEligibilityCriteriaRouter(apiGroup)
-	a.ConfigureSpConstraintLabelsRouter(apiGroup)
-	a.ConfigureCollectionRouter(apiGroup)
-	a.ConfigureReplicationConstraintsRouter(apiGroup)
-	a.ConfigureBrokerRouter(apiGroup)
+	// Separate group, as it needs separate auth middleware
+	brokerApiGroup.Use(BrokerAuthMiddleware(a.cfg.BROKER_ACCESS_TOKEN))
+	a.ConfigureBrokerRouter(brokerApiGroup)
+
+	tenantApiGroup.Use(AuthMiddleware)
+	ConfigureStatusRouter(tenantApiGroup)
+	a.ConfigureAddressesRouter(tenantApiGroup)
+	a.ConfigureStorageContractRouter(tenantApiGroup)
+	a.ConfigureSPRouter(tenantApiGroup)
+	a.ConfigureSettingsRouter(tenantApiGroup)
+	a.ConfigureSpEligibilityCriteriaRouter(tenantApiGroup)
+	a.ConfigureSpConstraintLabelsRouter(tenantApiGroup)
+	a.ConfigureCollectionRouter(tenantApiGroup)
+	a.ConfigureReplicationConstraintsRouter(tenantApiGroup)
+
 }
 
-func NewApiV1(db *gorm.DB) *apiV1 {
-	return &apiV1{db: db}
+func NewApiV1(db *gorm.DB, cfg *config.TenantServiceConfig) *apiV1 {
+	return &apiV1{db: db, cfg: cfg}
 }
 
 func GetTenantContext(c echo.Context) AuthContext {
@@ -77,6 +84,7 @@ func CreateErrorResponseEnvelope(c echo.Context, errorCode int, err string) Resp
 		ResponseCode:       errorCode,
 		ErrCode:            errorCode,
 		ErrSlug:            GetSlugFromErrorCode(errorCode),
+		ErrLines:           []string{err}, // TODO: support multiple error lines instead of simply making everying a [1] array
 		Response:           nil,
 	}
 }

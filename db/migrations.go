@@ -19,7 +19,7 @@ func BaselineSchema(tx *gorm.DB) error {
 	}
 
 	// Full table set-up
-	err = tx.AutoMigrate(&Tenant{}, &Address{}, &TenantSPEligibilityClauses{}, &Collection{}, &Label{}, &SP{}, &TenantsSPs{}, &ReplicationConstraint{})
+	err = tx.AutoMigrate(&Tenant{}, &Address{}, &TenantSPEligibilityClauses{}, &Collection{}, &Label{}, &SP{}, &TenantsSPs{}, &ReplicationConstraint{}, &SPAttribute{})
 	if err != nil {
 		log.Fatalf("error applying initial schema: %s", err)
 	}
@@ -43,13 +43,14 @@ func baselineSchemaManualMigrations(tx *gorm.DB) error {
 }
 
 var Migrations []*gormigrate.Migration = []*gormigrate.Migration{
-	// {
-	// 	ID: "2023060800", // Set to todays date, starting with 00 for first migration
-	// 	Migrate: func(tx *gorm.DB) error {
-	// 		guardMigration("2023060800")
-	// 		return tx.Migrator().AddColumn(&ReplicationConstraint{}, "RC")
-	// 	},
-	// },
+	{
+		ID: "2024020900", // Set to todays date, starting with 00 for first migration
+		Migrate: func(tx *gorm.DB) error {
+			guardMigration("2024020900")
+
+			return tx.AutoMigrate(&SPAttribute{}, &TenantsSPs{})
+		},
+	},
 }
 
 // Ensure migrations are only run when env variable is specified
