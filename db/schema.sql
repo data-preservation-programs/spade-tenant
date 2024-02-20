@@ -37,9 +37,9 @@ CREATE TABLE IF NOT EXISTS "tenant_sp_eligibility_clauses" (
     "tenant_id" integer,
     "clause_attribute" text,
     "clause_operator" comparison_operator NOT NULL,
-    "clause_value" text NOT NULL,
-    PRIMARY KEY ("tenant_id", "clause_attribute"),
-    CONSTRAINT "fk_tenants_tenant_sp_eligibility" FOREIGN KEY ("tenant_id") REFERENCES "tenants" ("tenant_id")
+    "clause_value" jsonb NOT NULL,
+    PRIMARY KEY ("tenant_id","clause_attribute"),
+    CONSTRAINT "fk_tenants_tenant_sp_eligibility" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("tenant_id")
 );
 
 CREATE INDEX IF NOT EXISTS "idx_tenant_sp_eligibility_clauses_deleted_at" ON "tenant_sp_eligibility_clauses" ("deleted_at");

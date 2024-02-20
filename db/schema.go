@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -74,14 +75,14 @@ type Address struct {
 type ComparisonOperator string
 
 const (
-	GreaterThan        ComparisonOperator = ">"
-	LessThan           ComparisonOperator = "<"
-	EqualTo            ComparisonOperator = "="
-	GreaterThanOrEqual ComparisonOperator = ">="
-	LessThanOrEqual    ComparisonOperator = "<="
-	IncludedIn         ComparisonOperator = "in"
-	ExcludedFrom       ComparisonOperator = "nin"
-	NotEqualTo         ComparisonOperator = "!="
+	// EqualTo            ComparisonOperator = "="
+	// GreaterThan        ComparisonOperator = ">"
+	// GreaterThanOrEqual ComparisonOperator = ">="
+	// LessThan           ComparisonOperator = "<"
+	// LessThanOrEqual    ComparisonOperator = "<="
+	// NotEqualTo         ComparisonOperator = "!="
+	ExcludedFrom ComparisonOperator = "nin"
+	IncludedIn   ComparisonOperator = "in"
 )
 
 func (s *ComparisonOperator) Scan(value interface{}) error {
@@ -106,8 +107,30 @@ type TenantSPEligibilityClauses struct {
 	TenantID        ID                 `json:"tenant_id" gorm:"primaryKey"`
 	ClauseAttribute string             `json:"attribute" gorm:"primaryKey"`
 	ClauseOperator  ComparisonOperator `json:"operator" gorm:"type:comparison_operator;not null"`
-	ClauseValue     string             `json:"value" gorm:"not null"`
+	ClauseValue     StringSlice        `json:"value" gorm:"type:JSON;not null"`
 }
+
+// Gorm does not support array types. Article for reference https://raaaaaaaay86.medium.com/how-to-store-plain-string-slice-by-using-gorm-f855602013e6
+type StringSlice []string
+
+func (ss StringSlice) Value() (driver.Value, error) {
+	return json.Marshal(ss)
+}
+
+func (ss *StringSlice) Scan(src any) error {
+	if src == nil {
+		*ss = nil
+		return nil
+	}
+
+	source, ok := src.([]byte)
+	if !ok {
+		return errors.New("invalid string slice entry in the database")
+	}
+
+	return json.Unmarshal(source, ss)
+}
+
 type Collection struct {
 	ModelBase
 	CollectionID          uuid.UUID    `json:"collection_id" gorm:"type:uuid;primaryKey"`
@@ -202,6 +225,10 @@ func (tenantSPs *TenantsSPs) BeforeUpdate(tx *gorm.DB) error {
 	}
 	// *(any) -> disabled
 	if tenantSPs.TenantSpState == TenantSpStateDisabled {
+		return nil
+	}
+	// disabled -> eligible. This is not likely to happen but is possible.
+	if tenantSPs.TenantSpState == TenantSpStateEligible && currentValue.TenantSpState == TenantSpStateDisabled {
 		return nil
 	}
 
