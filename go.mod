@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/biter777/countries v1.7.2 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect

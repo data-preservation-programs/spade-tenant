@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/data-preservation-programs/spade-tenant/db"
+	"github.com/data-preservation-programs/spade-tenant/utils"
 	"github.com/labstack/echo/v4"
 	"gorm.io/gorm"
 )
@@ -43,10 +44,12 @@ func (a *apiV1) handleSetSpEligibilityCriteria(c echo.Context) error {
 
 	err = a.db.Transaction(func(tx *gorm.DB) error {
 		for _, eligibilityClause := range eligibilityCriteria {
-			eligibilityClause.TenantID = db.ID(GetTenantContext(c).TenantID)
-			res := tx.Save(&eligibilityClause)
-			if res.Error != nil {
-				return res.Error
+			if utils.IsValidClauseAttribute(eligibilityClause.ClauseAttribute) {
+				eligibilityClause.TenantID = db.ID(GetTenantContext(c).TenantID)
+				res := tx.Save(&eligibilityClause)
+				if res.Error != nil {
+					return res.Error
+				}
 			}
 		}
 
