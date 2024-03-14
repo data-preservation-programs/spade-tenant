@@ -30,7 +30,7 @@ func BaselineSchema(tx *gorm.DB) error {
 // Baseline migrations that do not occur as part of `AutoMigrate`
 func baselineSchemaManualMigrations(tx *gorm.DB) error {
 	// Enums
-	err := tx.Exec("CREATE TYPE tenant_sp_state AS ENUM ('eligible', 'pending', 'active', 'suspended');").Error
+	err := tx.Exec("CREATE TYPE tenant_sp_state AS ENUM ('eligible', 'pending', 'active', 'suspended', 'disabled');").Error
 	if err != nil {
 		return fmt.Errorf("error creating enum: %s", err)
 	}
